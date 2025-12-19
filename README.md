@@ -92,3 +92,17 @@ Menggunakan pola **Dashboard Layout** (Sidebar + Header + Content).
     </main>
   </div>
 </div>
+```
+
+---
+
+## 5. Akun Uji Coba (Demo Accounts)
+
+Berikut adalah daftar kredensial yang dapat digunakan untuk mencoba berbagai peran dalam sistem:
+
+| Peran | Email / ID | Password | Keterangan |
+| :--- | :--- | :--- | :--- |
+| **Administrator** | `admin@school.id` | `admin123` | Akses penuh ke manajemen data master. |
+| **Guru** | `guru@school.id` | `guru123` | Akses input nilai dan absensi. |
+| **Siswa** | `siswa123` | `siswa123` | Gunakan `siswa123` atau angka NIS apapun (contoh: `2023001`). |
+| **Orang Tua** | `OTsiswa123` | `parent123` | Format: `OT` + NIS Anak (contoh: `OT2023001`). |
