@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { sendWhatsApp } from '../../utils/fonnte';
+import { useFeedback } from '../../context/FeedbackContext';
 import {
     Plus,
     Search,
@@ -47,6 +48,7 @@ export default function Teachers() {
     const [formData, setFormData] = useState({ name: '', nip: '', specialty: 'Matematika', email: '', status: 'Aktif', wa_number: '' });
     const [filterSpecialty, setFilterSpecialty] = useState('Semua');
     const [isLoading, setIsLoading] = useState(true);
+    const { showToast, showConfirm } = useFeedback();
     const [dbSpecialties, setDbSpecialties] = useState(['Matematika', 'Bahasa Indonesia', 'Fisika', 'Biologi', 'Informatika', 'Kimia', 'Ekonomi', 'Sejarah', 'Geografi', 'Sosiologi', 'Bahasa Inggris', 'PJOK', 'PAI', 'Seni Budaya', 'PKn']);
 
     useEffect(() => {
@@ -96,12 +98,19 @@ export default function Teachers() {
     };
 
     const handleDelete = async (id) => {
-        if (window.confirm('Apakah Anda yakin ingin menghapus data guru ini?')) {
+        const confirmed = await showConfirm(
+            'Hapus Data Guru',
+            'Apakah Anda yakin ingin menghapus data guru ini? Tindakan ini tidak dapat dibatalkan.',
+            'danger'
+        );
+
+        if (confirmed) {
             const { error } = await supabase.from('teachers').delete().eq('id', id);
             if (!error) {
+                showToast('Data guru berhasil dihapus', 'success');
                 setTeachers(teachers.filter(t => t.id !== id));
             } else {
-                alert('Gagal menghapus: ' + error.message);
+                showToast('Gagal menghapus: ' + error.message, 'error');
             }
         }
     };
@@ -126,8 +135,9 @@ export default function Teachers() {
                 .eq('id', currentTeacher.id);
 
             if (error) {
-                alert('Gagal memperbarui guru: ' + error.message);
+                showToast('Gagal memperbarui guru: ' + error.message, 'error');
             } else {
+                showToast('Data guru berhasil diperbarui', 'success');
                 fetchTeachers();
                 setIsModalOpen(false);
             }
@@ -137,8 +147,9 @@ export default function Teachers() {
                 .insert([payload]);
 
             if (error) {
-                alert('Gagal menambah guru: ' + error.message);
+                showToast('Gagal menambah guru: ' + error.message, 'error');
             } else {
+                showToast('Data guru berhasil ditambah', 'success');
                 fetchTeachers();
                 setIsModalOpen(false);
             }
@@ -248,7 +259,7 @@ export default function Teachers() {
                                 <MessageCircle size={16} className="mr-3 text-green-500" />
                                 <span className="font-bold">{teacher.wa_number || '-'}</span>
                                 <button
-                                    onClick={() => sendWhatsApp(teacher.wa_number, `Halo Bapak/Ibu ${teacher.name}, berikut adalah pesan dari Admin...`)}
+                                    onClick={() => sendWhatsApp(teacher.wa_number, `Halo Bapak/Ibu ${teacher.name}, berikut adalah pesan dari Admin...`, showToast)}
                                     className="ml-auto text-xs font-black text-green-600 hover:bg-green-50 px-2 py-1 rounded-lg transition-colors border border-green-100"
                                 >
                                     Kirim WA

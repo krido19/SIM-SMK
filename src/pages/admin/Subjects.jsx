@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
+import { useFeedback } from '../../context/FeedbackContext';
 import {
     Plus,
     Search,
@@ -44,6 +45,7 @@ export default function Subjects() {
     const [currentSubject, setCurrentSubject] = useState(null);
     const [formData, setFormData] = useState({ name: '', kkm: 75, jurusan: 'Umum', color: 'blue', teachers: [] });
     const [isLoading, setIsLoading] = useState(true);
+    const { showToast, showConfirm } = useFeedback();
 
     const [dynamicJurusan, setDynamicJurusan] = useState(['Umum', 'DKV', 'PPLG', 'AKL', 'MPLB', 'NA']);
 
@@ -99,12 +101,19 @@ export default function Subjects() {
     };
 
     const handleDelete = async (id) => {
-        if (window.confirm('Apakah Anda yakin ingin menghapus mata pelajaran ini?')) {
+        const confirmed = await showConfirm(
+            'Hapus Mata Pelajaran',
+            'Apakah Anda yakin ingin menghapus mata pelajaran ini? Tindakan ini tidak dapat dibatalkan.',
+            'danger'
+        );
+
+        if (confirmed) {
             const { error } = await supabase.from('subjects').delete().eq('id', id);
             if (!error) {
+                showToast('Mata pelajaran berhasil dihapus', 'success');
                 setSubjects(subjects.filter(s => s.id !== id));
             } else {
-                alert('Gagal menghapus: ' + error.message);
+                showToast('Gagal menghapus: ' + error.message, 'error');
             }
         }
     };
@@ -128,8 +137,9 @@ export default function Subjects() {
                 .eq('id', currentSubject.id);
 
             if (error) {
-                alert('Gagal memperbarui mapel: ' + error.message);
+                showToast('Gagal memperbarui mapel: ' + error.message, 'error');
             } else {
+                showToast('Mata pelajaran berhasil diperbarui', 'success');
                 fetchSubjects();
                 setIsModalOpen(false);
             }
@@ -139,8 +149,9 @@ export default function Subjects() {
                 .insert([payload]);
 
             if (error) {
-                alert('Gagal menambah mapel: ' + error.message);
+                showToast('Gagal menambah mapel: ' + error.message, 'error');
             } else {
+                showToast('Mata pelajaran berhasil ditambah', 'success');
                 fetchSubjects();
                 setIsModalOpen(false);
             }

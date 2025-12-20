@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
+import { useFeedback } from '../../context/FeedbackContext';
 import {
     Plus,
     Bell,
@@ -45,6 +46,7 @@ export default function Announcements() {
     const [isLoading, setIsLoading] = useState(true);
     const [isUploading, setIsUploading] = useState(false);
     const [imagePreview, setImagePreview] = useState(null);
+    const { showToast, showConfirm } = useFeedback();
     const userRole = localStorage.getItem('userRole') || 'admin';
     const canManage = userRole === 'admin';
 
@@ -106,19 +108,26 @@ export default function Announcements() {
             setFormData(prev => ({ ...prev, image_url: publicUrl }));
         } catch (err) {
             console.error('Upload error:', err);
-            alert('Gagal mengupload gambar. Pastikan bucket "announcements" sudah dibuat di Supabase Storage.');
+            showToast('Gagal mengupload gambar. Pastikan bucket "announcements" sudah dibuat di Supabase Storage.', 'error');
         } finally {
             setIsUploading(false);
         }
     };
 
     const handleDelete = async (id) => {
-        if (window.confirm('Hapus pengumuman ini?')) {
+        const confirmed = await showConfirm(
+            'Hapus Pengumuman',
+            'Apakah Anda yakin ingin menghapus pengumuman ini? Tindakan ini tidak dapat dibatalkan.',
+            'danger'
+        );
+
+        if (confirmed) {
             const { error } = await supabase.from('announcements').delete().eq('id', id);
             if (!error) {
+                showToast('Pengumuman berhasil dihapus', 'success');
                 setAnnouncements(announcements.filter(a => a.id !== id));
             } else {
-                alert('Gagal menghapus: ' + error.message);
+                showToast('Gagal menghapus: ' + error.message, 'error');
             }
         }
     };
@@ -137,8 +146,9 @@ export default function Announcements() {
                 .eq('id', currentAnnouncement.id);
 
             if (error) {
-                alert('Gagal memperbarui: ' + error.message);
+                showToast('Gagal memperbarui: ' + error.message, 'error');
             } else {
+                showToast('Pengumuman berhasil diperbarui', 'success');
                 fetchAnnouncements();
                 setIsModalOpen(false);
             }
@@ -148,8 +158,9 @@ export default function Announcements() {
                 .insert([payload]);
 
             if (error) {
-                alert('Gagal menambah: ' + error.message);
+                showToast('Gagal menambah: ' + error.message, 'error');
             } else {
+                showToast('Pengumuman berhasil diterbitkan', 'success');
                 fetchAnnouncements();
                 setIsModalOpen(false);
             }

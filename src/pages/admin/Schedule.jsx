@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { supabase } from '../../lib/supabase';
+import { useFeedback } from '../../context/FeedbackContext';
 import {
     Plus,
     Calendar,
@@ -14,11 +15,16 @@ import {
     ChevronDown,
     Search,
     Info,
-    Layout
+    Layout,
+    Grid,
+    List as ListIcon,
+    AlertCircle,
+    CheckCircle2,
+    XCircle
 } from 'lucide-react';
 
 const Days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
-const WeekTypes = ['Setiap Minggu', 'Minggu Ganjil', 'Minggu Genap'];
+const WeekTypes = ['Minggu Ganjil', 'Minggu Genap'];
 
 // Configuration for sessions
 const SCHOOL_START_TIME = "07:15";
@@ -76,9 +82,13 @@ const Modal = ({ isOpen, onClose, title, children, maxWidth = "max-w-md" }) => {
 export default function Schedule() {
     const [schedules, setSchedules] = useState([]);
     const [selectedDay, setSelectedDay] = useState('Senin');
-    const [selectedWeek, setSelectedWeek] = useState('Setiap Minggu');
+    const [selectedWeek, setSelectedWeek] = useState('Minggu Ganjil');
     const [selectedClassId, setSelectedClassId] = useState('all');
+    const [viewMode, setViewMode] = useState('list'); // 'list' or 'matrix'
+    const [classSearch, setClassSearch] = useState('');
+    const [isClassDropdownOpen, setIsClassDropdownOpen] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const { showToast, showConfirm } = useFeedback();
     const [currentEntry, setCurrentEntry] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
 
@@ -91,7 +101,7 @@ export default function Schedule() {
         subject_name: '',
         teacher_name: '',
         day: 'Senin',
-        week_type: 'Setiap Minggu',
+        week_type: 'Minggu Ganjil',
         jam_ke: 1,
         start_time: '',
         end_time: ''
@@ -178,7 +188,7 @@ export default function Schedule() {
             subject_name: entry.subject_name,
             teacher_name: entry.teacher_name,
             day: entry.day,
-            week_type: entry.week_type || 'Setiap Minggu',
+            week_type: entry.week_type || 'Minggu Ganjil',
             jam_ke: entry.jam_ke || 1,
             start_time: entry.start_time,
             end_time: entry.end_time
@@ -186,41 +196,98 @@ export default function Schedule() {
         setIsModalOpen(true);
     };
 
-    const handleDelete = async (id) => {
-        if (window.confirm('Hapus jadwal ini?')) {
-            const { error } = await supabase.from('schedules').delete().eq('id', id);
-            if (!error) fetchData();
+    const handleDeleteClick = async (entry) => {
+        const confirmed = await showConfirm(
+            'Hapus Jadwal',
+            `Apakah Anda yakin ingin menghapus jadwal "${entry.subject_name}" untuk kelas ${entry.class_name}?`,
+            'danger'
+        );
+
+        if (confirmed) {
+            const { error } = await supabase.from('schedules').delete().eq('id', entry.id);
+            if (!error) {
+                showToast('Jadwal berhasil dihapus', 'success');
+                fetchData();
+            } else {
+                showToast('Gagal menghapus: ' + error.message, 'error');
+            }
         }
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setIsLoading(true);
 
-        const selectedClass = dbClasses.find(c => c.id === formData.class_id);
-        const payload = {
-            ...formData,
-            class_name: selectedClass?.name || ''
-        };
-
-        const { error } = currentEntry
-            ? await supabase.from('schedules').update(payload).eq('id', currentEntry.id)
-            : await supabase.from('schedules').insert([payload]);
-
-        if (error) {
-            alert('Gagal menyimpan: ' + error.message);
-        } else {
-            fetchData();
-            setIsModalOpen(false);
+        if (!formData.class_id) {
+            showToast('Silakan pilih kelas terlebih dahulu.', 'warning');
+            return;
         }
+
         setIsLoading(true);
-        setTimeout(() => setIsLoading(false), 500);
+
+        try {
+            // 1. Check for Class Conflict
+            const classConflict = schedules.find(s => {
+                if (currentEntry && s.id === currentEntry.id) return false;
+                const sameTime = s.day === formData.day && parseInt(s.jam_ke) === parseInt(formData.jam_ke);
+                const sameClass = s.class_id === formData.class_id;
+                if (sameTime && sameClass) {
+                    if (s.week_type === formData.week_type) return true;
+                }
+                return false;
+            });
+
+            if (classConflict) {
+                showToast('JADWAL SUDAH TERISI', 'error');
+                setIsLoading(false);
+                return;
+            }
+
+            // 2. Check for Teacher Conflict
+            const teacherConflict = schedules.find(s => {
+                if (currentEntry && s.id === currentEntry.id) return false;
+                const sameTime = s.day === formData.day && parseInt(s.jam_ke) === parseInt(formData.jam_ke);
+                const sameTeacher = s.teacher_name === formData.teacher_name;
+                if (sameTime && sameTeacher && formData.teacher_name) {
+                    if (s.week_type === formData.week_type) return true;
+                }
+                return false;
+            });
+
+            if (teacherConflict) {
+                showToast('JADWAL SUDAH TERISI', 'error');
+                setIsLoading(false);
+                return;
+            }
+
+            const selectedClass = dbClasses.find(c => c.id === formData.class_id);
+            const payload = {
+                ...formData,
+                class_name: selectedClass?.name || ''
+            };
+
+            const { error } = currentEntry
+                ? await supabase.from('schedules').update(payload).eq('id', currentEntry.id)
+                : await supabase.from('schedules').insert([payload]);
+
+            if (error) {
+                showToast('Gagal menyimpan: ' + error.message, 'error');
+            } else {
+                await fetchData();
+                showToast(currentEntry ? 'Jadwal berhasil diperbarui' : 'Jadwal berhasil diterbitkan', 'success');
+                setIsModalOpen(false);
+            }
+        } catch (err) {
+            console.error('Submit error:', err);
+            showToast('Terjadi kesalahan sistem: ' + err.message, 'error');
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     const filteredSchedules = schedules.filter(s => {
         const dayMatch = s.day === selectedDay;
         const classMatch = selectedClassId === 'all' || s.class_id === selectedClassId;
-        const weekMatch = s.week_type === 'Setiap Minggu' || s.week_type === selectedWeek || selectedWeek === 'Setiap Minggu';
+        const weekMatch = s.week_type === selectedWeek;
         return dayMatch && classMatch && weekMatch;
     });
 
@@ -229,8 +296,14 @@ export default function Schedule() {
         return sub?.teachers ? sub.teachers.split(', ') : [];
     };
 
+    const filteredClasses = dbClasses.filter(c =>
+        c.name.toLowerCase().includes(classSearch.toLowerCase())
+    );
+
+    const selectedClass = dbClasses.find(c => c.id === selectedClassId);
+
     return (
-        <div className="space-y-6 animate-in fade-in duration-500 max-w-7xl mx-auto">
+        <div className="space-y-6 animate-in fade-in duration-500 max-w-7xl mx-auto relative">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div>
                     <h1 className="text-3xl font-black text-gray-900 tracking-tight">Jadwal Pelajaran</h1>
@@ -246,25 +319,88 @@ export default function Schedule() {
                             <Clock size={20} />
                         </button>
                     )}
-                    <div className="relative inline-block">
-                        <select
-                            value={selectedClassId}
-                            onChange={(e) => setSelectedClassId(e.target.value)}
-                            className="bg-white border-2 border-gray-100 rounded-2xl px-10 py-3 font-bold text-gray-700 outline-none focus:border-blue-500 transition-all appearance-none pr-12 shadow-sm"
+
+                    {/* Searchable Class Filter */}
+                    <div className="relative">
+                        <div
+                            className="bg-white border-2 border-gray-100 rounded-2xl px-10 py-3 font-bold text-gray-700 shadow-sm cursor-pointer hover:border-blue-500 transition-all min-w-[200px]"
+                            onClick={() => setIsClassDropdownOpen(!isClassDropdownOpen)}
                         >
-                            <option value="all">Semua Kelas</option>
-                            {dbClasses.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                        </select>
+                            <span className="truncate block">
+                                {selectedClassId === 'all' ? 'Semua Kelas' : (selectedClass?.name || 'Pilih Kelas')}
+                            </span>
+                        </div>
                         <Filter className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
                         <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+
+                        {isClassDropdownOpen && (
+                            <div className="absolute top-full left-0 mt-2 w-full bg-white border-2 border-gray-100 rounded-2xl shadow-2xl z-[100] overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                                <div className="p-2 border-b border-gray-50">
+                                    <div className="relative">
+                                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={14} />
+                                        <input
+                                            type="text"
+                                            placeholder="Cari kelas..."
+                                            className="w-full pl-9 pr-4 py-2 bg-gray-50 rounded-xl text-sm font-bold outline-none focus:bg-white transition-all"
+                                            value={classSearch}
+                                            onChange={(e) => setClassSearch(e.target.value)}
+                                            onClick={(e) => e.stopPropagation()}
+                                            autoFocus
+                                        />
+                                    </div>
+                                </div>
+                                <div className="max-h-60 overflow-y-auto p-2 space-y-1">
+                                    <button
+                                        className={`w-full text-left px-4 py-2 rounded-xl text-sm font-bold transition-colors ${selectedClassId === 'all' ? 'bg-blue-600 text-white' : 'hover:bg-gray-50 text-gray-600'}`}
+                                        onClick={() => {
+                                            setSelectedClassId('all');
+                                            setIsClassDropdownOpen(false);
+                                        }}
+                                    >
+                                        Semua Kelas
+                                    </button>
+                                    {filteredClasses.map(c => (
+                                        <button
+                                            key={c.id}
+                                            className={`w-full text-left px-4 py-2 rounded-xl text-sm font-bold transition-colors ${selectedClassId === c.id ? 'bg-blue-600 text-white' : 'hover:bg-gray-50 text-gray-600'}`}
+                                            onClick={() => {
+                                                setSelectedClassId(c.id);
+                                                setIsClassDropdownOpen(false);
+                                            }}
+                                        >
+                                            {c.name}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </div>
+
+                    {/* View Mode Toggle */}
+                    <div className="flex bg-gray-100 p-1 rounded-2xl">
+                        <button
+                            onClick={() => setViewMode('list')}
+                            className={`p-2 px-4 rounded-xl transition-all flex items-center space-x-2 ${viewMode === 'list' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                        >
+                            <ListIcon size={18} />
+                            <span className="text-[10px] font-black uppercase tracking-widest hidden md:inline">Daftar</span>
+                        </button>
+                        <button
+                            onClick={() => setViewMode('matrix')}
+                            className={`p-2 px-4 rounded-xl transition-all flex items-center space-x-2 ${viewMode === 'matrix' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                        >
+                            <Grid size={18} />
+                            <span className="text-[10px] font-black uppercase tracking-widest hidden md:inline">Matrix</span>
+                        </button>
+                    </div>
+
                     {canManage && (
                         <button
                             onClick={handleOpenAdd}
                             className="flex items-center justify-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-2xl font-black transition-all shadow-xl shadow-blue-100 active:scale-95"
                         >
                             <Plus size={20} />
-                            <span className="uppercase tracking-widest text-xs">Tambah Jadwal</span>
+                            <span className="uppercase tracking-widest text-xs">Tambah</span>
                         </button>
                     )}
                 </div>
@@ -272,15 +408,15 @@ export default function Schedule() {
 
             {/* Week & Day Selectors Container */}
             <div className="space-y-4">
-                {/* Week Type Selector */}
+                {/* Week Selector */}
                 <div className="flex space-x-2 bg-gray-100 p-1 rounded-2xl w-fit">
                     {WeekTypes.map((week) => (
                         <button
                             key={week}
                             onClick={() => setSelectedWeek(week)}
                             className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${selectedWeek === week
-                                    ? 'bg-white text-blue-600 shadow-sm'
-                                    : 'text-gray-400 hover:text-gray-600'
+                                ? 'bg-white text-blue-600 shadow-sm'
+                                : 'text-gray-400 hover:text-gray-600'
                                 }`}
                         >
                             {week}
@@ -288,97 +424,195 @@ export default function Schedule() {
                     ))}
                 </div>
 
-                {/* Day Selector */}
-                <div className="flex bg-white p-1.5 rounded-[2rem] border-2 border-gray-50 shadow-sm overflow-x-auto no-scrollbar">
-                    {Days.map((day) => (
-                        <button
-                            key={day}
-                            onClick={() => setSelectedDay(day)}
-                            className={`flex-1 min-w-[120px] py-4 px-6 rounded-[1.5rem] font-black text-xs uppercase tracking-[0.2em] transition-all duration-300 ${selectedDay === day
-                                ? 'bg-blue-600 text-white shadow-lg shadow-blue-200 scale-[1.02] z-10'
-                                : 'text-gray-400 hover:bg-gray-50 hover:text-gray-600'
-                                }`}
-                        >
-                            {day}
-                        </button>
-                    ))}
-                </div>
+                {/* Day Selector - Only in List Mode */}
+                {viewMode === 'list' && (
+                    <div className="flex bg-white p-1.5 rounded-[2rem] border-2 border-gray-50 shadow-sm overflow-x-auto no-scrollbar">
+                        {Days.map((day) => (
+                            <button
+                                key={day}
+                                onClick={() => setSelectedDay(day)}
+                                className={`flex-1 min-w-[120px] py-4 px-6 rounded-[1.5rem] font-black text-xs uppercase tracking-[0.2em] transition-all duration-300 ${selectedDay === day
+                                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-200 scale-[1.02] z-10'
+                                    : 'text-gray-400 hover:bg-gray-50 hover:text-gray-600'
+                                    }`}
+                            >
+                                {day}
+                            </button>
+                        ))}
+                    </div>
+                )}
             </div>
 
-            {/* Time Slots Visualization / Schedule List */}
-            <div className="grid grid-cols-1 gap-4">
-                {timeSlots.map((slot) => {
-                    const entry = filteredSchedules.find(s => s.jam_ke === slot.id);
+            {/* Content View */}
+            {viewMode === 'list' ? (
+                <div className="grid grid-cols-1 gap-4">
+                    {timeSlots.map((slot) => {
+                        const entry = filteredSchedules.find(s => s.jam_ke === slot.id);
 
-                    if (slot.type === 'break') {
+                        if (slot.type === 'break') {
+                            return (
+                                <div key={slot.id} className="bg-gray-50/50 border-2 border-dashed border-gray-200 rounded-[2rem] p-4 flex items-center justify-center space-x-4 opacity-60 group hover:opacity-100 transition-opacity">
+                                    <Clock size={16} className="text-gray-400" />
+                                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">{slot.label}</span>
+                                    <span className="h-px w-20 bg-gray-200" />
+                                    <span className="text-[10px] font-black text-gray-500">{slot.start} - {slot.end}</span>
+                                </div>
+                            );
+                        }
+
                         return (
-                            <div key={slot.id} className="bg-gray-50/50 border-2 border-dashed border-gray-200 rounded-[2rem] p-4 flex items-center justify-center space-x-4 opacity-60 group hover:opacity-100 transition-opacity">
-                                <Clock size={16} className="text-gray-400" />
-                                <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">{slot.label}</span>
-                                <span className="h-px w-20 bg-gray-200" />
-                                <span className="text-[10px] font-black text-gray-500">{slot.start} - {slot.end}</span>
+                            <div key={slot.id} className={`group relative bg-white rounded-[2.5rem] p-6 border-2 transition-all duration-500 ${entry ? 'border-blue-50 shadow-md hover:shadow-2xl hover:border-blue-200' : 'border-gray-50 opacity-40 hover:opacity-100'}`}>
+                                <div className="flex flex-col md:flex-row items-center gap-6 md:gap-10">
+                                    {/* Session Badge */}
+                                    <div className={`flex flex-col items-center justify-center w-20 h-20 rounded-3xl border-2 transition-colors ${entry ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-100' : 'bg-gray-50 border-gray-100 text-gray-300'}`}>
+                                        <span className="text-[10px] font-black uppercase tracking-widest leading-none mb-1">Jam</span>
+                                        <span className="text-3xl font-black">{slot.id}</span>
+                                    </div>
+
+                                    {/* Time Info */}
+                                    <div className="text-center md:text-left min-w-[100px]">
+                                        <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Waktu</p>
+                                        <p className="text-lg font-black text-gray-900 leading-none">{slot.start} - {slot.end}</p>
+                                    </div>
+
+                                    {/* Content */}
+                                    <div className="flex-1 flex flex-col md:flex-row md:items-center justify-between gap-4 w-full">
+                                        {entry ? (
+                                            <>
+                                                <div className="space-y-2">
+                                                    <div className="flex items-center space-x-3">
+                                                        <span className="px-3 py-1 bg-blue-50 text-blue-600 text-[10px] font-black uppercase tracking-widest rounded-lg border border-blue-100">
+                                                            {entry.class_name}
+                                                        </span>
+                                                        {entry.week_type && (
+                                                            <span className="px-3 py-1 bg-amber-50 text-amber-600 text-[10px] font-black uppercase tracking-widest rounded-lg border border-amber-100">
+                                                                {entry.week_type}
+                                                            </span>
+                                                        )}
+                                                        <h3 className="text-xl font-black text-gray-900 tracking-tight uppercase group-hover:text-blue-600 transition-colors">{entry.subject_name}</h3>
+                                                    </div>
+                                                    <div className="flex items-center text-sm font-bold text-gray-500">
+                                                        <User size={16} className="mr-2 text-blue-400" />
+                                                        {entry.teacher_name || 'GURU BELUM DIPILIH'}
+                                                    </div>
+                                                </div>
+                                                {canManage && (
+                                                    <div className="flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0">
+                                                        <button onClick={() => handleOpenEdit(entry)} className="p-3 bg-blue-50 text-blue-600 rounded-2xl hover:bg-blue-600 hover:text-white transition-all">
+                                                            <Edit2 size={18} />
+                                                        </button>
+                                                        <button onClick={() => handleDeleteClick(entry)} className="p-3 bg-red-50 text-red-600 rounded-2xl hover:bg-red-600 hover:text-white transition-all">
+                                                            <Trash2 size={18} />
+                                                        </button>
+                                                    </div>
+                                                )}
+                                            </>
+                                        ) : (
+                                            <div className="flex-1 flex items-center justify-center md:justify-start text-xs font-bold text-gray-300 uppercase tracking-widest italic italic">
+                                                Kosong / Belum Ada Pelajaran
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
                             </div>
                         );
-                    }
-
-                    return (
-                        <div key={slot.id} className={`group relative bg-white rounded-[2.5rem] p-6 border-2 transition-all duration-500 ${entry ? 'border-blue-50 shadow-md hover:shadow-2xl hover:border-blue-200' : 'border-gray-50 opacity-40 hover:opacity-100'}`}>
-                            <div className="flex flex-col md:flex-row items-center gap-6 md:gap-10">
-                                {/* Session Badge */}
-                                <div className={`flex flex-col items-center justify-center w-20 h-20 rounded-3xl border-2 transition-colors ${entry ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-100' : 'bg-gray-50 border-gray-100 text-gray-300'}`}>
-                                    <span className="text-[10px] font-black uppercase tracking-widest leading-none mb-1">Jam</span>
-                                    <span className="text-3xl font-black">{slot.id}</span>
-                                </div>
-
-                                {/* Time Info */}
-                                <div className="text-center md:text-left min-w-[100px]">
-                                    <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Waktu</p>
-                                    <p className="text-lg font-black text-gray-900 leading-none">{slot.start} - {slot.end}</p>
-                                </div>
-
-                                {/* Content */}
-                                <div className="flex-1 flex flex-col md:flex-row md:items-center justify-between gap-4 w-full">
-                                    {entry ? (
-                                        <>
-                                            <div className="space-y-2">
-                                                <div className="flex items-center space-x-3">
-                                                    <span className="px-3 py-1 bg-blue-50 text-blue-600 text-[10px] font-black uppercase tracking-widest rounded-lg border border-blue-100">
-                                                        {entry.class_name}
-                                                    </span>
-                                                    {entry.week_type !== 'Setiap Minggu' && (
-                                                        <span className="px-3 py-1 bg-amber-50 text-amber-600 text-[10px] font-black uppercase tracking-widest rounded-lg border border-amber-100">
-                                                            {entry.week_type}
-                                                        </span>
-                                                    )}
-                                                    <h3 className="text-xl font-black text-gray-900 tracking-tight uppercase group-hover:text-blue-600 transition-colors">{entry.subject_name}</h3>
-                                                </div>
-                                                <div className="flex items-center text-sm font-bold text-gray-500">
-                                                    <User size={16} className="mr-2 text-blue-400" />
-                                                    {entry.teacher_name || 'GURU BELUM DIPILIH'}
-                                                </div>
-                                            </div>
-                                            {canManage && (
-                                                <div className="flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0">
-                                                    <button onClick={() => handleOpenEdit(entry)} className="p-3 bg-blue-50 text-blue-600 rounded-2xl hover:bg-blue-600 hover:text-white transition-all">
-                                                        <Edit2 size={18} />
-                                                    </button>
-                                                    <button onClick={() => handleDelete(entry.id)} className="p-3 bg-red-50 text-red-600 rounded-2xl hover:bg-red-600 hover:text-white transition-all">
-                                                        <Trash2 size={18} />
-                                                    </button>
-                                                </div>
-                                            )}
-                                        </>
-                                    ) : (
-                                        <div className="flex-1 flex items-center justify-center md:justify-start text-xs font-bold text-gray-300 uppercase tracking-widest italic italic">
-                                            Kosong / Belum Ada Pelajaran
+                    })}
+                </div>
+            ) : (
+                <div className="bg-white rounded-[2.5rem] border-2 border-gray-50 shadow-sm overflow-hidden overflow-x-auto">
+                    <table className="w-full border-collapse">
+                        <thead>
+                            <tr className="bg-gray-50/50">
+                                <th className="px-6 py-4 border-b border-r border-gray-100 text-[10px] font-black text-gray-400 uppercase tracking-widest text-left sticky left-0 bg-gray-50 z-20">Jam</th>
+                                {Days.map(day => (
+                                    <th key={day} className="px-6 py-4 border-b border-gray-100 text-[10px] font-black text-gray-900 uppercase tracking-widest min-w-[200px]">
+                                        {day}
+                                    </th>
+                                ))}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {timeSlots.map(slot => (
+                                <tr key={slot.id} className={slot.type === 'break' ? 'bg-gray-50/30' : 'hover:bg-blue-50/10 transition-colors'}>
+                                    <td className="px-6 py-4 border-r border-gray-50 sticky left-0 bg-white z-10">
+                                        <div className="flex flex-col items-center">
+                                            <span className="text-xl font-black text-gray-900 leading-none">{slot.id || '-'}</span>
+                                            <span className="text-[10px] font-bold text-gray-400 mt-1 uppercase tracking-tighter whitespace-nowrap">{slot.start}-{slot.end}</span>
                                         </div>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-                    );
-                })}
-            </div>
+                                    </td>
+                                    {Days.map(day => {
+                                        const entry = schedules.find(s =>
+                                            s.day === day &&
+                                            s.jam_ke === slot.id &&
+                                            s.week_type === selectedWeek &&
+                                            (selectedClassId === 'all' || s.class_id === selectedClassId)
+                                        );
+
+                                        if (slot.type === 'break') {
+                                            return (
+                                                <td key={day} className="px-6 py-4 text-center border-b border-gray-50">
+                                                    <span className="text-[9px] font-black text-gray-300 uppercase tracking-widest whitespace-nowrap">{slot.label}</span>
+                                                </td>
+                                            );
+                                        }
+
+                                        return (
+                                            <td key={day} className="p-2 border-b border-gray-50 group hover:border-blue-200 transition-all">
+                                                {entry ? (
+                                                    <div className="bg-blue-50 border border-blue-100 rounded-2xl p-3 h-full relative group/entry shadow-sm hover:shadow-md transition-all">
+                                                        <div className="flex flex-col space-y-1">
+                                                            <span className="text-[8px] font-black text-blue-400 uppercase tracking-tighter truncate">{entry.class_name}</span>
+                                                            <h4 className="text-xs font-black text-gray-900 uppercase truncate leading-tight group-hover/entry:text-blue-600 transition-colors">{entry.subject_name}</h4>
+                                                            <div className="flex items-center text-[9px] font-bold text-gray-500">
+                                                                <User size={10} className="mr-1 text-blue-300" />
+                                                                <span className="truncate">{entry.teacher_name || 'No Teacher'}</span>
+                                                            </div>
+                                                        </div>
+                                                        {canManage && (
+                                                            <div className="absolute top-1 right-1 opacity-0 group-hover/entry:opacity-100 transition-all flex scale-75 origin-top-right">
+                                                                <button onClick={() => handleOpenEdit(entry)} className="p-1.5 bg-white text-blue-600 rounded-lg hover:bg-blue-600 hover:text-white shadow-sm mr-1">
+                                                                    <Edit2 size={12} />
+                                                                </button>
+                                                                <button onClick={() => handleDeleteClick(entry)} className="p-1.5 bg-white text-red-600 rounded-lg hover:bg-red-600 hover:text-white shadow-sm">
+                                                                    <Trash2 size={12} />
+                                                                </button>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                ) : (
+                                                    canManage && (
+                                                        <button
+                                                            onClick={() => {
+                                                                setSelectedDay(day);
+                                                                updateTimesFromJam(slot.id);
+                                                                const initialSlot = timeSlots.find(s => s.id === slot.id);
+                                                                setFormData({
+                                                                    class_id: selectedClassId === 'all' ? (dbClasses[0]?.id || '') : selectedClassId,
+                                                                    subject_name: dbSubjects[0]?.name || '',
+                                                                    teacher_name: '',
+                                                                    day: day,
+                                                                    week_type: selectedWeek,
+                                                                    jam_ke: slot.id,
+                                                                    start_time: initialSlot?.start || '',
+                                                                    end_time: initialSlot?.end || ''
+                                                                });
+                                                                setIsModalOpen(true);
+                                                            }}
+                                                            className="w-full h-12 border-2 border-dashed border-gray-50 rounded-2xl flex items-center justify-center text-gray-200 hover:border-blue-200 hover:text-blue-200 transition-all opacity-0 group-hover:opacity-100 active:scale-95"
+                                                        >
+                                                            <Plus size={16} />
+                                                        </button>
+                                                    )
+                                                )}
+                                            </td>
+                                        );
+                                    })}
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            )}
 
             {/* Modal */}
             <Modal

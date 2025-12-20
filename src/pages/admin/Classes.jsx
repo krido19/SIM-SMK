@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
+import { useFeedback } from '../../context/FeedbackContext';
 import * as XLSX from 'xlsx';
 import {
     Plus,
@@ -55,6 +56,7 @@ export default function Classes() {
     const [uploadLoading, setUploadLoading] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [dbTeachers, setDbTeachers] = useState([]);
+    const { showToast, showConfirm } = useFeedback();
     const fileInputRef = useRef(null);
 
     useEffect(() => {
@@ -102,15 +104,22 @@ export default function Classes() {
     };
 
     const handleDelete = async (id) => {
-        if (window.confirm('Apakah Anda yakin ingin menghapus kelas ini?')) {
+        const confirmed = await showConfirm(
+            'Hapus Kelas',
+            'Apakah Anda yakin ingin menghapus kelas ini? Tindakan ini tidak dapat dibatalkan.',
+            'danger'
+        );
+
+        if (confirmed) {
             const { error } = await supabase
                 .from('classes')
                 .delete()
                 .eq('id', id);
 
             if (error) {
-                alert('Gagal menghapus kelas: ' + error.message);
+                showToast('Gagal menghapus kelas: ' + error.message, 'error');
             } else {
+                showToast('Kelas berhasil dihapus', 'success');
                 setClasses(classes.filter(c => c.id !== id));
             }
         }
@@ -153,8 +162,9 @@ export default function Classes() {
                 }));
 
                 setImportedStudents(students);
+                showToast(`${students.length} siswa terdeteksi dari Excel`, 'info');
             } catch (err) {
-                alert('Gagal membaca file Excel. Pastikan format kolom benar (NIS, Nama Siswa, Nama Orang Tua).');
+                showToast('Gagal membaca file Excel. Pastikan format kolom benar (NIS, Nama Siswa, Nama Orang Tua).', 'error');
             } finally {
                 setUploadLoading(false);
             }
@@ -175,8 +185,9 @@ export default function Classes() {
                 .select();
 
             if (error) {
-                alert('Gagal memperbarui kelas: ' + error.message);
+                showToast('Gagal memperbarui kelas: ' + error.message, 'error');
             } else {
+                showToast('Kelas berhasil diperbarui', 'success');
                 setClasses(classes.map(c => c.id === currentClass.id ? { ...c, ...formData } : c));
                 setIsModalOpen(false);
             }
@@ -191,7 +202,7 @@ export default function Classes() {
                 .single();
 
             if (clsError) {
-                alert('Gagal menambah kelas: ' + clsError.message);
+                showToast('Gagal menambah kelas: ' + clsError.message, 'error');
             } else {
                 // If there are imported students, insert them too
                 if (importedStudents.length > 0) {
@@ -209,8 +220,12 @@ export default function Classes() {
                         .insert(studentsToInsert);
 
                     if (stdError) {
-                        alert('Kelas berhasil dibuat, tetapi gagal mengimport siswa: ' + stdError.message);
+                        showToast('Kelas berhasil dibuat, tetapi gagal mengimport siswa: ' + stdError.message, 'warning');
+                    } else {
+                        showToast(`Kelas ${formData.name} berhasil dibuat dengan ${importedStudents.length} siswa`, 'success');
                     }
+                } else {
+                    showToast('Kelas berhasil dibuat', 'success');
                 }
 
                 setClasses([{ ...newCls, studentsCount: importedStudents.length }, ...classes]);

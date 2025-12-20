@@ -18,41 +18,45 @@ import AttendanceEntry from './pages/teacher/AttendanceEntry'
 import StudentGrades from './pages/student/StudentGrades'
 import StudentAttendance from './pages/student/StudentAttendance'
 
+import { FeedbackProvider } from './context/FeedbackContext'
+
 const queryClient = new QueryClient()
 
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/login" element={<Login />} />
+      <FeedbackProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/login" element={<Login />} />
 
-          <Route element={<DashboardLayout />}>
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/profile" element={<Profile />} />
+            <Route element={<DashboardLayout />}>
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/profile" element={<Profile />} />
 
-            {/* Admin Routes */}
-            <Route path="/admin/students" element={<Students />} />
-            <Route path="/admin/teachers" element={<Teachers />} />
-            <Route path="/admin/subjects" element={<Subjects />} />
-            <Route path="/admin/classes" element={<Classes />} />
-            <Route path="/admin/schedule" element={<Schedule />} />
-            <Route path="/admin/announcements" element={<Announcements />} />
-            <Route path="/admin/fonnte" element={<FonnteSettings />} />
-            <Route path="/admin/backup" element={<DatabaseBackup />} />
+              {/* Admin Routes */}
+              <Route path="/admin/students" element={<Students />} />
+              <Route path="/admin/teachers" element={<Teachers />} />
+              <Route path="/admin/subjects" element={<Subjects />} />
+              <Route path="/admin/classes" element={<Classes />} />
+              <Route path="/admin/schedule" element={<Schedule />} />
+              <Route path="/admin/announcements" element={<Announcements />} />
+              <Route path="/admin/fonnte" element={<FonnteSettings />} />
+              <Route path="/admin/backup" element={<DatabaseBackup />} />
 
-            {/* Teacher Routes */}
-            <Route path="/teacher/grades" element={<GradeEntry />} />
-            <Route path="/teacher/attendance" element={<AttendanceEntry />} />
+              {/* Teacher Routes */}
+              <Route path="/teacher/grades" element={<GradeEntry />} />
+              <Route path="/teacher/attendance" element={<AttendanceEntry />} />
 
-            {/* Student/Parent Routes */}
-            <Route path="/student/grades" element={<StudentGrades />} />
-            <Route path="/student/attendance" element={<StudentAttendance />} />
+              {/* Student/Parent Routes */}
+              <Route path="/student/grades" element={<StudentGrades />} />
+              <Route path="/student/attendance" element={<StudentAttendance />} />
 
-            <Route path="/" element={<Navigate to="/login" replace />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
+              <Route path="/" element={<Navigate to="/login" replace />} />
+            </Route>
+          </Routes>
+        </BrowserRouter>
+      </FeedbackProvider>
     </QueryClientProvider>
   )
 }

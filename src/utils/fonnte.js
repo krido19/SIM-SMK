@@ -5,9 +5,10 @@ import { supabase } from '../lib/supabase';
 
 const FONNTE_TOKEN_ENV = import.meta.env.VITE_FONNTE_TOKEN;
 
-export const sendWhatsApp = async (target, message) => {
+export const sendWhatsApp = async (target, message, showToast) => {
     if (!target || target === '-') {
-        alert('Nomor WhatsApp tidak valid atau kosong.');
+        if (showToast) showToast('Nomor WhatsApp tidak valid atau kosong.', 'warning');
+        else alert('Nomor WhatsApp tidak valid atau kosong.');
         return;
     }
 
@@ -54,10 +55,12 @@ export const sendWhatsApp = async (target, message) => {
 
         const result = await response.json();
         if (result.status) {
-            alert('Pesan berhasil dikirim via Fonnte!');
+            if (showToast) showToast('Pesan berhasil dikirim via Fonnte!', 'success');
+            else alert('Pesan berhasil dikirim via Fonnte!');
         } else {
             console.error('Fonnte Error:', result);
-            alert('Gagal mengirim via Fonnte. Mencoba via WhatsApp Web...');
+            if (showToast) showToast('Gagal mengirim via Fonnte. Mencoba via WhatsApp Web...', 'warning');
+            else alert('Gagal mengirim via Fonnte. Mencoba via WhatsApp Web...');
             window.open(`https://wa.me/${cleanTarget}?text=${encodeURIComponent(message)}`, '_blank');
         }
     } catch (error) {

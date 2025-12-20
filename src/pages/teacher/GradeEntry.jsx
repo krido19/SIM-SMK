@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
+import { useFeedback } from '../../context/FeedbackContext';
 import {
     Save,
     Search,
@@ -23,6 +24,7 @@ export default function GradeEntry() {
     const [selectedClassId, setSelectedClassId] = useState('');
     const [selectedSubjectId, setSelectedSubjectId] = useState('');
     const [isLoading, setIsLoading] = useState(true);
+    const { showToast } = useFeedback();
 
     useEffect(() => {
         const fetchInitialData = async () => {
@@ -107,8 +109,9 @@ export default function GradeEntry() {
             .upsert(gradesToUpsert, { onConflict: 'student_id, subject_id, semester' });
 
         if (error) {
-            alert('Gagal menyimpan nilai: ' + error.message);
+            showToast('Gagal menyimpan nilai: ' + error.message, 'error');
         } else {
+            showToast('Nilai berhasil disimpan', 'success');
             setLastSaved(new Date().toLocaleTimeString());
         }
         setIsSaving(false);

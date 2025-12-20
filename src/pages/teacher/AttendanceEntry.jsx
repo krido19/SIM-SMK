@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
+import { useFeedback } from '../../context/FeedbackContext';
 import {
     Check,
     X,
@@ -17,6 +18,7 @@ export default function AttendanceEntry() {
     const [dbClasses, setDbClasses] = useState([]);
     const [selectedClassId, setSelectedClassId] = useState('');
     const [isLoading, setIsLoading] = useState(true);
+    const { showToast } = useFeedback();
 
     useEffect(() => {
         const fetchClasses = async () => {
@@ -79,9 +81,9 @@ export default function AttendanceEntry() {
             .upsert(attendanceToUpsert, { onConflict: 'student_id, date' });
 
         if (error) {
-            alert('Gagal menyimpan absensi: ' + error.message);
+            showToast('Gagal menyimpan absensi: ' + error.message, 'error');
         } else {
-            alert('Absensi berhasil disimpan!');
+            showToast('Absensi berhasil disimpan!', 'success');
         }
     };
 

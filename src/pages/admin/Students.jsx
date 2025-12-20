@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { sendWhatsApp } from '../../utils/fonnte';
+import { useFeedback } from '../../context/FeedbackContext';
 import {
     Plus,
     Search,
@@ -53,6 +54,7 @@ export default function Students() {
     const [currentStudent, setCurrentStudent] = useState(null);
     const [formData, setFormData] = useState({ name: '', nis: '', class_id: '', email: '', waStudent: '', waParent: '', status: 'Aktif' });
     const [isLoading, setIsLoading] = useState(true);
+    const { showToast, showConfirm } = useFeedback();
     const [dbClasses, setDbClasses] = useState([]);
 
     // New State for Advanced Features
@@ -138,25 +140,39 @@ export default function Students() {
     };
 
     const handleDelete = async (id) => {
-        if (window.confirm('Hapus data siswa ini?')) {
+        const confirmed = await showConfirm(
+            'Hapus Siswa',
+            'Apakah Anda yakin ingin menghapus data siswa ini? Tindakan ini tidak dapat dibatalkan.',
+            'danger'
+        );
+
+        if (confirmed) {
             const { error } = await supabase.from('students').delete().eq('id', id);
             if (!error) {
+                showToast('Data siswa berhasil dihapus', 'success');
                 setStudents(students.filter(s => s.id !== id));
                 setSelectedIds(selectedIds.filter(sid => sid !== id));
             } else {
-                alert('Gagal menghapus: ' + error.message);
+                showToast('Gagal menghapus: ' + error.message, 'error');
             }
         }
     };
 
     const handleBulkDelete = async () => {
-        if (window.confirm(`Hapus ${selectedIds.length} siswa terpilih?`)) {
+        const confirmed = await showConfirm(
+            'Hapus Banyak Siswa',
+            `Apakah Anda yakin ingin menghapus ${selectedIds.length} siswa terpilih? Tindakan ini tidak dapat dibatalkan.`,
+            'danger'
+        );
+
+        if (confirmed) {
             const { error } = await supabase.from('students').delete().in('id', selectedIds);
             if (!error) {
+                showToast(`${selectedIds.length} siswa berhasil dihapus`, 'success');
                 setStudents(students.filter(s => !selectedIds.includes(s.id)));
                 setSelectedIds([]);
             } else {
-                alert('Gagal menghapus bulk: ' + error.message);
+                showToast('Gagal menghapus bulk: ' + error.message, 'error');
             }
         }
     };
@@ -198,8 +214,9 @@ export default function Students() {
                 .eq('id', currentStudent.id);
 
             if (error) {
-                alert('Gagal memperbarui siswa: ' + error.message);
+                showToast('Gagal memperbarui siswa: ' + error.message, 'error');
             } else {
+                showToast('Data siswa berhasil diperbarui', 'success');
                 fetchStudents();
                 setIsModalOpen(false);
             }
@@ -209,8 +226,9 @@ export default function Students() {
                 .insert([payload]);
 
             if (error) {
-                alert('Gagal menambah siswa: ' + error.message);
+                showToast('Gagal menambah siswa: ' + error.message, 'error');
             } else {
+                showToast('Siswa baru berhasil didaftarkan', 'success');
                 fetchStudents();
                 setIsModalOpen(false);
             }
@@ -421,7 +439,7 @@ export default function Students() {
                                                     </div>
                                                     {student.waStudent && student.waStudent !== '-' && (
                                                         <button
-                                                            onClick={() => sendWhatsApp(student.waStudent, `Halo ${student.name}, ada pesan dari sekolah...`)}
+                                                            onClick={() => sendWhatsApp(student.waStudent, `Halo ${student.name}, ada pesan dari sekolah...`, showToast)}
                                                             className="p-1 hover:bg-blue-50 rounded text-blue-600 transition-colors"
                                                             title="Kirim WA ke Siswa"
                                                         >
@@ -436,7 +454,7 @@ export default function Students() {
                                                     </div>
                                                     {student.waParent && student.waParent !== '-' && (
                                                         <button
-                                                            onClick={() => sendWhatsApp(student.waParent, `Halo Orang Tua dari ${student.name}, ada pengumuman penting...`)}
+                                                            onClick={() => sendWhatsApp(student.waParent, `Halo Orang Tua dari ${student.name}, ada pengumuman penting...`, showToast)}
                                                             className="p-1 hover:bg-indigo-50 rounded text-indigo-600 transition-colors"
                                                             title="Kirim WA ke Orang Tua"
                                                         >
