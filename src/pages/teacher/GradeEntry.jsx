@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { supabase } from '../../lib/supabase';
 import {
     Save,
     Search,
@@ -10,18 +11,73 @@ import {
     Upload
 } from 'lucide-react';
 
-const initialStudents = [
-    { id: 1, name: 'Ahmad Fauzi', nis: '2023001', tugas: 85, uts: 80, uas: 88 },
-    { id: 2, name: 'Budi Santoso', nis: '2023002', tugas: 78, uts: 75, uas: 82 },
-    { id: 3, name: 'Citra Lestari', nis: '2023003', tugas: 92, uts: 88, uas: 90 },
-    { id: 4, name: 'Diana Putri', nis: '2023004', tugas: 65, uts: 70, uas: 68 },
-    { id: 5, name: 'Eko Prasetyo', nis: '2023005', tugas: 80, uts: 82, uas: 85 },
-];
+
+
 
 export default function GradeEntry() {
-    const [students, setStudents] = useState(initialStudents);
+    const [students, setStudents] = useState([]);
     const [isSaving, setIsSaving] = useState(false);
     const [lastSaved, setLastSaved] = useState(null);
+    const [dbClasses, setDbClasses] = useState([]);
+    const [dbSubjects, setDbSubjects] = useState([]);
+    const [selectedClassId, setSelectedClassId] = useState('');
+    const [selectedSubjectId, setSelectedSubjectId] = useState('');
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchInitialData = async () => {
+            const { data: clsData } = await supabase.from('classes').select('id, name');
+            const { data: subData } = await supabase.from('subjects').select('id, name');
+            if (clsData) setDbClasses(clsData);
+            if (subData) setDbSubjects(subData);
+            if (clsData?.length > 0) setSelectedClassId(clsData[0].id);
+            if (subData?.length > 0) setSelectedSubjectId(subData[0].id);
+        };
+        fetchInitialData();
+    }, []);
+
+    useEffect(() => {
+        if (selectedClassId && selectedSubjectId) {
+            fetchStudentsWithGrades();
+        }
+    }, [selectedClassId, selectedSubjectId]);
+
+    const fetchStudentsWithGrades = async () => {
+        setIsLoading(true);
+        const { data: stdData, error } = await supabase
+            .from('students')
+            .select(`
+                id,
+                full_name,
+                nis,
+                grades (
+                    tugas,
+                    uts,
+                    uas,
+                    subject_id,
+                    semester
+                )
+            `)
+            .eq('class_id', selectedClassId);
+
+        if (error) {
+            console.error(error);
+        } else {
+            const transformed = stdData.map(s => {
+                const grade = s.grades?.find(g => g.subject_id === selectedSubjectId) || { tugas: 0, uts: 0, uas: 0 };
+                return {
+                    id: s.id,
+                    name: s.full_name,
+                    nis: s.nis,
+                    tugas: grade.tugas,
+                    uts: grade.uts,
+                    uas: grade.uas
+                };
+            });
+            setStudents(transformed);
+        }
+        setIsLoading(false);
+    };
 
     const handleScoreChange = (id, field, value) => {
         const score = parseInt(value) || 0;
@@ -32,12 +88,30 @@ export default function GradeEntry() {
 
     const calculateFinal = (s) => Math.round((s.tugas + s.uts + s.uas) / 3);
 
-    const handleSave = () => {
+    const handleSave = async () => {
+        if (!selectedSubjectId) return;
         setIsSaving(true);
-        setTimeout(() => {
-            setIsSaving(false);
+
+        const gradesToUpsert = students.map(s => ({
+            student_id: s.id,
+            subject_id: selectedSubjectId,
+            tugas: s.tugas,
+            uts: s.uts,
+            uas: s.uas,
+            score: Math.round((s.tugas + s.uts + s.uas) / 3),
+            semester: 1
+        }));
+
+        const { error } = await supabase
+            .from('grades')
+            .upsert(gradesToUpsert, { onConflict: 'student_id, subject_id, semester' });
+
+        if (error) {
+            alert('Gagal menyimpan nilai: ' + error.message);
+        } else {
             setLastSaved(new Date().toLocaleTimeString());
-        }, 1000);
+        }
+        setIsSaving(false);
     };
 
     return (
@@ -45,7 +119,28 @@ export default function GradeEntry() {
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-2xl font-bold text-gray-900">Input Nilai Siswa</h1>
-                    <p className="text-sm text-gray-500">Kelas: X-IPA-1 | Mata Pelajaran: Matematika</p>
+                    <div className="flex flex-wrap gap-3 mt-2">
+                        <div className="relative group">
+                            <select
+                                className="appearance-none bg-white border border-gray-100 px-4 py-2 pr-10 rounded-xl text-xs font-black text-gray-600 focus:ring-2 focus:ring-blue-500 transition-all outline-none cursor-pointer shadow-sm"
+                                value={selectedClassId}
+                                onChange={(e) => setSelectedClassId(e.target.value)}
+                            >
+                                {dbClasses.map(c => <option key={c.id} value={c.id}>Kelas: {c.name}</option>)}
+                            </select>
+                            <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                        </div>
+                        <div className="relative group">
+                            <select
+                                className="appearance-none bg-white border border-gray-100 px-4 py-2 pr-10 rounded-xl text-xs font-black text-gray-600 focus:ring-2 focus:ring-blue-500 transition-all outline-none cursor-pointer shadow-sm"
+                                value={selectedSubjectId}
+                                onChange={(e) => setSelectedSubjectId(e.target.value)}
+                            >
+                                {dbSubjects.map(s => <option key={s.id} value={s.id}>Mapel: {s.name}</option>)}
+                            </select>
+                            <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                        </div>
+                    </div>
                 </div>
                 <div className="flex space-x-2">
                     <button className="flex items-center space-x-2 bg-gray-100 hover:bg-gray-200 text-gray-600 px-4 py-2.5 rounded-xl font-bold transition-all">

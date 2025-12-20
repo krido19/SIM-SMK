@@ -1,4 +1,6 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { supabase } from '../../lib/supabase';
 import * as XLSX from 'xlsx';
 import {
     Plus,
@@ -16,16 +18,11 @@ import {
     FileSpreadsheet,
     CheckCircle2,
     AlertCircle,
-    Loader2
+    Loader2,
+    ChevronDown
 } from 'lucide-react';
 
-const initialClasses = [
-    { id: 1, name: 'X-IPA-1', homeroom: 'Budi Santoso, S.Pd', studentsCount: 36, level: '10' },
-    { id: 2, name: 'X-IPA-2', homeroom: 'Siti Aminah, M.Pd', studentsCount: 34, level: '10' },
-    { id: 3, name: 'XI-IPA-1', homeroom: 'Hendra Wijaya, S.T', studentsCount: 32, level: '11' },
-    { id: 4, name: 'XII-IPA-1', homeroom: 'Ani Maryani, S.Pd', studentsCount: 30, level: '12' },
-    { id: 5, name: 'X-IPS-1', homeroom: 'Rizky Pratama, S.Kom', studentsCount: 35, level: '10' },
-];
+
 
 const Modal = ({ isOpen, onClose, title, children, maxWidth = "max-w-md" }) => {
     if (!isOpen) return null;
@@ -47,15 +44,43 @@ const Modal = ({ isOpen, onClose, title, children, maxWidth = "max-w-md" }) => {
 };
 
 export default function Classes() {
-    const [classes, setClasses] = useState(initialClasses);
+    const [classes, setClasses] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isDetailOpen, setIsDetailOpen] = useState(false);
+    const navigate = useNavigate();
     const [currentClass, setCurrentClass] = useState(null);
     const [formData, setFormData] = useState({ name: '', homeroom: '', level: '10' });
     const [importedStudents, setImportedStudents] = useState([]);
     const [uploadLoading, setUploadLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
+    const [dbTeachers, setDbTeachers] = useState([]);
     const fileInputRef = useRef(null);
+
+    useEffect(() => {
+        fetchClasses();
+        fetchTeachers();
+    }, []);
+
+    const fetchTeachers = async () => {
+        const { data } = await supabase.from('teachers').select('id, name').order('name');
+        if (data) setDbTeachers(data);
+    };
+
+    const fetchClasses = async () => {
+        setIsLoading(true);
+        const { data, error } = await supabase
+            .from('classes')
+            .select('*')
+            .order('created_at', { ascending: false });
+
+        if (error) {
+            console.error('Error fetching classes:', error);
+        } else {
+            setClasses(data || []);
+        }
+        setIsLoading(false);
+    };
 
     const handleOpenAdd = () => {
         setCurrentClass(null);
@@ -76,16 +101,25 @@ export default function Classes() {
         setIsDetailOpen(true);
     };
 
-    const handleDelete = (id) => {
+    const handleDelete = async (id) => {
         if (window.confirm('Apakah Anda yakin ingin menghapus kelas ini?')) {
-            setClasses(classes.filter(c => c.id !== id));
+            const { error } = await supabase
+                .from('classes')
+                .delete()
+                .eq('id', id);
+
+            if (error) {
+                alert('Gagal menghapus kelas: ' + error.message);
+            } else {
+                setClasses(classes.filter(c => c.id !== id));
+            }
         }
     };
 
     const handleDownloadTemplate = () => {
         const ws = XLSX.utils.json_to_sheet([
-            { NIS: '2023001', 'Nama Siswa': 'Ali Bin Abu', 'Nama Orang Tua': 'Abu Bakar' },
-            { NIS: '2023002', 'Nama Siswa': 'Siti Aminah', 'Nama Orang Tua': 'Hasan Basri' }
+            { NIS: '2023001', 'Nama Siswa': 'Ali Bin Abu', 'Nama Orang Tua': 'Abu Bakar', 'No WA Siswa': '08123456789', 'No WA Orang Tua': '08987654321' },
+            { NIS: '2023002', 'Nama Siswa': 'Siti Aminah', 'Nama Orang Tua': 'Hasan Basri', 'No WA Siswa': '08112233445', 'No WA Orang Tua': '08556677889' }
         ]);
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "Template Siswa");
@@ -107,12 +141,14 @@ export default function Classes() {
                 const ws = wb.Sheets[wsname];
                 const data = XLSX.utils.sheet_to_json(ws);
 
-                // Transform data: NIS, Nama, Orang Tua
+                // Transform data: NIS, Nama, Orang Tua, WA
                 const students = data.map((item, idx) => ({
                     id: idx + 1,
                     nis: item.NIS || item.nis || 'N/A',
                     name: item.Nama || item['Nama Siswa'] || 'Siswa ' + (idx + 1),
                     parentName: item['Orang Tua'] || item['Nama Orang Tua'] || 'N/A',
+                    waStudent: item['No WA Siswa'] || item['WA Siswa'] || '-',
+                    waParent: item['No WA Orang Tua'] || item['WA Orang Tua'] || '-',
                     parentLogin: 'OT' + (item.NIS || item.nis || '000')
                 }));
 
@@ -126,24 +162,67 @@ export default function Classes() {
         reader.readAsBinaryString(file);
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
+        setUploadLoading(true);
+
         if (currentClass) {
-            setClasses(classes.map(c => c.id === currentClass.id ? { ...c, ...formData } : c));
+            // Update
+            const { data, error } = await supabase
+                .from('classes')
+                .update({ ...formData })
+                .eq('id', currentClass.id)
+                .select();
+
+            if (error) {
+                alert('Gagal memperbarui kelas: ' + error.message);
+            } else {
+                setClasses(classes.map(c => c.id === currentClass.id ? { ...c, ...formData } : c));
+                setIsModalOpen(false);
+            }
         } else {
-            const newClass = {
-                id: Date.now(),
-                ...formData,
-                studentsCount: importedStudents.length || 0
-            };
-            setClasses([...classes, newClass]);
+            // Insert
+            const { data: newCls, error: clsError } = await supabase
+                .from('classes')
+                .insert([{
+                    ...formData,
+                }])
+                .select()
+                .single();
+
+            if (clsError) {
+                alert('Gagal menambah kelas: ' + clsError.message);
+            } else {
+                // If there are imported students, insert them too
+                if (importedStudents.length > 0) {
+                    const studentsToInsert = importedStudents.map(s => ({
+                        nis: s.nis,
+                        full_name: s.name,
+                        wa_student: s.waStudent,
+                        wa_parent: s.waParent,
+                        class_id: newCls.id,
+                        status: 'Aktif'
+                    }));
+
+                    const { error: stdError } = await supabase
+                        .from('students')
+                        .insert(studentsToInsert);
+
+                    if (stdError) {
+                        alert('Kelas berhasil dibuat, tetapi gagal mengimport siswa: ' + stdError.message);
+                    }
+                }
+
+                setClasses([{ ...newCls, studentsCount: importedStudents.length }, ...classes]);
+                setIsModalOpen(false);
+            }
         }
-        setIsModalOpen(false);
+        setUploadLoading(false);
     };
 
     const filteredClasses = classes.filter(c =>
-        c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        c.homeroom.toLowerCase().includes(searchTerm.toLowerCase())
+        (c.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (c.homeroom || '').toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     return (
@@ -268,14 +347,20 @@ export default function Classes() {
                             </div>
                             <div className="space-y-2">
                                 <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] px-1">Wali Kelas</label>
-                                <input
-                                    required
-                                    type="text"
-                                    className="w-full bg-gray-50 border-transparent focus:bg-white focus:border-violet-500 rounded-xl px-4 py-3 font-bold text-gray-700 outline-none transition-all border-2"
-                                    placeholder="Nama Guru"
-                                    value={formData.homeroom}
-                                    onChange={(e) => setFormData({ ...formData, homeroom: e.target.value })}
-                                />
+                                <div className="relative">
+                                    <select
+                                        required
+                                        className="w-full bg-gray-50 border-transparent focus:bg-white focus:border-violet-500 rounded-xl px-4 py-3 font-bold text-gray-700 outline-none transition-all border-2 appearance-none"
+                                        value={formData.homeroom}
+                                        onChange={(e) => setFormData({ ...formData, homeroom: e.target.value })}
+                                    >
+                                        <option value="">Pilih Wali Kelas</option>
+                                        {dbTeachers.map(t => (
+                                            <option key={t.id} value={t.name}>{t.name}</option>
+                                        ))}
+                                    </select>
+                                    <ChevronDown size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                                </div>
                             </div>
                         </div>
 
@@ -310,7 +395,7 @@ export default function Classes() {
                                                 <FileSpreadsheet size={32} />
                                             </div>
                                             <p className="text-xs font-bold text-gray-400">Pilih atau Seret File Excel</p>
-                                            <p className="text-[9px] font-black text-gray-300 uppercase tracking-widest">(NIS, Nama, Orang Tua)</p>
+                                            <p className="text-[9px] font-black text-gray-300 uppercase tracking-widest">(NIS, Nama, Orang Tua, WA)</p>
                                         </>
                                     )}
                                 </div>
@@ -342,9 +427,15 @@ export default function Classes() {
                                     <div key={s.id} className="flex items-center justify-between text-xs font-bold text-gray-600">
                                         <div className="flex items-center space-x-3">
                                             <span className="text-gray-300 font-black">#{s.nis}</span>
-                                            <span>{s.name}</span>
+                                            <div>
+                                                <p>{s.name}</p>
+                                                <p className="text-[10px] text-gray-400">WA: {s.waStudent}</p>
+                                            </div>
                                         </div>
-                                        <span className="text-violet-500">{s.parentName}</span>
+                                        <div className="text-right">
+                                            <span className="text-violet-500 block">{s.parentName}</span>
+                                            <span className="text-[10px] text-gray-400">WA: {s.waParent}</span>
+                                        </div>
                                     </div>
                                 ))}
                                 {importedStudents.length > 5 && (
@@ -401,7 +492,13 @@ export default function Classes() {
                             </div>
                         </div>
 
-                        <button className="w-full flex items-center justify-center space-x-2 py-4 bg-gray-900 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-black transition-all shadow-xl">
+                        <button
+                            onClick={() => {
+                                setIsDetailOpen(false);
+                                navigate('/admin/students', { state: { filterClass: currentClass.name } });
+                            }}
+                            className="w-full flex items-center justify-center space-x-2 py-4 bg-gray-900 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-black transition-all shadow-xl"
+                        >
                             <Info size={16} />
                             <span>Daftar Siswa Kelas Ini</span>
                         </button>

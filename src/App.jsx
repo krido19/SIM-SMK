@@ -13,6 +13,7 @@ import Schedule from './pages/admin/Schedule'
 import Announcements from './pages/admin/Announcements'
 import GradeEntry from './pages/teacher/GradeEntry'
 import AttendanceEntry from './pages/teacher/AttendanceEntry'
+import FonnteSettings from './pages/admin/FonnteSettings'
 import StudentGrades from './pages/student/StudentGrades'
 import StudentAttendance from './pages/student/StudentAttendance'
 
@@ -36,6 +37,7 @@ function App() {
             <Route path="/admin/classes" element={<Classes />} />
             <Route path="/admin/schedule" element={<Schedule />} />
             <Route path="/admin/announcements" element={<Announcements />} />
+            <Route path="/admin/fonnte" element={<FonnteSettings />} />
 
             {/* Teacher Routes */}
             <Route path="/teacher/grades" element={<GradeEntry />} />

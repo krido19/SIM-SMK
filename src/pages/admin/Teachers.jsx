@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { supabase } from '../../lib/supabase';
+import { sendWhatsApp } from '../../utils/fonnte';
 import {
     Plus,
     Search,
@@ -11,16 +13,12 @@ import {
     ArrowUpDown,
     X,
     Save,
-    CheckCircle2
+    CheckCircle2,
+    ChevronDown,
+    MessageCircle
 } from 'lucide-react';
 
-const initialTeachers = [
-    { id: 1, nip: '198501012010011001', name: 'Budi Santoso, S.Pd', specialty: 'Matematika', email: 'budi.s@school.id', status: 'Aktif' },
-    { id: 2, nip: '198812122015012002', name: 'Siti Aminah, M.Pd', specialty: 'Bahasa Indonesia', email: 'siti.a@school.id', status: 'Aktif' },
-    { id: 3, nip: '199005052018011003', name: 'Hendra Wijaya, S.T', specialty: 'Fisika', email: 'hendra.w@school.id', status: 'Aktif' },
-    { id: 4, nip: '198203032008012004', name: 'Ani Maryani, S.Pd', specialty: 'Biologi', email: 'ani.m@school.id', status: 'Izin' },
-    { id: 5, nip: '199507072020011005', name: 'Rizky Pratama, S.Kom', specialty: 'Informatika', email: 'rizky.p@school.id', status: 'Aktif' },
-];
+
 
 const Modal = ({ isOpen, onClose, title, children }) => {
     if (!isOpen) return null;
@@ -42,15 +40,45 @@ const Modal = ({ isOpen, onClose, title, children }) => {
 };
 
 export default function Teachers() {
-    const [teachers, setTeachers] = useState(initialTeachers);
+    const [teachers, setTeachers] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [currentTeacher, setCurrentTeacher] = useState(null);
-    const [formData, setFormData] = useState({ name: '', nip: '', specialty: 'Matematika', email: '', status: 'Aktif' });
+    const [formData, setFormData] = useState({ name: '', nip: '', specialty: 'Matematika', email: '', status: 'Aktif', wa_number: '' });
+    const [filterSpecialty, setFilterSpecialty] = useState('Semua');
+    const [isLoading, setIsLoading] = useState(true);
+    const [dbSpecialties, setDbSpecialties] = useState(['Matematika', 'Bahasa Indonesia', 'Fisika', 'Biologi', 'Informatika', 'Kimia', 'Ekonomi', 'Sejarah', 'Geografi', 'Sosiologi', 'Bahasa Inggris', 'PJOK', 'PAI', 'Seni Budaya', 'PKn']);
+
+    useEffect(() => {
+        fetchTeachers();
+    }, []);
+
+    const fetchTeachers = async () => {
+        setIsLoading(true);
+        const { data, error } = await supabase
+            .from('teachers')
+            .select('*')
+            .order('name', { ascending: true });
+
+        if (error) {
+            console.error('Error fetching teachers:', error);
+        } else {
+            setTeachers(data || []);
+            // Extract unique specialties from existing teachers
+            if (data) {
+                const existing = data.map(t => t.specialty).filter(Boolean);
+                setDbSpecialties(prev => {
+                    const combined = [...new Set([...prev, ...existing])];
+                    return combined.sort();
+                });
+            }
+        }
+        setIsLoading(false);
+    };
 
     const handleOpenAdd = () => {
         setCurrentTeacher(null);
-        setFormData({ name: '', nip: '', specialty: 'Matematika', email: '', status: 'Aktif' });
+        setFormData({ name: '', nip: '', specialty: 'Matematika', email: '', status: 'Aktif', wa_number: '' });
         setIsModalOpen(true);
     };
 
@@ -61,43 +89,77 @@ export default function Teachers() {
             nip: teacher.nip,
             specialty: teacher.specialty,
             email: teacher.email,
-            status: teacher.status
+            status: teacher.status,
+            wa_number: teacher.wa_number || ''
         });
         setIsModalOpen(true);
     };
 
-    const handleDelete = (id) => {
+    const handleDelete = async (id) => {
         if (window.confirm('Apakah Anda yakin ingin menghapus data guru ini?')) {
-            setTeachers(teachers.filter(t => t.id !== id));
+            const { error } = await supabase.from('teachers').delete().eq('id', id);
+            if (!error) {
+                setTeachers(teachers.filter(t => t.id !== id));
+            } else {
+                alert('Gagal menghapus: ' + error.message);
+            }
         }
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
+        setIsLoading(true);
+
+        const payload = {
+            name: formData.name,
+            nip: formData.nip,
+            email: formData.email,
+            specialty: formData.specialty,
+            wa_number: formData.wa_number,
+            status: formData.status
+        };
+
         if (currentTeacher) {
-            setTeachers(teachers.map(t => t.id === currentTeacher.id ? { ...t, ...formData } : t));
+            const { error } = await supabase
+                .from('teachers')
+                .update(payload)
+                .eq('id', currentTeacher.id);
+
+            if (error) {
+                alert('Gagal memperbarui guru: ' + error.message);
+            } else {
+                fetchTeachers();
+                setIsModalOpen(false);
+            }
         } else {
-            const newTeacher = {
-                id: Date.now(),
-                ...formData
-            };
-            setTeachers([...teachers, newTeacher]);
+            const { error } = await supabase
+                .from('teachers')
+                .insert([payload]);
+
+            if (error) {
+                alert('Gagal menambah guru: ' + error.message);
+            } else {
+                fetchTeachers();
+                setIsModalOpen(false);
+            }
         }
-        setIsModalOpen(false);
+        setIsLoading(false);
     };
 
-    const filteredTeachers = teachers.filter(t =>
-        t.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        t.nip.includes(searchTerm) ||
-        t.specialty.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filteredTeachers = teachers.filter(t => {
+        const matchesSearch = t.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            t.nip.includes(searchTerm) ||
+            t.specialty.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesSpecialty = filterSpecialty === 'Semua' || t.specialty === filterSpecialty;
+        return matchesSearch && matchesSpecialty;
+    });
 
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-2xl font-bold text-gray-900">Manajemen Guru</h1>
-                    <p className="text-sm text-gray-500">Kelola data tenaga pengajar dan spesialisasi mereka.</p>
+                    <p className="text-sm text-gray-500">Kelola data tenaga pengajar dan mata pelajaran mereka.</p>
                 </div>
                 <button
                     onClick={handleOpenAdd}
@@ -123,11 +185,19 @@ export default function Teachers() {
                     />
                 </div>
                 <div className="flex space-x-2">
-                    <button className="flex items-center space-x-2 border border-gray-100 px-4 py-2.5 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors">
-                        <Filter size={18} />
-                        <span>Spesialisasi</span>
-                    </button>
-                    <button className="flex items-center space-x-2 border border-gray-100 px-4 py-2.5 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors">
+                    <div className="relative">
+                        <select
+                            className="appearance-none border border-gray-100 px-10 py-2.5 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors bg-white outline-none cursor-pointer pr-10"
+                            value={filterSpecialty}
+                            onChange={(e) => setFilterSpecialty(e.target.value)}
+                        >
+                            <option value="Semua">Semua Mapel</option>
+                            {dbSpecialties.map(s => <option key={s} value={s}>{s}</option>)}
+                        </select>
+                        <Filter size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                        <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                    </div>
+                    <button className="flex items-center space-x-2 border border-gray-100 px-4 py-2.5 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors bg-white">
                         <ArrowUpDown size={18} />
                         <span>Urutkan</span>
                     </button>
@@ -174,6 +244,16 @@ export default function Teachers() {
                                 < Mail size={16} className="mr-3 text-indigo-400" />
                                 <span className="truncate">{teacher.email}</span>
                             </div>
+                            <div className="flex items-center text-sm text-gray-600">
+                                <MessageCircle size={16} className="mr-3 text-green-500" />
+                                <span className="font-bold">{teacher.wa_number || '-'}</span>
+                                <button
+                                    onClick={() => sendWhatsApp(teacher.wa_number, `Halo Bapak/Ibu ${teacher.name}, berikut adalah pesan dari Admin...`)}
+                                    className="ml-auto text-xs font-black text-green-600 hover:bg-green-50 px-2 py-1 rounded-lg transition-colors border border-green-100"
+                                >
+                                    Kirim WA
+                                </button>
+                            </div>
                             <div className="flex items-center justify-between mt-4">
                                 <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest ${teacher.status === 'Aktif' ? 'bg-green-50 text-green-600' : 'bg-orange-50 text-orange-600'
                                     }`}>
@@ -217,26 +297,42 @@ export default function Teachers() {
                         <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Email</label>
                         <input
                             required
-                            type="email"
+                            type="text"
                             className="w-full bg-gray-50 border-transparent rounded-xl px-4 py-3 font-bold text-gray-700 outline-none transition-all focus:bg-white focus:border-indigo-500 border-2"
+                            placeholder="email@example.com atau -"
                             value={formData.email}
                             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                         />
                     </div>
+                    <div className="space-y-1">
+                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">No. WhatsApp</label>
+                        <input
+                            type="text"
+                            className="w-full bg-gray-50 border-transparent rounded-xl px-4 py-3 font-bold text-gray-700 outline-none transition-all focus:bg-white focus:border-indigo-500 border-2"
+                            placeholder="62812... atau -"
+                            value={formData.wa_number}
+                            onChange={(e) => setFormData({ ...formData, wa_number: e.target.value })}
+                        />
+                    </div>
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-1">
-                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Spesialisasi</label>
-                            <select
-                                className="w-full bg-gray-50 border-transparent rounded-xl px-4 py-3 font-bold text-gray-700 outline-none transition-all focus:bg-white focus:border-indigo-500 border-2 appearance-none"
-                                value={formData.specialty}
-                                onChange={(e) => setFormData({ ...formData, specialty: e.target.value })}
-                            >
-                                <option value="Matematika">Matematika</option>
-                                <option value="Bahasa Indonesia">Bahasa Indonesia</option>
-                                <option value="Fisika">Fisika</option>
-                                <option value="Biologi">Biologi</option>
-                                <option value="Informatika">Informatika</option>
-                            </select>
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Mata Pelajaran</label>
+                            <div className="relative">
+                                <input
+                                    list="mapel-list"
+                                    required
+                                    className="w-full bg-gray-50 border-transparent rounded-xl px-4 py-3 font-bold text-gray-700 outline-none transition-all focus:bg-white focus:border-indigo-500 border-2"
+                                    placeholder="Ketik atau pilih mapel..."
+                                    value={formData.specialty}
+                                    onChange={(e) => setFormData({ ...formData, specialty: e.target.value })}
+                                />
+                                <datalist id="mapel-list">
+                                    {dbSpecialties.map(s => (
+                                        <option key={s} value={s} />
+                                    ))}
+                                </datalist>
+                                <ChevronDown size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                            </div>
                         </div>
                         <div className="space-y-1">
                             <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Status</label>

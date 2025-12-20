@@ -15,7 +15,8 @@ import {
     ClipboardList,
     Star,
     Award,
-    ChevronDown
+    ChevronDown,
+    MessageCircle
 } from 'lucide-react';
 
 const SidebarLink = ({ to, icon: Icon, children }) => (
@@ -36,13 +37,17 @@ const SidebarLink = ({ to, icon: Icon, children }) => (
 export default function DashboardLayout() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [role, setRole] = useState(localStorage.getItem('userRole') || 'admin');
+    const [userName, setUserName] = useState(localStorage.getItem('userName') || '');
+    const [userClass, setUserClass] = useState(localStorage.getItem('userClass') || '');
     const navigate = useNavigate();
 
     useEffect(() => {
         const storedRole = localStorage.getItem('userRole');
-        if (storedRole) {
-            setRole(storedRole);
-        }
+        const storedName = localStorage.getItem('userName');
+        const storedClass = localStorage.getItem('userClass');
+        if (storedRole) setRole(storedRole);
+        if (storedName) setUserName(storedName);
+        if (storedClass) setUserClass(storedClass);
     }, []);
 
     const handleLogout = () => {
@@ -63,24 +68,29 @@ export default function DashboardLayout() {
             { to: '/admin/classes', icon: Hash, label: 'Data Kelas' },
             { to: '/admin/subjects', icon: BookOpen, label: 'Mata Pelajaran' },
             { to: '/admin/schedule', icon: Calendar, label: 'Jadwal' },
+            { to: '/admin/announcements', icon: Bell, label: 'Pengumuman' },
+            { to: '/admin/fonnte', icon: MessageCircle, label: 'Fonnte WhatsApp' },
         ],
         guru: [
             { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
             { to: '/teacher/grades', icon: Star, label: 'Input Nilai' },
             { to: '/teacher/attendance', icon: ClipboardList, label: 'Input Absensi' },
             { to: '/admin/schedule', icon: Calendar, label: 'Jadwal Mengajar' },
+            { to: '/admin/announcements', icon: Bell, label: 'Pengumuman' },
         ],
         siswa: [
             { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
             { to: '/student/grades', icon: Award, label: 'Lihat Nilai' },
             { to: '/student/attendance', icon: ClipboardList, label: 'Lihat Absensi' },
             { to: '/admin/schedule', icon: Calendar, label: 'Lihat Jadwal' },
+            { to: '/admin/announcements', icon: Bell, label: 'Pengumuman' },
         ],
         parent: [
             { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
             { to: '/student/grades', icon: Award, label: 'Nilai Anak' },
             { to: '/student/attendance', icon: ClipboardList, label: 'Absensi Anak' },
             { to: '/admin/schedule', icon: Calendar, label: 'Jadwal Anak' },
+            { to: '/admin/announcements', icon: Bell, label: 'Pengumuman' },
         ],
     };
 
@@ -119,7 +129,6 @@ export default function DashboardLayout() {
                                 {item.label}
                             </SidebarLink>
                         ))}
-                        <SidebarLink to="/admin/announcements" icon={Bell}>Pengumuman</SidebarLink>
                     </nav>
 
                     <div className="mt-auto pt-6 border-t border-gray-50">
@@ -146,24 +155,14 @@ export default function DashboardLayout() {
                     </button>
 
                     <div className="flex items-center space-x-6 ml-auto">
-                        {/* Role Switcher Demo */}
-                        <div className="hidden lg:flex bg-gray-50 p-1 rounded-xl border border-gray-100">
-                            {['admin', 'guru', 'siswa', 'parent'].map(r => (
-                                <button
-                                    key={r}
-                                    onClick={() => handleRoleChange(r)}
-                                    className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-wider transition-all ${role === r ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-400 hover:text-gray-600'
-                                        }`}
-                                >
-                                    {r}
-                                </button>
-                            ))}
-                        </div>
-
                         <div className="flex items-center space-x-4 pl-6 border-l border-gray-100">
                             <div className="text-right hidden md:block">
-                                <p className="text-sm font-black text-gray-900 leading-none">{role === 'siswa' ? 'Siswa User' : role === 'guru' ? 'Guru User' : role === 'parent' ? 'Wali Murid' : 'Admin User'}</p>
-                                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1 uppercase">Mode: {role}</p>
+                                <p className="text-sm font-black text-gray-900 leading-none">
+                                    {userName || (role === 'siswa' ? 'Siswa User' : role === 'guru' ? 'Guru User' : role === 'parent' ? 'Wali Murid' : 'Admin User')}
+                                </p>
+                                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1 uppercase">
+                                    {role === 'siswa' ? `Kelas: ${userClass || '-'}` : `Mode: ${role}`}
+                                </p>
                             </div>
                             <div className="relative group cursor-pointer">
                                 <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 p-[2px] shadow-lg shadow-blue-100 active:scale-95 transition-transform">

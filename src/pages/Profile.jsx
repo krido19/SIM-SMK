@@ -13,6 +13,8 @@ import {
 
 export default function Profile() {
     const [isSaved, setIsSaved] = useState(false);
+    const role = localStorage.getItem('userRole') || 'admin';
+    const userName = localStorage.getItem('userName') || 'User';
 
     const handleSave = (e) => {
         e.preventDefault();
@@ -34,15 +36,15 @@ export default function Profile() {
                         <div className="relative group">
                             <div className="h-32 w-32 rounded-[2rem] bg-gradient-to-br from-blue-500 to-indigo-600 p-1 shadow-2xl shadow-blue-100">
                                 <div className="h-full w-full bg-white rounded-[1.8rem] overflow-hidden flex items-center justify-center">
-                                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Admin" alt="avatar" />
+                                    <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${userName}`} alt="avatar" />
                                 </div>
                             </div>
                             <button className="absolute -bottom-2 -right-2 bg-white p-3 rounded-2xl shadow-xl border border-gray-50 text-blue-600 hover:scale-110 active:scale-95 transition-all">
                                 <Camera size={18} />
                             </button>
                         </div>
-                        <h2 className="text-xl font-black text-gray-900 mt-6">Admin Sistem</h2>
-                        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1 text-blue-600 bg-blue-50 px-3 py-1 rounded-full">Administrator</p>
+                        <h2 className="text-xl font-black text-gray-900 mt-6">{userName}</h2>
+                        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1 text-blue-600 bg-blue-50 px-3 py-1 rounded-full">{role.toUpperCase()}</p>
                     </div>
 
                     <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm space-y-4">
@@ -74,7 +76,7 @@ export default function Profile() {
                                     <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300" />
                                     <input
                                         type="text"
-                                        defaultValue="Admin Sistem"
+                                        defaultValue={userName}
                                         className="w-full pl-12 pr-4 py-3 bg-gray-50 border-transparent focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/5 rounded-2xl outline-none transition-all font-bold text-gray-700"
                                     />
                                 </div>
@@ -85,7 +87,7 @@ export default function Profile() {
                                     <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300" />
                                     <input
                                         type="email"
-                                        defaultValue="admin@smkn4.sch.id"
+                                        defaultValue={`${role}@smkn4.sch.id`}
                                         className="w-full pl-12 pr-4 py-3 bg-gray-50 border-transparent focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/5 rounded-2xl outline-none transition-all font-bold text-gray-700"
                                     />
                                 </div>
@@ -106,7 +108,7 @@ export default function Profile() {
                                 <input
                                     type="text"
                                     disabled
-                                    defaultValue="198501012010011001"
+                                    defaultValue="12345678"
                                     className="w-full px-4 py-3 bg-gray-100 border-transparent rounded-2xl font-bold text-gray-400 cursor-not-allowed"
                                 />
                             </div>

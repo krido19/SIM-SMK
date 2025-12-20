@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { GraduationCap, Mail, Lock, Loader2, AlertCircle, UserCircle, Users } from 'lucide-react';
+import { supabase } from '../lib/supabase';
+import { GraduationCap, Mail, Lock, Loader2, AlertCircle, UserCircle, Users, Eye, EyeOff } from 'lucide-react';
 
 export default function Login() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const navigate = useNavigate();
@@ -14,29 +16,79 @@ export default function Login() {
         setLoading(true);
         setError(null);
 
-        setTimeout(() => {
-            setLoading(false);
-            const userIdentifier = email.trim();
-            const pass = password.trim();
+        const id = email.trim();
+        const pass = password.trim();
 
-            let role = '';
-            if (userIdentifier === 'admin@school.id' && pass === 'admin123') {
-                role = 'admin';
-            } else if (userIdentifier === 'guru@school.id' && pass === 'guru123') {
-                role = 'guru';
-            } else if (userIdentifier.startsWith('OT') && pass === 'parent123') {
-                role = 'parent';
-            } else if ((userIdentifier === 'siswa123' || /^\d+$/.test(userIdentifier)) && (pass === 'siswa123')) {
-                role = 'siswa';
-            }
-
-            if (role) {
-                localStorage.setItem('userRole', role);
+        try {
+            // 1. Admin Hardcoded
+            if (id === 'admin@school.id' && pass === 'admin123') {
+                localStorage.setItem('userRole', 'admin');
+                localStorage.setItem('userName', 'Admin Utama');
                 navigate('/dashboard');
-            } else {
-                setError('ID atau Password salah. Gunakan: admin@school.id, guru@school.id, NIS, atau OT+NIS.');
+                return;
             }
-        }, 1500);
+
+            // 2. Guru / Teacher (Check by Email or NIP)
+            const { data: guru, error: guruErr } = await supabase
+                .from('teachers')
+                .select('*')
+                .or(`email.eq.${id},nip.eq.${id}`)
+                .single();
+
+            if (!guruErr && guru) {
+                if (pass === 'guru123' || pass === id || (guru.email && pass === guru.email.split('@')[0])) {
+                    localStorage.setItem('userRole', 'guru');
+                    localStorage.setItem('userName', guru.name);
+                    navigate('/dashboard');
+                    return;
+                }
+            }
+
+            // 3. Student (Numeric NIS)
+            if (/^\d+$/.test(id)) {
+                const { data: student, error: stdErr } = await supabase
+                    .from('students')
+                    .select('*, classes(name)')
+                    .eq('nis', id)
+                    .single();
+
+                if (!stdErr && student) {
+                    if (pass === 'siswa123' || pass === id) {
+                        localStorage.setItem('userRole', 'siswa');
+                        localStorage.setItem('userName', student.full_name);
+                        localStorage.setItem('userClass', student.classes?.name || '-');
+                        navigate('/dashboard');
+                        return;
+                    }
+                }
+            }
+
+            // 4. Parent (OT + NIS)
+            if (id.toUpperCase().startsWith('OT')) {
+                const nis = id.substring(2).trim();
+                const { data: student, error: stdErr } = await supabase
+                    .from('students')
+                    .select('*')
+                    .eq('nis', nis)
+                    .single();
+
+                if (!stdErr && student) {
+                    if (pass === 'parent123' || pass === 'siswa123' || pass === nis) {
+                        localStorage.setItem('userRole', 'parent');
+                        localStorage.setItem('userName', 'Orang Tua ' + student.full_name);
+                        navigate('/dashboard');
+                        return;
+                    }
+                }
+            }
+
+            setError('ID atau Password salah. Gunakan: admin@school.id, guru@school.id, NIS, atau OT+NIS.');
+        } catch (err) {
+            console.error('Login error:', err);
+            setError('Terjadi kesalahan sistem.');
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -78,7 +130,7 @@ export default function Login() {
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     className="block w-full pl-12 pr-4 py-4 bg-gray-50 border-transparent focus:bg-white focus:border-blue-500 rounded-2xl font-bold text-gray-700 outline-none transition-all border-2"
-                                    placeholder="admin@school.id atau NIS"
+                                    placeholder="admin@school.id, NIP, atau NIS"
                                 />
                             </div>
                         </div>
@@ -93,13 +145,20 @@ export default function Login() {
                                 </div>
                                 <input
                                     id="password"
-                                    type="password"
+                                    type={showPassword ? 'text' : 'password'}
                                     required
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    className="block w-full pl-12 pr-4 py-4 bg-gray-50 border-transparent focus:bg-white focus:border-blue-500 rounded-2xl font-bold text-gray-700 outline-none transition-all border-2"
+                                    className="block w-full pl-12 pr-12 py-4 bg-gray-50 border-transparent focus:bg-white focus:border-blue-500 rounded-2xl font-bold text-gray-700 outline-none transition-all border-2"
                                     placeholder="••••••••"
                                 />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-blue-600 transition-colors"
+                                >
+                                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                </button>
                             </div>
                         </div>
 
@@ -152,15 +211,21 @@ export default function Login() {
 
                         <div className="mt-6 space-y-3">
                             <div className="bg-gray-50 p-4 rounded-2xl border border-gray-50 flex items-center space-x-4">
-                                <Users size={20} className="text-blue-500" />
+                                <UserCircle size={20} className="text-indigo-500" />
                                 <p className="text-[10px] font-bold text-gray-500 leading-tight">
-                                    Siswa: Gunakan <span className="text-blue-600">NIS</span> (Angka) atau `siswa123`
+                                    Guru: Gunakan <span className="text-indigo-600">NIP</span> atau Email
                                 </p>
                             </div>
                             <div className="bg-gray-50 p-4 rounded-2xl border border-gray-50 flex items-center space-x-4">
-                                <UserCircle size={20} className="text-indigo-500" />
+                                <Users size={20} className="text-blue-500" />
                                 <p className="text-[10px] font-bold text-gray-500 leading-tight">
-                                    Orang Tua: Gunakan <span className="text-indigo-600">OT + NIS</span> (Contoh: OT2023001)
+                                    Siswa: Gunakan <span className="text-blue-600">NIS</span> (Angka)
+                                </p>
+                            </div>
+                            <div className="bg-gray-50 p-4 rounded-2xl border border-gray-50 flex items-center space-x-4">
+                                <AlertCircle size={20} className="text-amber-500" />
+                                <p className="text-[10px] font-bold text-gray-500 leading-tight">
+                                    Orang Tua: Gunakan <span className="text-amber-600">OT + NIS</span> (Contoh: OT2023001)
                                 </p>
                             </div>
                         </div>

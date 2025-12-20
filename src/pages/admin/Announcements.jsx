@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { supabase } from '../../lib/supabase';
 import {
     Plus,
     Bell,
@@ -8,13 +9,13 @@ import {
     X,
     Save,
     Megaphone,
-    CheckCircle2
+    CheckCircle2,
+    Upload,
+    ImageIcon,
+    Loader2
 } from 'lucide-react';
 
-const initialAnnouncements = [
-    { id: 1, title: 'Ujian Akhir Semester (UAS)', content: 'UAS akan dilaksanakan pada tanggal 20-30 Desember 2023. Harap persiapkan diri Anda.', date: '15 Des 2023', category: 'Akademik' },
-    { id: 2, title: 'Libur Hari Raya', content: 'Sekolah akan diliburkan mulai tanggal 25 Desember 2023 hingga 2 Januari 2024.', date: '10 Des 2023', category: 'Umum' },
-];
+
 
 const Modal = ({ isOpen, onClose, title, children }) => {
     if (!isOpen) return null;
@@ -36,38 +37,124 @@ const Modal = ({ isOpen, onClose, title, children }) => {
 };
 
 export default function Announcements() {
-    const [announcements, setAnnouncements] = useState(initialAnnouncements);
+    const [announcements, setAnnouncements] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [currentAnnouncement, setCurrentAnnouncement] = useState(null);
-    const [formData, setFormData] = useState({ title: '', content: '', category: 'Umum' });
+    const [viewAnnouncement, setViewAnnouncement] = useState(null);
+    const [formData, setFormData] = useState({ title: '', content: '', category: 'Umum', image_url: '' });
+    const [isLoading, setIsLoading] = useState(true);
+    const [isUploading, setIsUploading] = useState(false);
+    const [imagePreview, setImagePreview] = useState(null);
+    const userRole = localStorage.getItem('userRole') || 'admin';
+    const canManage = userRole === 'admin';
+
+    useEffect(() => {
+        fetchAnnouncements();
+    }, []);
+
+    const fetchAnnouncements = async () => {
+        setIsLoading(true);
+        const { data, error } = await supabase
+            .from('announcements')
+            .select('*')
+            .order('created_at', { ascending: false });
+
+        if (error) {
+            console.error('Error fetching announcements:', error);
+        } else {
+            setAnnouncements(data || []);
+        }
+        setIsLoading(false);
+    };
 
     const handleOpenAdd = () => {
         setCurrentAnnouncement(null);
-        setFormData({ title: '', content: '', category: 'Umum' });
+        setFormData({ title: '', content: '', category: 'Umum', image_url: '' });
+        setImagePreview(null);
         setIsModalOpen(true);
     };
 
     const handleOpenEdit = (ann) => {
         setCurrentAnnouncement(ann);
-        setFormData({ title: ann.title, content: ann.content, category: ann.category });
+        setFormData({ title: ann.title, content: ann.content, category: ann.category, image_url: ann.image_url || '' });
+        setImagePreview(ann.image_url || null);
         setIsModalOpen(true);
     };
 
-    const handleDelete = (id) => {
-        if (window.confirm('Hapus pengumuman ini?')) {
-            setAnnouncements(announcements.filter(a => a.id !== id));
+    const handleImageUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        // Show preview
+        const reader = new FileReader();
+        reader.onloadend = () => setImagePreview(reader.result);
+        reader.readAsDataURL(file);
+
+        setIsUploading(true);
+        try {
+            const fileName = `${Date.now()}_${file.name}`;
+            const { data, error } = await supabase.storage
+                .from('announcements')
+                .upload(fileName, file);
+
+            if (error) throw error;
+
+            const { data: { publicUrl } } = supabase.storage
+                .from('announcements')
+                .getPublicUrl(fileName);
+
+            setFormData(prev => ({ ...prev, image_url: publicUrl }));
+        } catch (err) {
+            console.error('Upload error:', err);
+            alert('Gagal mengupload gambar. Pastikan bucket "announcements" sudah dibuat di Supabase Storage.');
+        } finally {
+            setIsUploading(false);
         }
     };
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        const date = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
-        if (currentAnnouncement) {
-            setAnnouncements(announcements.map(a => a.id === currentAnnouncement.id ? { ...a, ...formData, date } : a));
-        } else {
-            setAnnouncements([{ id: Date.now(), ...formData, date }, ...announcements]);
+    const handleDelete = async (id) => {
+        if (window.confirm('Hapus pengumuman ini?')) {
+            const { error } = await supabase.from('announcements').delete().eq('id', id);
+            if (!error) {
+                setAnnouncements(announcements.filter(a => a.id !== id));
+            } else {
+                alert('Gagal menghapus: ' + error.message);
+            }
         }
-        setIsModalOpen(false);
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setIsLoading(true);
+
+        const date = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+        const payload = { ...formData, date };
+
+        if (currentAnnouncement) {
+            const { error } = await supabase
+                .from('announcements')
+                .update(payload)
+                .eq('id', currentAnnouncement.id);
+
+            if (error) {
+                alert('Gagal memperbarui: ' + error.message);
+            } else {
+                fetchAnnouncements();
+                setIsModalOpen(false);
+            }
+        } else {
+            const { error } = await supabase
+                .from('announcements')
+                .insert([payload]);
+
+            if (error) {
+                alert('Gagal menambah: ' + error.message);
+            } else {
+                fetchAnnouncements();
+                setIsModalOpen(false);
+            }
+        }
+        setIsLoading(false);
     };
 
     return (
@@ -77,51 +164,69 @@ export default function Announcements() {
                     <h1 className="text-2xl font-bold text-gray-900">Pengumuman</h1>
                     <p className="text-sm text-gray-500">Kelola berita dan informasi penting untuk seluruh civitas sekolah.</p>
                 </div>
-                <button
-                    onClick={handleOpenAdd}
-                    className="flex items-center justify-center space-x-2 bg-rose-600 hover:bg-rose-700 text-white px-4 py-2.5 rounded-xl font-semibold transition-all shadow-md active:scale-95"
-                >
-                    <Plus size={18} />
-                    <span>Buat Pengumuman</span>
-                </button>
+                {canManage && (
+                    <button
+                        onClick={handleOpenAdd}
+                        className="flex items-center justify-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-2xl font-black transition-all shadow-xl shadow-blue-100 active:scale-95"
+                    >
+                        <Plus size={20} />
+                        <span className="uppercase tracking-widest text-xs tracking-tight">Buat Pengumuman</span>
+                    </button>
+                )}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {announcements.map((ann) => (
-                    <div key={ann.id} className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm hover:shadow-xl transition-all group relative overflow-hidden">
-                        <div className={`absolute top-0 right-0 w-32 h-32 bg-rose-50 rounded-full -mr-16 -mt-16 opacity-40 group-hover:scale-150 transition-transform duration-700`} />
+                    <div
+                        key={ann.id}
+                        onClick={() => setViewAnnouncement(ann)}
+                        className="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm hover:shadow-xl transition-all group relative overflow-hidden flex flex-col cursor-pointer active:scale-[0.98]"
+                    >
+                        {ann.image_url && (
+                            <div className="w-full h-48 overflow-hidden relative">
+                                <img src={ann.image_url} alt={ann.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+                            </div>
+                        )}
+                        <div className="p-8 flex-1">
+                            {!ann.image_url && (
+                                <div className={`absolute top-0 right-0 w-32 h-32 bg-rose-50 rounded-full -mr-16 -mt-16 opacity-40 group-hover:scale-150 transition-transform duration-700`} />
+                            )}
 
-                        <div className="flex items-start justify-between mb-6 relative z-10">
-                            <div className="p-4 rounded-2xl bg-rose-50 text-rose-600 shadow-sm">
-                                <Megaphone size={24} />
+                            <div className="flex items-start justify-between mb-6 relative z-10">
+                                <div className="p-4 rounded-2xl bg-rose-50 text-rose-600 shadow-sm">
+                                    <Megaphone size={24} />
+                                </div>
+                                {canManage && (
+                                    <div className="flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()}>
+                                        <button
+                                            onClick={() => handleOpenEdit(ann)}
+                                            className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all"
+                                        >
+                                            <Edit2 size={18} />
+                                        </button>
+                                        <button
+                                            onClick={() => handleDelete(ann.id)}
+                                            className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all"
+                                        >
+                                            <Trash2 size={18} />
+                                        </button>
+                                    </div>
+                                )}
                             </div>
-                            <div className="flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <button
-                                    onClick={() => handleOpenEdit(ann)}
-                                    className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all"
-                                >
-                                    <Edit2 size={18} />
-                                </button>
-                                <button
-                                    onClick={() => handleDelete(ann.id)}
-                                    className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all"
-                                >
-                                    <Trash2 size={18} />
-                                </button>
-                            </div>
-                        </div>
 
-                        <div className="relative z-10 space-y-4">
-                            <div>
-                                <span className="px-3 py-1 bg-gray-100 text-gray-600 text-[10px] font-black uppercase tracking-[0.2em] rounded-full">
-                                    {ann.category}
-                                </span>
-                                <h3 className="text-2xl font-black text-gray-900 mt-3 tracking-tight">{ann.title}</h3>
-                            </div>
-                            <p className="text-gray-500 text-sm leading-relaxed line-clamp-3">{ann.content}</p>
-                            <div className="pt-4 border-t border-gray-50 flex items-center text-[10px] font-black text-gray-400 uppercase tracking-widest">
-                                <Calendar size={14} className="mr-2" />
-                                Diposting: {ann.date}
+                            <div className="relative z-10 space-y-4">
+                                <div>
+                                    <span className="px-3 py-1 bg-gray-100 text-gray-600 text-[10px] font-black uppercase tracking-[0.2em] rounded-full">
+                                        {ann.category}
+                                    </span>
+                                    <h3 className="text-2xl font-black text-gray-900 mt-3 tracking-tight">{ann.title}</h3>
+                                </div>
+                                <p className="text-gray-500 text-sm leading-relaxed line-clamp-3">{ann.content}</p>
+                                <div className="pt-4 border-t border-gray-50 flex items-center text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                                    <Calendar size={14} className="mr-2" />
+                                    Diposting: {ann.date}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -168,6 +273,36 @@ export default function Announcements() {
                             onChange={(e) => setFormData({ ...formData, content: e.target.value })}
                         ></textarea>
                     </div>
+
+                    <div className="space-y-2">
+                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Foto Pengumuman (Opsional)</label>
+                        <div className="relative group">
+                            {imagePreview ? (
+                                <div className="relative w-full h-40 rounded-2xl overflow-hidden border-2 border-dashed border-rose-200">
+                                    <img src={imagePreview} className="w-full h-full object-cover" />
+                                    <button
+                                        type="button"
+                                        onClick={() => { setImagePreview(null); setFormData({ ...formData, image_url: '' }) }}
+                                        className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-lg hover:bg-red-600 shadow-lg"
+                                    >
+                                        <X size={14} />
+                                    </button>
+                                </div>
+                            ) : (
+                                <label className="flex flex-col items-center justify-center w-full h-40 rounded-2xl border-2 border-dashed border-gray-200 bg-gray-50 hover:bg-white hover:border-rose-500 transition-all cursor-pointer group">
+                                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                                        <div className="p-3 bg-white rounded-xl shadow-sm mb-3 group-hover:scale-110 transition-transform">
+                                            {isUploading ? <Loader2 className="animate-spin text-rose-600" size={20} /> : <ImageIcon className="text-gray-400 group-hover:text-rose-600" size={20} />}
+                                        </div>
+                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                                            {isUploading ? 'Sedang Mengunggah...' : 'Klik untuk Unggah Foto'}
+                                        </p>
+                                    </div>
+                                    <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} disabled={isUploading} />
+                                </label>
+                            )}
+                        </div>
+                    </div>
                     <button
                         type="submit"
                         className="w-full bg-rose-600 hover:bg-rose-700 text-white font-black py-4 rounded-2xl shadow-xl shadow-rose-100 transition-all flex items-center justify-center space-x-2 active:scale-95 mt-4"
@@ -177,6 +312,56 @@ export default function Announcements() {
                     </button>
                 </form>
             </Modal>
+
+            {/* View Detail Modal */}
+            {viewAnnouncement && (
+                <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-in fade-in duration-300">
+                    <div className="bg-white rounded-[3rem] shadow-2xl w-full max-w-2xl overflow-hidden animate-in zoom-in-95 duration-300 max-h-[90vh] flex flex-col">
+                        <div className="relative">
+                            {viewAnnouncement.image_url ? (
+                                <img src={viewAnnouncement.image_url} className="w-full h-64 object-cover" />
+                            ) : (
+                                <div className="w-full h-32 bg-gradient-to-br from-rose-50 from-rose-50 to-rose-100" />
+                            )}
+                            <button
+                                onClick={() => setViewAnnouncement(null)}
+                                className="absolute top-6 right-6 p-3 bg-white/20 backdrop-blur-md hover:bg-white/40 text-white rounded-2xl transition-all"
+                            >
+                                <X size={24} />
+                            </button>
+                            <div className="absolute bottom-6 left-8">
+                                <span className="px-4 py-1.5 bg-rose-600 text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-full shadow-lg">
+                                    {viewAnnouncement.category}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div className="p-10 overflow-y-auto space-y-6">
+                            <div className="flex items-center space-x-3 text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                                <Calendar size={14} className="text-rose-500" />
+                                <span>Dipublikasikan pada {viewAnnouncement.date}</span>
+                            </div>
+
+                            <h2 className="text-4xl font-black text-gray-900 tracking-tight leading-tight">
+                                {viewAnnouncement.title}
+                            </h2>
+
+                            <div className="prose prose-rose max-w-none">
+                                <p className="text-gray-600 text-lg leading-relaxed whitespace-pre-wrap">
+                                    {viewAnnouncement.content}
+                                </p>
+                            </div>
+
+                            <button
+                                onClick={() => setViewAnnouncement(null)}
+                                className="w-full bg-gray-100 hover:bg-gray-200 text-gray-900 font-black py-5 rounded-[1.5rem] transition-all flex items-center justify-center space-x-2 active:scale-95 text-xs uppercase tracking-widest mt-8"
+                            >
+                                Tutup Pengumuman
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

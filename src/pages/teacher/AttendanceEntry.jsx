@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { supabase } from '../../lib/supabase';
 import {
     Check,
     X,
@@ -6,20 +7,83 @@ import {
     Search,
     Calendar,
     Save,
-    Info
+    Info,
+    ChevronDown
 } from 'lucide-react';
 
-const initialAttendance = [
-    { id: 1, name: 'Ahmad Fauzi', nis: '2023001', status: 'Hadir' },
-    { id: 2, name: 'Budi Santoso', nis: '2023002', status: 'Hadir' },
-    { id: 3, name: 'Citra Lestari', nis: '2023003', status: 'Izin' },
-    { id: 4, name: 'Diana Putri', nis: '2023004', status: 'Hadir' },
-    { id: 5, name: 'Eko Prasetyo', nis: '2023005', status: 'Sakit' },
-];
-
 export default function AttendanceEntry() {
-    const [attendance, setAttendance] = useState(initialAttendance);
+    const [attendance, setAttendance] = useState([]);
     const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+    const [dbClasses, setDbClasses] = useState([]);
+    const [selectedClassId, setSelectedClassId] = useState('');
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchClasses = async () => {
+            const { data } = await supabase.from('classes').select('id, name');
+            if (data) {
+                setDbClasses(data);
+                if (data.length > 0) setSelectedClassId(data[0].id);
+            }
+        };
+        fetchClasses();
+    }, []);
+
+    useEffect(() => {
+        if (selectedClassId) {
+            fetchData();
+        }
+    }, [selectedDate, selectedClassId]);
+
+    const fetchData = async () => {
+        setIsLoading(true);
+        const { data: stdData, error: stdError } = await supabase
+            .from('students')
+            .select(`
+                id,
+                full_name,
+                nis,
+                attendance (
+                    status,
+                    date
+                )
+            `)
+            .eq('class_id', selectedClassId);
+
+        if (stdError) {
+            console.error(stdError);
+        } else {
+            const transformed = stdData.map(s => {
+                const att = s.attendance?.find(a => a.date === selectedDate) || { status: 'Hadir' };
+                return {
+                    id: s.id,
+                    name: s.full_name,
+                    nis: s.nis,
+                    status: att.status
+                };
+            });
+            setAttendance(transformed);
+        }
+        setIsLoading(false);
+    };
+
+    const handleSave = async () => {
+        const attendanceToUpsert = attendance.map(a => ({
+            student_id: a.id,
+            date: selectedDate,
+            status: a.status
+        }));
+
+        const { error } = await supabase
+            .from('attendance')
+            .upsert(attendanceToUpsert, { onConflict: 'student_id, date' });
+
+        if (error) {
+            alert('Gagal menyimpan absensi: ' + error.message);
+        } else {
+            alert('Absensi berhasil disimpan!');
+        }
+    };
 
     const setStatus = (id, status) => {
         setAttendance(attendance.map(a => a.id === id ? { ...a, status } : a));
@@ -30,7 +94,19 @@ export default function AttendanceEntry() {
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-2xl font-bold text-gray-900">Input Absensi Harian</h1>
-                    <p className="text-sm text-gray-500">Kelas: X-IPA-1 | Sesi: Pagi</p>
+                    <div className="flex items-center space-x-3 mt-2">
+                        <div className="relative group">
+                            <select
+                                className="appearance-none bg-white border border-gray-100 px-4 py-2 pr-10 rounded-xl text-xs font-black text-gray-600 focus:ring-2 focus:ring-blue-500 transition-all outline-none cursor-pointer shadow-sm"
+                                value={selectedClassId}
+                                onChange={(e) => setSelectedClassId(e.target.value)}
+                            >
+                                {dbClasses.map(c => <option key={c.id} value={c.id}>Kelas: {c.name}</option>)}
+                            </select>
+                            <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                        </div>
+                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest bg-gray-50 px-3 py-2 rounded-xl border border-gray-100">Sesi: Pagi</p>
+                    </div>
                 </div>
                 <div className="flex items-center space-x-3 bg-white p-2 rounded-2xl border border-gray-100 shadow-sm">
                     <Calendar size={18} className="ml-2 text-blue-500" />
@@ -67,8 +143,8 @@ export default function AttendanceEntry() {
                                     key={opt.val}
                                     onClick={() => setStatus(student.id, opt.val)}
                                     className={`py-2 rounded-xl text-[10px] font-black uppercase transition-all border-2 ${student.status === opt.val
-                                            ? `bg-${opt.color}-600 border-${opt.color}-600 text-white shadow-lg shadow-${opt.color}-200 scale-105`
-                                            : `bg-white border-gray-50 text-gray-400 hover:border-${opt.color}-200 hover:text-${opt.color}-600`
+                                        ? `bg-${opt.color}-600 border-${opt.color}-600 text-white shadow-lg shadow-${opt.color}-200 scale-105`
+                                        : `bg-white border-gray-50 text-gray-400 hover:border-${opt.color}-200 hover:text-${opt.color}-600`
                                         }`}
                                 >
                                     {opt.label}
@@ -90,7 +166,10 @@ export default function AttendanceEntry() {
                     </div>
                     <p className="text-sm font-bold text-gray-800">Semua Data Sudah Diisi</p>
                 </div>
-                <button className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-2xl font-bold shadow-lg shadow-blue-200 transition-all active:scale-95">
+                <button
+                    onClick={handleSave}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-2xl font-bold shadow-lg shadow-blue-200 transition-all active:scale-95"
+                >
                     Simpan Absensi
                 </button>
             </div>

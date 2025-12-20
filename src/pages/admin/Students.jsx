@@ -1,4 +1,7 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
+import { supabase } from '../../lib/supabase';
+import { sendWhatsApp } from '../../utils/fonnte';
 import {
     Plus,
     Search,
@@ -17,23 +20,12 @@ import {
     Trash,
     UserCircle,
     Mail,
-    Hash
+    Hash,
+    MessageCircle
 } from 'lucide-react';
 
-const initialStudents = [
-    { id: 1, nis: '2023001', name: 'Ahmad Fauzi', class: 'X-IPA-1', email: 'ahmad@example.com', status: 'Aktif' },
-    { id: 2, nis: '2023002', name: 'Budi Santoso', class: 'X-IPA-1', email: 'budi@example.com', status: 'Aktif' },
-    { id: 3, nis: '2023003', name: 'Citra Lestari', class: 'XI-IPA-2', email: 'citra@example.com', status: 'Aktif' },
-    { id: 4, nis: '2023004', name: 'Diana Putri', class: 'XII-IPA-1', email: 'diana@example.com', status: 'Izin' },
-    { id: 5, nis: '2023005', name: 'Eko Prasetyo', class: 'X-IPS-1', email: 'eko@example.com', status: 'Aktif' },
-    { id: 6, nis: '2023006', name: 'Fahri Hamzah', class: 'X-IPA-2', email: 'fahri@example.com', status: 'Aktif' },
-    { id: 7, nis: '2023007', name: 'Gita Gutawa', class: 'XI-IPA-1', email: 'gita@example.com', status: 'Aktif' },
-    { id: 8, nis: '2023008', name: 'Hani Shofia', class: 'XII-IPA-1', email: 'hani@example.com', status: 'Aktif' },
-    { id: 9, nis: '2023009', name: 'Indra Herlambang', class: 'X-IPA-1', email: 'indra@example.com', status: 'Sakit' },
-    { id: 10, nis: '2023010', name: 'Joko Widodo', class: 'XI-IPA-2', email: 'joko@example.com', status: 'Aktif' },
-    { id: 11, nis: '2023011', name: 'Kevin Sanjaya', class: 'XII-IPA-1', email: 'kevin@example.com', status: 'Aktif' },
-    { id: 12, nis: '2023012', name: 'Lesti Kejora', class: 'X-IPS-1', email: 'lesti@example.com', status: 'Aktif' },
-];
+
+
 
 const Modal = ({ isOpen, onClose, title, children }) => {
     if (!isOpen) return null;
@@ -55,11 +47,13 @@ const Modal = ({ isOpen, onClose, title, children }) => {
 };
 
 export default function Students() {
-    const [students, setStudents] = useState(initialStudents);
+    const [students, setStudents] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [currentStudent, setCurrentStudent] = useState(null);
-    const [formData, setFormData] = useState({ name: '', nis: '', class: 'X-IPA-1', email: '', status: 'Aktif' });
+    const [formData, setFormData] = useState({ name: '', nis: '', class_id: '', email: '', waStudent: '', waParent: '', status: 'Aktif' });
+    const [isLoading, setIsLoading] = useState(true);
+    const [dbClasses, setDbClasses] = useState([]);
 
     // New State for Advanced Features
     const [currentPage, setCurrentPage] = useState(1);
@@ -69,12 +63,63 @@ export default function Students() {
     const [filterStatus, setFilterStatus] = useState('Semua');
     const [sortConfig, setSortConfig] = useState({ key: 'name', direction: 'asc' });
 
-    const classes = ['Semua', 'X-IPA-1', 'X-IPA-2', 'XI-IPA-1', 'XI-IPA-2', 'XII-IPA-1', 'X-IPS-1'];
     const statuses = ['Semua', 'Aktif', 'Izin', 'Sakit', 'Alpa', 'Lulus'];
+    const location = useLocation();
+
+    useEffect(() => {
+        fetchStudents();
+        fetchDbClasses();
+    }, []);
+
+    useEffect(() => {
+        if (location.state && location.state.filterClass) {
+            setFilterClass(location.state.filterClass);
+            setCurrentPage(1);
+        }
+    }, [location]);
+
+    const fetchStudents = async () => {
+        setIsLoading(true);
+        const { data, error } = await supabase
+            .from('students')
+            .select(`
+                *,
+                classes (
+                    name,
+                    homeroom
+                )
+            `)
+            .order('created_at', { ascending: false });
+
+        if (error) {
+            console.error('Error fetching students:', error);
+        } else {
+            const transformedData = data.map(s => {
+                const classObj = s.classes;
+                return {
+                    ...s,
+                    name: s.full_name,
+                    class: classObj?.name || 'Unassigned',
+                    homeroom: classObj?.homeroom || '-',
+                    waStudent: s.wa_student,
+                    waParent: s.wa_parent
+                };
+            });
+            setStudents(transformedData);
+        }
+        setIsLoading(false);
+    };
+
+    const fetchDbClasses = async () => {
+        const { data, error } = await supabase.from('classes').select('id, name');
+        if (!error) {
+            setDbClasses(data || []);
+        }
+    };
 
     const handleOpenAdd = () => {
         setCurrentStudent(null);
-        setFormData({ name: '', nis: '', class: 'X-IPA-1', email: '', status: 'Aktif' });
+        setFormData({ name: '', nis: '', class_id: dbClasses[0]?.id || '', email: '', waStudent: '', waParent: '', status: 'Aktif' });
         setIsModalOpen(true);
     };
 
@@ -83,24 +128,36 @@ export default function Students() {
         setFormData({
             name: student.name,
             nis: student.nis,
-            class: student.class,
+            class_id: student.class_id || '',
             email: student.email,
+            waStudent: student.waStudent || '',
+            waParent: student.waParent || '',
             status: student.status
         });
         setIsModalOpen(true);
     };
 
-    const handleDelete = (id) => {
+    const handleDelete = async (id) => {
         if (window.confirm('Hapus data siswa ini?')) {
-            setStudents(students.filter(s => s.id !== id));
-            setSelectedIds(selectedIds.filter(sid => sid !== id));
+            const { error } = await supabase.from('students').delete().eq('id', id);
+            if (!error) {
+                setStudents(students.filter(s => s.id !== id));
+                setSelectedIds(selectedIds.filter(sid => sid !== id));
+            } else {
+                alert('Gagal menghapus: ' + error.message);
+            }
         }
     };
 
-    const handleBulkDelete = () => {
+    const handleBulkDelete = async () => {
         if (window.confirm(`Hapus ${selectedIds.length} siswa terpilih?`)) {
-            setStudents(students.filter(s => !selectedIds.includes(s.id)));
-            setSelectedIds([]);
+            const { error } = await supabase.from('students').delete().in('id', selectedIds);
+            if (!error) {
+                setStudents(students.filter(s => !selectedIds.includes(s.id)));
+                setSelectedIds([]);
+            } else {
+                alert('Gagal menghapus bulk: ' + error.message);
+            }
         }
     };
 
@@ -120,21 +177,53 @@ export default function Students() {
         }
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
+        setIsLoading(true);
+
+        const payload = {
+            nis: formData.nis,
+            full_name: formData.name,
+            email: formData.email,
+            class_id: formData.class_id,
+            wa_student: formData.waStudent || '-',
+            wa_parent: formData.waParent || '-',
+            status: formData.status
+        };
+
         if (currentStudent) {
-            setStudents(students.map(s => s.id === currentStudent.id ? { ...s, ...formData } : s));
+            const { error } = await supabase
+                .from('students')
+                .update(payload)
+                .eq('id', currentStudent.id);
+
+            if (error) {
+                alert('Gagal memperbarui siswa: ' + error.message);
+            } else {
+                fetchStudents();
+                setIsModalOpen(false);
+            }
         } else {
-            setStudents([{ id: Date.now(), ...formData }, ...students]);
+            const { error } = await supabase
+                .from('students')
+                .insert([payload]);
+
+            if (error) {
+                alert('Gagal menambah siswa: ' + error.message);
+            } else {
+                fetchStudents();
+                setIsModalOpen(false);
+            }
         }
-        setIsModalOpen(false);
+        setIsLoading(false);
     };
 
     // Processing: Search -> Filter -> Sort -> Paginate
     const processedStudents = useMemo(() => {
         let result = students.filter(s =>
             s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            s.nis.includes(searchTerm)
+            s.nis.includes(searchTerm) ||
+            (s.homeroom && s.homeroom.toLowerCase().includes(searchTerm.toLowerCase()))
         );
 
         if (filterClass !== 'Semua') {
@@ -206,7 +295,8 @@ export default function Students() {
                                 value={filterClass}
                                 onChange={(e) => setFilterClass(e.target.value)}
                             >
-                                {classes.map(c => <option key={c} value={c}>Kelas: {c}</option>)}
+                                <option value="Semua">Kelas: Semua</option>
+                                {dbClasses.map(c => <option key={c.id} value={c.name}>Kelas: {c.name}</option>)}
                             </select>
                             <ChevronDown size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
                         </div>
@@ -274,6 +364,13 @@ export default function Students() {
                                     </div>
                                 </th>
                                 <th className="px-6 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Kelas</th>
+                                <th className="px-6 py-5 cursor-pointer hover:bg-gray-100 transition-colors" onClick={() => toggleSort('homeroom')}>
+                                    <div className="flex items-center space-x-2 text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                                        <span>Wali Kelas</span>
+                                        <ArrowUpDown size={14} className={sortConfig.key === 'homeroom' ? 'text-blue-600' : 'text-gray-300'} />
+                                    </div>
+                                </th>
+                                <th className="px-6 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">Whatsapp</th>
                                 <th className="px-6 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Status</th>
                                 <th className="px-6 py-5 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest uppercase tracking-widest">Aksi</th>
                             </tr>
@@ -311,9 +408,48 @@ export default function Students() {
                                             </span>
                                         </td>
                                         <td className="px-6 py-5">
+                                            <span className="text-sm font-black text-gray-600 block">
+                                                {student.homeroom}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-5">
+                                            <div className="flex flex-col space-y-2 items-center">
+                                                <div className="flex items-center space-x-2 w-full justify-between">
+                                                    <div className="flex items-center space-x-1">
+                                                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-tighter">Siswa:</span>
+                                                        <span className="text-[11px] font-bold text-blue-600">{student.waStudent || '-'}</span>
+                                                    </div>
+                                                    {student.waStudent && student.waStudent !== '-' && (
+                                                        <button
+                                                            onClick={() => sendWhatsApp(student.waStudent, `Halo ${student.name}, ada pesan dari sekolah...`)}
+                                                            className="p-1 hover:bg-blue-50 rounded text-blue-600 transition-colors"
+                                                            title="Kirim WA ke Siswa"
+                                                        >
+                                                            <MessageCircle size={14} />
+                                                        </button>
+                                                    )}
+                                                </div>
+                                                <div className="flex items-center space-x-2 w-full justify-between">
+                                                    <div className="flex items-center space-x-1">
+                                                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-tighter">Ortu:</span>
+                                                        <span className="text-[11px] font-bold text-indigo-600">{student.waParent || '-'}</span>
+                                                    </div>
+                                                    {student.waParent && student.waParent !== '-' && (
+                                                        <button
+                                                            onClick={() => sendWhatsApp(student.waParent, `Halo Orang Tua dari ${student.name}, ada pengumuman penting...`)}
+                                                            className="p-1 hover:bg-indigo-50 rounded text-indigo-600 transition-colors"
+                                                            title="Kirim WA ke Orang Tua"
+                                                        >
+                                                            <MessageCircle size={14} />
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-5">
                                             <span className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest border ${student.status === 'Aktif'
-                                                    ? 'bg-emerald-50 text-emerald-700 border-emerald-100/50'
-                                                    : 'bg-orange-50 text-orange-700 border-orange-100/50'
+                                                ? 'bg-emerald-50 text-emerald-700 border-emerald-100/50'
+                                                : 'bg-orange-50 text-orange-700 border-orange-100/50'
                                                 }`}>
                                                 {student.status}
                                             </span>
@@ -435,8 +571,9 @@ export default function Students() {
                                 </div>
                                 <input
                                     required
-                                    type="email"
+                                    type="text"
                                     className="w-full bg-gray-50 border-transparent rounded-2xl pl-12 pr-4 py-4 font-bold text-gray-700 outline-none transition-all focus:bg-white focus:border-blue-500 border-2"
+                                    placeholder="email@example.com atau -"
                                     value={formData.email}
                                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                                 />
@@ -445,14 +582,36 @@ export default function Students() {
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-1">
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">WA Siswa</label>
+                            <input
+                                type="text"
+                                className="w-full bg-gray-50 border-transparent rounded-2xl px-4 py-4 font-bold text-gray-700 outline-none transition-all focus:bg-white focus:border-blue-500 border-2"
+                                placeholder="62812... atau -"
+                                value={formData.waStudent}
+                                onChange={(e) => setFormData({ ...formData, waStudent: e.target.value })}
+                            />
+                        </div>
+                        <div className="space-y-1">
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">WA Orang Tua</label>
+                            <input
+                                type="text"
+                                className="w-full bg-gray-50 border-transparent rounded-2xl px-4 py-4 font-bold text-gray-700 outline-none transition-all focus:bg-white focus:border-blue-500 border-2"
+                                placeholder="62812... atau -"
+                                value={formData.waParent}
+                                onChange={(e) => setFormData({ ...formData, waParent: e.target.value })}
+                            />
+                        </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-1">
                             <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Kelas</label>
                             <div className="relative group">
                                 <select
                                     className="w-full bg-gray-50 border-transparent rounded-2xl px-6 py-4 font-bold text-gray-700 outline-none transition-all focus:bg-white focus:border-blue-500 border-2 appearance-none cursor-pointer"
-                                    value={formData.class}
-                                    onChange={(e) => setFormData({ ...formData, class: e.target.value })}
+                                    value={formData.class_id}
+                                    onChange={(e) => setFormData({ ...formData, class_id: e.target.value })}
                                 >
-                                    {classes.filter(c => c !== 'Semua').map(c => <option key={c} value={c}>{c}</option>)}
+                                    {dbClasses.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                                 </select>
                                 <ChevronDown size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
                             </div>

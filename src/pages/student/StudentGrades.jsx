@@ -18,6 +18,9 @@ const subjectsGrades = [
 ];
 
 export default function StudentGrades() {
+    const userRole = localStorage.getItem('userRole');
+    const canPrint = userRole === 'admin' || userRole === 'guru';
+
     return (
         <div className="space-y-8 animate-in fade-in duration-500">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
@@ -25,16 +28,18 @@ export default function StudentGrades() {
                     <h1 className="text-3xl font-black text-gray-900 tracking-tight transition-all">Rapor Digital</h1>
                     <p className="text-gray-500 font-medium mt-1">Semester Ganjil 2023/2024</p>
                 </div>
-                <div className="flex space-x-3">
-                    <button className="flex items-center space-x-2 bg-white hover:bg-gray-50 text-gray-700 px-5 py-3 rounded-2xl font-bold border border-gray-100 shadow-sm transition-all active:scale-95">
-                        <Download size={18} className="text-blue-500" />
-                        <span>PDF</span>
-                    </button>
-                    <button className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-2xl font-bold shadow-lg shadow-blue-200 transition-all active:scale-95">
-                        <Printer size={18} />
-                        <span>Cetak Rapor</span>
-                    </button>
-                </div>
+                {canPrint && (
+                    <div className="flex space-x-3">
+                        <button className="flex items-center space-x-2 bg-white hover:bg-gray-50 text-gray-700 px-5 py-3 rounded-2xl font-bold border border-gray-100 shadow-sm transition-all active:scale-95">
+                            <Download size={18} className="text-blue-500" />
+                            <span>PDF</span>
+                        </button>
+                        <button className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-2xl font-bold shadow-lg shadow-blue-200 transition-all active:scale-95">
+                            <Printer size={18} />
+                            <span>Cetak Rapor</span>
+                        </button>
+                    </div>
+                )}
             </div>
 
             {/* Summary Cards */}

@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { supabase } from '../lib/supabase';
 import {
     Users,
     GraduationCap,
@@ -38,7 +39,39 @@ const StatCard = ({ title, value, icon: Icon, trend, color }) => (
 
 export default function Dashboard() {
     const role = localStorage.getItem('userRole') || 'admin';
-    const userName = role === 'admin' ? 'Admin Utama' : role === 'guru' ? 'Ibu Guru Siti' : role === 'siswa' ? 'Ahmad Fauzi' : 'Orang Tua Ahmad';
+    const userName = localStorage.getItem('userName') || (role === 'admin' ? 'Admin Utama' : role === 'guru' ? 'Ibu Guru Siti' : role === 'siswa' ? 'Ahmad Fauzi' : 'Orang Tua Ahmad');
+
+    const [stats, setStats] = useState({
+        totalStudents: 0,
+        totalTeachers: 0,
+        totalSubjects: 0,
+        avgGrade: 84.2
+    });
+    const [announcements, setAnnouncements] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        fetchDashboardData();
+    }, []);
+
+    const fetchDashboardData = async () => {
+        setIsLoading(true);
+        const [std, tea, sub, ann] = await Promise.all([
+            supabase.from('students').select('*', { count: 'exact', head: true }),
+            supabase.from('teachers').select('*', { count: 'exact', head: true }),
+            supabase.from('subjects').select('*', { count: 'exact', head: true }),
+            supabase.from('announcements').select('*').order('created_at', { ascending: false }).limit(4)
+        ]);
+
+        setStats({
+            totalStudents: std.count || 0,
+            totalTeachers: tea.count || 0,
+            totalSubjects: sub.count || 0,
+            avgGrade: 84.2 // Mock for now
+        });
+        setAnnouncements(ann.data || []);
+        setIsLoading(false);
+    };
 
     return (
         <div className="space-y-10 animate-in fade-in duration-700">
@@ -58,10 +91,10 @@ export default function Dashboard() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                 {role === 'admin' ? (
                     <>
-                        <StatCard title="Total Siswa" value="1,280" icon={Users} trend="+12%" color="bg-blue-600" />
-                        <StatCard title="Total Guru" value="86" icon={UserCircle} color="bg-indigo-600" />
-                        <StatCard title="Mata Pelajaran" value="24" icon={BookOpen} color="bg-emerald-600" />
-                        <StatCard title="Rata-rata Nilai" value="84.2" icon={TrendingUp} trend="+2.4%" color="bg-violet-600" />
+                        <StatCard title="Total Siswa" value={stats.totalStudents.toLocaleString()} icon={Users} trend="+12%" color="bg-blue-600" />
+                        <StatCard title="Total Guru" value={stats.totalTeachers.toString()} icon={UserCircle} color="bg-indigo-600" />
+                        <StatCard title="Mata Pelajaran" value={stats.totalSubjects.toString()} icon={BookOpen} color="bg-emerald-600" />
+                        <StatCard title="Rata-rata Nilai" value={stats.avgGrade.toString()} icon={TrendingUp} trend="+2.4%" color="bg-violet-600" />
                     </>
                 ) : role === 'guru' ? (
                     <>
@@ -130,20 +163,17 @@ export default function Dashboard() {
                     </div>
 
                     <div className="space-y-6 flex-1 overflow-y-auto no-scrollbar pr-2">
-                        {[
-                            { title: 'Ujian Akhir Semester', date: '2 hari lalu', color: 'bg-red-500' },
-                            { title: 'Libur Akhir Tahun', date: '1 minggu lalu', color: 'bg-blue-500' },
-                            { title: 'Rapat Orang Tua', date: '5 Jan 2024', color: 'bg-emerald-500' },
-                            { title: 'Pembaruan Kurikulum', date: '12 Jan 2024', color: 'bg-violet-500' },
-                        ].map((news, i) => (
-                            <div key={i} className="flex items-start space-x-4 group cursor-pointer">
-                                <div className={`mt-2 w-2 h-2 rounded-full ${news.color} shadow-lg shadow-${news.color.split('-')[1]}-200 shrink-0 group-hover:scale-150 transition-transform`} />
+                        {announcements.length > 0 ? announcements.map((news, i) => (
+                            <div key={news.id} className="flex items-start space-x-4 group cursor-pointer">
+                                <div className={`mt-2 w-2 h-2 rounded-full ${['bg-red-500', 'bg-blue-500', 'bg-emerald-500', 'bg-violet-500'][i % 4]} shadow-lg shadow-blue-200 shrink-0 group-hover:scale-150 transition-transform`} />
                                 <div className="flex-1 pb-4 border-b border-gray-50 group-last:border-0">
                                     <h4 className="text-sm font-black text-gray-800 group-hover:text-blue-600 transition-colors uppercase tracking-tight">{news.title}</h4>
                                     <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">{news.date}</p>
                                 </div>
                             </div>
-                        ))}
+                        )) : (
+                            <p className="text-gray-400 text-sm font-bold">Belum ada pengumuman.</p>
+                        )}
                     </div>
 
                     <button className="mt-8 w-full py-4 bg-gray-50 hover:bg-blue-50 text-gray-400 hover:text-blue-600 rounded-2xl font-black text-sm transition-all flex items-center justify-center space-x-2 group">
