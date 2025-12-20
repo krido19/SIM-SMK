@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { supabase } from '../../lib/supabase';
-import { Database, Download, AlertTriangle, CheckCircle2, Loader2, ShieldCheck } from 'lucide-react';
+import { Database, Download, AlertTriangle, CheckCircle2, Loader2, ShieldCheck, Terminal, ExternalLink, FileCode, Settings } from 'lucide-react';
 
 export default function DatabaseBackup() {
     const [isExporting, setIsExporting] = useState(false);
@@ -201,6 +201,74 @@ export default function DatabaseBackup() {
                     </div>
                 </div>
             )}
+
+            {/* Migration Tutorial Section */}
+            <div className="bg-white p-10 rounded-[3rem] border border-gray-100 shadow-sm space-y-8">
+                <div className="flex items-center space-x-4 border-b border-gray-50 pb-6">
+                    <div className="p-3 bg-indigo-50 text-indigo-600 rounded-2xl">
+                        <Terminal size={24} />
+                    </div>
+                    <div>
+                        <h2 className="text-xl font-black text-gray-900">Tutorial Migrasi Supabase</h2>
+                        <p className="text-sm text-gray-400 font-medium">Cara memindahkan data ke project Supabase baru</p>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    {/* Step 1 */}
+                    <div className="space-y-4">
+                        <div className="flex items-center space-x-3">
+                            <span className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-600 text-white text-xs font-black">1</span>
+                            <h3 className="font-bold text-gray-900">Export SQL</h3>
+                        </div>
+                        <p className="text-sm text-gray-500 leading-relaxed">
+                            Klik tombol <b>"Mulai Backup"</b> di atas. Anda akan mendapatkan file berformat <code className="bg-gray-100 px-1 rounded">.sql</code> yang berisi seluruh data dan struktur web ini.
+                        </p>
+                    </div>
+
+                    {/* Step 2 */}
+                    <div className="space-y-4">
+                        <div className="flex items-center space-x-3">
+                            <span className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-600 text-white text-xs font-black">2</span>
+                            <h3 className="font-bold text-gray-900">SQL Editor</h3>
+                        </div>
+                        <p className="text-sm text-gray-500 leading-relaxed">
+                            Buka Dashboard Supabase baru Anda, pilih menu <b>"SQL Editor"</b>, lalu buat <b>"New Query"</b>. Paste seluruh isi file SQL tadi ke dalamnya.
+                        </p>
+                    </div>
+
+                    {/* Step 3 */}
+                    <div className="space-y-4">
+                        <div className="flex items-center space-x-3">
+                            <span className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-600 text-white text-xs font-black">3</span>
+                            <h3 className="font-bold text-gray-900">Run & Refresh</h3>
+                        </div>
+                        <p className="text-sm text-gray-500 leading-relaxed">
+                            Klik tombol <b>"Run"</b>. Setelah sukses, seluruh tabel dan data Anda akan muncul secara ajaib di project Supabase baru.
+                        </p>
+                    </div>
+                </div>
+
+                <div className="bg-gray-50 p-6 rounded-3xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div className="flex items-center space-x-4">
+                        <div className="p-2 bg-white rounded-xl shadow-sm text-gray-400">
+                            <Settings size={20} />
+                        </div>
+                        <p className="text-xs text-gray-500 font-medium italic">
+                            <b>Catatan:</b> Jangan lupa buat bucket <b>"announcements"</b> secara manual di menu Storage agar gambar bisa tampil.
+                        </p>
+                    </div>
+                    <a
+                        href="https://supabase.com/dashboard"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="flex items-center space-x-2 text-blue-600 text-xs font-black uppercase tracking-widest hover:underline"
+                    >
+                        <span>Buka Supabase</span>
+                        <ExternalLink size={14} />
+                    </a>
+                </div>
+            </div>
         </div>
     );
 }
