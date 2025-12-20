@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 
 const Days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+const WeekTypes = ['Setiap Minggu', 'Minggu Ganjil', 'Minggu Genap'];
 
 // Configuration for sessions
 const SCHOOL_START_TIME = "07:15";
@@ -75,6 +76,7 @@ const Modal = ({ isOpen, onClose, title, children, maxWidth = "max-w-md" }) => {
 export default function Schedule() {
     const [schedules, setSchedules] = useState([]);
     const [selectedDay, setSelectedDay] = useState('Senin');
+    const [selectedWeek, setSelectedWeek] = useState('Setiap Minggu');
     const [selectedClassId, setSelectedClassId] = useState('all');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [currentEntry, setCurrentEntry] = useState(null);
@@ -89,6 +91,7 @@ export default function Schedule() {
         subject_name: '',
         teacher_name: '',
         day: 'Senin',
+        week_type: 'Setiap Minggu',
         jam_ke: 1,
         start_time: '',
         end_time: ''
@@ -160,6 +163,7 @@ export default function Schedule() {
             subject_name: dbSubjects[0]?.name || '',
             teacher_name: '',
             day: selectedDay,
+            week_type: selectedWeek,
             jam_ke: initialJam,
             start_time: slot?.start || '',
             end_time: slot?.end || ''
@@ -174,6 +178,7 @@ export default function Schedule() {
             subject_name: entry.subject_name,
             teacher_name: entry.teacher_name,
             day: entry.day,
+            week_type: entry.week_type || 'Setiap Minggu',
             jam_ke: entry.jam_ke || 1,
             start_time: entry.start_time,
             end_time: entry.end_time
@@ -215,7 +220,8 @@ export default function Schedule() {
     const filteredSchedules = schedules.filter(s => {
         const dayMatch = s.day === selectedDay;
         const classMatch = selectedClassId === 'all' || s.class_id === selectedClassId;
-        return dayMatch && classMatch;
+        const weekMatch = s.week_type === 'Setiap Minggu' || s.week_type === selectedWeek || selectedWeek === 'Setiap Minggu';
+        return dayMatch && classMatch && weekMatch;
     });
 
     const getTeachersForSubject = (subjectName) => {
@@ -264,20 +270,39 @@ export default function Schedule() {
                 </div>
             </div>
 
-            {/* Day Selector */}
-            <div className="flex bg-white p-1.5 rounded-[2rem] border-2 border-gray-50 shadow-sm overflow-x-auto no-scrollbar">
-                {Days.map((day) => (
-                    <button
-                        key={day}
-                        onClick={() => setSelectedDay(day)}
-                        className={`flex-1 min-w-[120px] py-4 px-6 rounded-[1.5rem] font-black text-xs uppercase tracking-[0.2em] transition-all duration-300 ${selectedDay === day
-                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-200 scale-[1.02] z-10'
-                            : 'text-gray-400 hover:bg-gray-50 hover:text-gray-600'
-                            }`}
-                    >
-                        {day}
-                    </button>
-                ))}
+            {/* Week & Day Selectors Container */}
+            <div className="space-y-4">
+                {/* Week Type Selector */}
+                <div className="flex space-x-2 bg-gray-100 p-1 rounded-2xl w-fit">
+                    {WeekTypes.map((week) => (
+                        <button
+                            key={week}
+                            onClick={() => setSelectedWeek(week)}
+                            className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${selectedWeek === week
+                                    ? 'bg-white text-blue-600 shadow-sm'
+                                    : 'text-gray-400 hover:text-gray-600'
+                                }`}
+                        >
+                            {week}
+                        </button>
+                    ))}
+                </div>
+
+                {/* Day Selector */}
+                <div className="flex bg-white p-1.5 rounded-[2rem] border-2 border-gray-50 shadow-sm overflow-x-auto no-scrollbar">
+                    {Days.map((day) => (
+                        <button
+                            key={day}
+                            onClick={() => setSelectedDay(day)}
+                            className={`flex-1 min-w-[120px] py-4 px-6 rounded-[1.5rem] font-black text-xs uppercase tracking-[0.2em] transition-all duration-300 ${selectedDay === day
+                                ? 'bg-blue-600 text-white shadow-lg shadow-blue-200 scale-[1.02] z-10'
+                                : 'text-gray-400 hover:bg-gray-50 hover:text-gray-600'
+                                }`}
+                        >
+                            {day}
+                        </button>
+                    ))}
+                </div>
             </div>
 
             {/* Time Slots Visualization / Schedule List */}
@@ -320,6 +345,11 @@ export default function Schedule() {
                                                     <span className="px-3 py-1 bg-blue-50 text-blue-600 text-[10px] font-black uppercase tracking-widest rounded-lg border border-blue-100">
                                                         {entry.class_name}
                                                     </span>
+                                                    {entry.week_type !== 'Setiap Minggu' && (
+                                                        <span className="px-3 py-1 bg-amber-50 text-amber-600 text-[10px] font-black uppercase tracking-widest rounded-lg border border-amber-100">
+                                                            {entry.week_type}
+                                                        </span>
+                                                    )}
                                                     <h3 className="text-xl font-black text-gray-900 tracking-tight uppercase group-hover:text-blue-600 transition-colors">{entry.subject_name}</h3>
                                                 </div>
                                                 <div className="flex items-center text-sm font-bold text-gray-500">
@@ -379,6 +409,17 @@ export default function Schedule() {
                                 {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(n => <option key={n} value={n}>Jam Ke-{n}</option>)}
                             </select>
                         </div>
+                    </div>
+
+                    <div className="space-y-1">
+                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Tipe Minggu</label>
+                        <select
+                            className="w-full bg-gray-50 border-transparent rounded-xl px-4 py-3 font-bold text-gray-700 outline-none transition-all focus:bg-white focus:border-blue-500 border-2 appearance-none"
+                            value={formData.week_type}
+                            onChange={(e) => setFormData({ ...formData, week_type: e.target.value })}
+                        >
+                            {WeekTypes.map(w => <option key={w} value={w}>{w}</option>)}
+                        </select>
                     </div>
 
                     <div className="space-y-1">

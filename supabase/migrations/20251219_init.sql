@@ -78,6 +78,7 @@ CREATE TABLE public.schedules (
     class_name TEXT,
     day TEXT NOT NULL,
     jam_ke INTEGER,
+    week_type TEXT DEFAULT 'Setiap Minggu',
     start_time TIME NOT NULL,
     end_time TIME NOT NULL
 );
