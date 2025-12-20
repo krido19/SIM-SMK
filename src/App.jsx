@@ -11,9 +11,10 @@ import Subjects from './pages/admin/Subjects'
 import Classes from './pages/admin/Classes'
 import Schedule from './pages/admin/Schedule'
 import Announcements from './pages/admin/Announcements'
+import FonnteSettings from './pages/admin/FonnteSettings'
+import DatabaseBackup from './pages/admin/DatabaseBackup' // Added this import
 import GradeEntry from './pages/teacher/GradeEntry'
 import AttendanceEntry from './pages/teacher/AttendanceEntry'
-import FonnteSettings from './pages/admin/FonnteSettings'
 import StudentGrades from './pages/student/StudentGrades'
 import StudentAttendance from './pages/student/StudentAttendance'
 
@@ -38,6 +39,7 @@ function App() {
             <Route path="/admin/schedule" element={<Schedule />} />
             <Route path="/admin/announcements" element={<Announcements />} />
             <Route path="/admin/fonnte" element={<FonnteSettings />} />
+            <Route path="/admin/backup" element={<DatabaseBackup />} />
 
             {/* Teacher Routes */}
             <Route path="/teacher/grades" element={<GradeEntry />} />

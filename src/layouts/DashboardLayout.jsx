@@ -16,7 +16,8 @@ import {
     Star,
     Award,
     ChevronDown,
-    MessageCircle
+    MessageCircle,
+    Database
 } from 'lucide-react';
 
 const SidebarLink = ({ to, icon: Icon, children }) => (
@@ -76,6 +77,7 @@ export default function DashboardLayout() {
             { to: '/admin/schedule', icon: Calendar, label: 'Jadwal' },
             { to: '/admin/announcements', icon: Bell, label: 'Pengumuman' },
             { to: '/admin/fonnte', icon: MessageCircle, label: 'Fonnte WhatsApp' },
+            { to: '/admin/backup', icon: Database, label: 'Backup SQL' },
         ],
         guru: [
             { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
