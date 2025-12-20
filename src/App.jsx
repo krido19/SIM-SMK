@@ -47,7 +47,7 @@ function App() {
             <Route path="/student/grades" element={<StudentGrades />} />
             <Route path="/student/attendance" element={<StudentAttendance />} />
 
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/" element={<Navigate to="/login" replace />} />
           </Route>
         </Routes>
       </BrowserRouter>

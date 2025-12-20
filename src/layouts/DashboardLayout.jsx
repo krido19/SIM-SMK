@@ -45,10 +45,16 @@ export default function DashboardLayout() {
         const storedRole = localStorage.getItem('userRole');
         const storedName = localStorage.getItem('userName');
         const storedClass = localStorage.getItem('userClass');
-        if (storedRole) setRole(storedRole);
+
+        if (!storedRole) {
+            navigate('/login');
+            return;
+        }
+
+        setRole(storedRole);
         if (storedName) setUserName(storedName);
         if (storedClass) setUserClass(storedClass);
-    }, []);
+    }, [navigate]);
 
     const handleLogout = () => {
         localStorage.removeItem('userRole');
