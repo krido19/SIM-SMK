@@ -212,7 +212,7 @@ export default function Teachers() {
 
                         <div className="flex items-start justify-between mb-4 relative z-10">
                             <div className="h-14 w-14 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600 font-bold border-2 border-white shadow-sm text-xl transition-transform group-hover:scale-110">
-                                {teacher.name.split(' ')[0][0]}{teacher.name.split(' ')[1][0]}
+                                {teacher.name?.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() || 'TR'}
                             </div>
                             <div className="flex space-x-1">
                                 <button
