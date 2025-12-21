@@ -19,12 +19,13 @@ export default function StudentGrades() {
     const [loading, setLoading] = useState(true);
     const [average, setAverage] = useState(0);
     const [passedCount, setPassedCount] = useState(0);
+    const [selectedSemester, setSelectedSemester] = useState(1);
 
     useEffect(() => {
         if (userId) {
             fetchGrades();
         }
-    }, [userId]);
+    }, [userId, selectedSemester]);
 
     const fetchGrades = async () => {
         try {
@@ -40,7 +41,8 @@ export default function StudentGrades() {
                         kkm
                     )
                 `)
-                .eq('student_id', userId);
+                .eq('student_id', userId)
+                .eq('semester', selectedSemester);
 
             if (error) throw error;
 
@@ -82,7 +84,18 @@ export default function StudentGrades() {
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div>
                     <h1 className="text-3xl font-black text-gray-900 tracking-tight transition-all">Rapor Digital</h1>
-                    <p className="text-gray-500 font-medium mt-1">Semester Ganjil 2023/2024</p>
+                    <div className="flex items-center space-x-2 mt-1">
+                        <p className="text-gray-500 font-medium">Tahun Akademik 2023/2024</p>
+                        <span className="text-gray-300">•</span>
+                        <select
+                            className="bg-transparent text-blue-600 font-bold outline-none cursor-pointer hover:text-blue-700 transition-colors"
+                            value={selectedSemester}
+                            onChange={(e) => setSelectedSemester(parseInt(e.target.value))}
+                        >
+                            <option value={1}>Semester Ganjil</option>
+                            <option value={2}>Semester Genap</option>
+                        </select>
+                    </div>
                 </div>
                 {canPrint && (
                     <div className="flex space-x-3">

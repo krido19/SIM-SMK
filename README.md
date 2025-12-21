@@ -8,93 +8,94 @@
 
 Vocational School (SMK) seringkali menghadapi tantangan operasional yang unik:
 1. **Manajemen Jadwal yang Rumit**: Mengelola 60+ kelas dengan sistem minggu bergantian (Ganjil/Genap) sering menyebabkan tabrakan jadwal (*collision*).
-2. **Absensi & Nilai Terfragmentasi**: Data kehadiran dan nilai seringkali masih tersimpan dalam lembaran fisik atau spreadsheet yang sulit diakses secara real-time.
-3. **Kurangnya Transparansi bagi Orang Tua**: Orang tua sering kesulitan memantau perkembangan sekolah anak mereka secara langsung.
+2. **Absensi & Nilai Terfragmentasi**: Data kehadiran harian dan riwayat nilai seringkali sulit diakses secara transparan dan real-time.
+3. **Manajemen Semester**: Kesulitan dalam mengelola data akademik yang berbeda antar semester dalam satu tahun ajaran.
 4. **Respon Sistem yang Lambat**: Banyak sistem warisan (*legacy*) yang memiliki UI kuno dan performa lambat, menurunkan produktivitas tenaga pengajar.
 
 ---
 
 ## ✨ Fitur Unggulan
 
-### 🛡️ Core Infrastructure
-- **Premium Feedback System**: Notifikasi Toast dan Modal Konfirmasi yang cantik (Glassmorphism), menggantikan alert browser yang kaku.
-- **Role-Based Access Control (RBAC)**: Keamanan data yang ketat menggunakan Supabase RLS (Row Level Security).
-- **One-Click SQL Backup**: Ekspor seluruh skema dan data database ke file SQL untuk migrasi atau pencadangan instan.
+### 🛡️ Core Infrastructure & Optimization
+- **Role-Based Architecture**: Dashboard telah direfaktorisasi menjadi komponen modular (`AdminDashboard`, `TeacherDashboard`, `StudentDashboard`) untuk performa dan maintainability tinggi.
+- **Premium Feedback System**: Notifikasi Toast dan Modal Konfirmasi yang cantik (Glassmorphism), meningkatkan pengalaman interaksi pengguna.
+- **Supabase Integration**: Keamanan data ketat menggunakan RLS (Row Level Security) dan penyimpanan aset via Supabase Storage.
 
 ### 📅 Manajemen Akademik (Admin)
-- **Smart Scheduling Matrix**: Tampilan grid mingguan yang interaktif dengan deteksi tabrakan jadwal (*Collision Detection*) otomatis.
-- **Alternating Weeks**: Dukungan penuh untuk jadwal Minggu Ganjil dan Minggu Genap.
-- **Excel Student Import**: Daftarkan ribuan siswa sekaligus melalui file Excel (.xlsx).
-- **Master Data Guru & Mapel**: Manajemen data tenaga pengajar dan mata pelajaran dengan filter canggih.
+- **Smart Scheduling Matrix**: Tampilan grid mingguan interaktif dengan deteksi tabrakan jadwal (*Collision Detection*) otomatis.
+- **Alternating Weeks & Semesters**: Dukungan penuh untuk jadwal Minggu Ganjil/Genap serta pemisahan data nilai per semester.
+- **Excel Batch Import**: Daftarkan ribuan siswa sekaligus melalui integrasi file Excel (.xlsx).
 
-### 📝 Portal Guru
-- **Rapid Grade Entry**: Input nilai (Tugas, UTS, UAS) dalam satu tabel efisien.
-- **Daily Attendance**: Checklist kehadiran harian siswa dengan status (Hadir, Sakit, Izin, Alpa).
-- **WhatsApp Integration**: Kirim pesan atau pengumuman ke Siswa/Orang Tua langsung via Fonnte API.
+### 📝 Portal Guru (Manajemen Kelas)
+- **Multi-Semester Grade Entry**: Input nilai (Tugas, UTS, UAS) dengan filter semester (Ganjil/Genap) yang terintegrasi.
+- **Digital Attendance**: Checklist kehadiran harian dengan kalkulasi otomatis persentase kehadiran untuk dashboard.
+- **Assignment System**: Buat tugas dengan lampiran file dan pantau status pengumpulan siswa secara real-time.
+- **WhatsApp Integration**: Komunikasi instan ke Orang Tua/Siswa via Fonnte API.
 
 ### 📊 Portal Siswa & Orang Tua
-- **Monitoring Real-time**: Pantau rekap absensi, jadwal mingguan, dan laporan nilai secara digital.
-- **Modern Dashboard**: Interface yang responsif dan mudah dipahami, memberikan pengalaman pengguna kelas atas.
+- **Interactive Attendance History**: Visualisasi riwayat kehadiran dalam format Kalender Interaktif (Heatmap style) dan Daftar Detail.
+- **Academic Performance**: Monitoring nilai rata-rata dan detail per mata pelajaran sesuai semester aktif.
+- **Schedule & Task Alerts**: Notifikasi kelas yang sedang berlangsung serta hitungan tugas yang menunggu (*pending tasks*).
 
 ---
 
 ## 🛠️ Teknologi (Tech Stack)
 
 - **Frontend**: React 19 + Vite
-- **Styling**: Tailwind CSS (Modern & Clean Design)
-- **Database & Auth**: Supabase (PostgreSQL)
-- **Deployment**: Vercel Ready
-- **Utility**: Lucide React (Icons), TanStack Query (State Management), XLSX (Data Processing)
+- **Styling**: Tailwind CSS (Glassmorphism UI)
+- **Database**: Supabase (PostgreSQL)
+- **Auth**: Supabase Auth with Role Mapping
+- **Storage**: Supabase Storage (Materials & Assignments)
+- **Icons**: Lucide React
+- **Data Handling**: TanStack Query & XLSX
 
 ---
 
 ## ⚙️ Persiapan & Instalasi
 
 ### 1. Prasyarat
-- Node.js (Versi 18 atau lebih baru)
-- Akun Supabase (Untuk backend)
+- Node.js (v18+)
+- Supabase Project
 
-### 2. Kloning & Install
+### 2. Instalasi
 ```bash
 git clone https://github.com/krido19/SIM-SMK.git
 cd SIM-SMK
 npm install
 ```
 
-### 3. Konfigurasi Environment
-Buat file `.env` di direktori utama dan isi dengan kredensial Anda:
-```env
-VITE_SUPABASE_URL=your_supabase_url
-VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-VITE_FONNTE_TOKEN=your_fonnte_token (opsional)
-```
+### 3. Setup Database
+Jalankan skema di folder `supabase/migrations`. Pastikan menjalankan migrasi `20251221_add_unique_constraint_to_grades.sql` untuk mendukung fitur multi-semester.
 
-### 4. Setup Database
-Jalankan file SQL yang tersedia di folder `supabase/migrations` pada SQL Editor Supabase Anda untuk membuat tabel dan kebijakan keamanan (RLS).
-
-### 5. Jalankan Aplikasi
+### 4. Jalankan Aplikasi
 ```bash
 npm run dev
 ```
 
 ---
 
-## 📖 Cara Penggunaan
+## 📖 Akun Demo
 
-### Login Default
-| Peran | Email / ID | Password |
+| Peran | Login (Email/ID) | Password |
 | :--- | :--- | :--- |
 | **Admin** | `admin@school.id` | `admin123` |
-| **Guru** | `guru@school.id` | `guru123` |
-| **Siswa** | `2023001` (Contoh NIS) | `siswa123` |
-| **Orang Tua** | `OT2023001` | `parent123` |
+| **Guru** | `04019618` (NIP) | `guru123` |
+| **Siswa** | `2324077` (NIS) | `siswa123` |
+| **Orang Tua** | `OT2324077` | `parent123` |
 
-### Alur Kerja Utama
-1. **Admin**: Masuk ke menu **Kelas** untuk import siswa via Excel, lalu atur **Jadwal** menggunakan Matrix View. Pastikan tidak ada konflik guru atau kelas.
-2. **Guru**: Gunakan menu **Input Nilai** setiap kali ujian berakhir dan **Input Absensi** setiap hari sebelum memulai kelas.
-3. **Pengumuman**: Admin dapat menerbitkan pengumuman yang akan langsung muncul di dashboard semua pengguna.
+---
+
+## 📸 Dokumentasi Fitur
+
+### Dashboard Modular (Teacher & Student)
+![Teacher Dashboard](C:/Users/Administrator/.gemini/antigravity/brain/e67d7396-497d-44ab-940e-3f2145ee51b5/teacher_dashboard_refactored_1766290449561.png)
+*Tampilan dashboard yang dipersonalisasi sesuai peran pengguna.*
+
+### Riwayat Absensi & Nilai
+![Attendance History](C:/Users/Administrator/.gemini/antigravity/brain/e67d7396-497d-44ab-940e-3f2145ee51b5/attendance_calendar_1766289253612.png)
+*Monitoring presensi interaktif untuk transparansi kehadiran siswa.*
 
 ---
 
 ## 📄 Lisensi
-Proyek ini dikembangkan secara privat untuk kebutuhan digitalisasi SMK. Seluruh hak cipta dilindungi.
+Copyright © 2025. Implementasi SIM-SMK Modern.

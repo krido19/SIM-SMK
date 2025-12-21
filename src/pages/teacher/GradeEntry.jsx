@@ -24,6 +24,7 @@ export default function GradeEntry() {
     const [selectedClassId, setSelectedClassId] = useState('');
     const [selectedSubjectId, setSelectedSubjectId] = useState('');
     const [isLoading, setIsLoading] = useState(true);
+    const [selectedSemester, setSelectedSemester] = useState(1);
     const { showToast } = useFeedback();
 
     useEffect(() => {
@@ -42,7 +43,7 @@ export default function GradeEntry() {
         if (selectedClassId && selectedSubjectId) {
             fetchStudentsWithGrades();
         }
-    }, [selectedClassId, selectedSubjectId]);
+    }, [selectedClassId, selectedSubjectId, selectedSemester]);
 
     const fetchStudentsWithGrades = async () => {
         setIsLoading(true);
@@ -66,7 +67,7 @@ export default function GradeEntry() {
             console.error(error);
         } else {
             const transformed = stdData.map(s => {
-                const grade = s.grades?.find(g => g.subject_id === selectedSubjectId) || { tugas: 0, uts: 0, uas: 0 };
+                const grade = s.grades?.find(g => g.subject_id === selectedSubjectId && g.semester === selectedSemester) || { tugas: 0, uts: 0, uas: 0 };
                 return {
                     id: s.id,
                     name: s.full_name,
@@ -101,7 +102,7 @@ export default function GradeEntry() {
             uts: s.uts,
             uas: s.uas,
             score: Math.round((s.tugas + s.uts + s.uas) / 3),
-            semester: 1
+            semester: selectedSemester
         }));
 
         const { error } = await supabase
@@ -140,6 +141,17 @@ export default function GradeEntry() {
                                 onChange={(e) => setSelectedSubjectId(e.target.value)}
                             >
                                 {dbSubjects.map(s => <option key={s.id} value={s.id}>Mapel: {s.name}</option>)}
+                            </select>
+                            <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                        </div>
+                        <div className="relative group">
+                            <select
+                                className="appearance-none bg-white border border-gray-100 px-4 py-2 pr-10 rounded-xl text-xs font-black text-gray-600 focus:ring-2 focus:ring-blue-500 transition-all outline-none cursor-pointer shadow-sm"
+                                value={selectedSemester}
+                                onChange={(e) => setSelectedSemester(parseInt(e.target.value))}
+                            >
+                                <option value={1}>Semester: 1 (Ganjil)</option>
+                                <option value={2}>Semester: 2 (Genap)</option>
                             </select>
                             <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
                         </div>

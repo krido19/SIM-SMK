@@ -17,6 +17,8 @@ import GradeEntry from './pages/teacher/GradeEntry'
 import AttendanceEntry from './pages/teacher/AttendanceEntry'
 import StudentGrades from './pages/student/StudentGrades'
 import StudentAttendance from './pages/student/StudentAttendance'
+import Assignments from './pages/teacher/Assignments'
+import StudentAssignments from './pages/student/StudentAssignments'
 
 import { FeedbackProvider } from './context/FeedbackContext'
 
@@ -47,10 +49,12 @@ function App() {
               {/* Teacher Routes */}
               <Route path="/teacher/grades" element={<GradeEntry />} />
               <Route path="/teacher/attendance" element={<AttendanceEntry />} />
+              <Route path="/teacher/assignments" element={<Assignments />} />
 
               {/* Student/Parent Routes */}
               <Route path="/student/grades" element={<StudentGrades />} />
               <Route path="/student/attendance" element={<StudentAttendance />} />
+              <Route path="/student/assignments" element={<StudentAssignments />} />
 
               <Route path="/" element={<Navigate to="/login" replace />} />
             </Route>
