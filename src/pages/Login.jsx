@@ -24,6 +24,7 @@ export default function Login() {
             if (id === 'admin@school.id' && pass === 'admin123') {
                 localStorage.setItem('userRole', 'admin');
                 localStorage.setItem('userName', 'Admin Utama');
+                localStorage.setItem('userId', 'admin'); // Hardcoded for admin
                 navigate('/dashboard');
                 return;
             }
@@ -33,12 +34,14 @@ export default function Login() {
                 .from('teachers')
                 .select('*')
                 .or(`email.eq.${id},nip.eq.${id}`)
-                .single();
+                .maybeSingle();
 
             if (!guruErr && guru) {
                 if (pass === 'guru123' || pass === id || (guru.email && pass === guru.email.split('@')[0])) {
                     localStorage.setItem('userRole', 'guru');
                     localStorage.setItem('userName', guru.name);
+                    localStorage.setItem('userId', guru.id);
+                    localStorage.setItem('userNIP', guru.nip); // Store NIP for robust lookup
                     navigate('/dashboard');
                     return;
                 }
@@ -50,13 +53,14 @@ export default function Login() {
                     .from('students')
                     .select('*, classes(name)')
                     .eq('nis', id)
-                    .single();
+                    .maybeSingle();
 
                 if (!stdErr && student) {
                     if (pass === 'siswa123' || pass === id) {
                         localStorage.setItem('userRole', 'siswa');
                         localStorage.setItem('userName', student.full_name);
                         localStorage.setItem('userClass', student.classes?.name || '-');
+                        localStorage.setItem('userId', student.id);
                         navigate('/dashboard');
                         return;
                     }
@@ -70,12 +74,13 @@ export default function Login() {
                     .from('students')
                     .select('*')
                     .eq('nis', nis)
-                    .single();
+                    .maybeSingle();
 
                 if (!stdErr && student) {
                     if (pass === 'parent123' || pass === 'siswa123' || pass === nis) {
                         localStorage.setItem('userRole', 'parent');
                         localStorage.setItem('userName', 'Orang Tua ' + student.full_name);
+                        localStorage.setItem('userId', student.id); // Parent views student data
                         navigate('/dashboard');
                         return;
                     }

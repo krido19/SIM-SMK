@@ -136,18 +136,31 @@ export default function AttendanceEntry() {
 
                         <div className="grid grid-cols-4 gap-2">
                             {[
-                                { label: 'Hadir', color: 'green', val: 'Hadir' },
-                                { label: 'Sakit', color: 'orange', val: 'Sakit' },
-                                { label: 'Izin', color: 'blue', val: 'Izin' },
-                                { label: 'Alpa', color: 'red', val: 'Alpa' }
+                                {
+                                    label: 'Hadir', val: 'Hadir',
+                                    active: 'bg-green-600 border-green-600 text-white shadow-lg shadow-green-200 scale-105',
+                                    inactive: 'bg-white border-gray-50 text-gray-400 hover:border-green-200 hover:text-green-600'
+                                },
+                                {
+                                    label: 'Sakit', val: 'Sakit',
+                                    active: 'bg-orange-500 border-orange-500 text-white shadow-lg shadow-orange-200 scale-105',
+                                    inactive: 'bg-white border-gray-50 text-gray-400 hover:border-orange-200 hover:text-orange-600'
+                                },
+                                {
+                                    label: 'Izin', val: 'Izin',
+                                    active: 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-200 scale-105',
+                                    inactive: 'bg-white border-gray-50 text-gray-400 hover:border-blue-200 hover:text-blue-600'
+                                },
+                                {
+                                    label: 'Alpa', val: 'Alpa',
+                                    active: 'bg-red-600 border-red-600 text-white shadow-lg shadow-red-200 scale-105',
+                                    inactive: 'bg-white border-gray-50 text-gray-400 hover:border-red-200 hover:text-red-600'
+                                }
                             ].map((opt) => (
                                 <button
                                     key={opt.val}
                                     onClick={() => setStatus(student.id, opt.val)}
-                                    className={`py-2 rounded-xl text-[10px] font-black uppercase transition-all border-2 ${student.status === opt.val
-                                        ? `bg-${opt.color}-600 border-${opt.color}-600 text-white shadow-lg shadow-${opt.color}-200 scale-105`
-                                        : `bg-white border-gray-50 text-gray-400 hover:border-${opt.color}-200 hover:text-${opt.color}-600`
-                                        }`}
+                                    className={`py-2 rounded-xl text-[10px] font-black uppercase transition-all border-2 ${student.status === opt.val ? opt.active : opt.inactive}`}
                                 >
                                     {opt.label}
                                 </button>

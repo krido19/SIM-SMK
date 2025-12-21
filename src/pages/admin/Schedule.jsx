@@ -23,7 +23,7 @@ import {
     XCircle
 } from 'lucide-react';
 
-const Days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+const Days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
 const WeekTypes = ['Minggu Ganjil', 'Minggu Genap'];
 
 // Configuration for sessions
@@ -108,6 +108,7 @@ export default function Schedule() {
     });
 
     const [schoolStartTime, setSchoolStartTime] = useState(SCHOOL_START_TIME);
+    const [currentWeekType, setCurrentWeekType] = useState('Minggu Ganjil');
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
     const userRole = localStorage.getItem('userRole') || 'admin';
@@ -120,15 +121,23 @@ export default function Schedule() {
     }, []);
 
     const fetchSettings = async () => {
-        const { data } = await supabase.from('settings').select('value').eq('key', 'school_start_time').single();
-        if (data?.value) setSchoolStartTime(data.value);
+        const { data: startTimeData } = await supabase.from('settings').select('value').eq('key', 'school_start_time').maybeSingle();
+        if (startTimeData?.value) setSchoolStartTime(startTimeData.value);
+
+        const { data: weekData } = await supabase.from('settings').select('value').eq('key', 'current_week_type').maybeSingle();
+        if (weekData?.value) setCurrentWeekType(weekData.value);
     };
 
     const handleSaveSettings = async () => {
-        const { error } = await supabase.from('settings').upsert({ key: 'school_start_time', value: schoolStartTime });
-        if (!error) {
+        const { error: err1 } = await supabase.from('settings').upsert({ key: 'school_start_time', value: schoolStartTime });
+        const { error: err2 } = await supabase.from('settings').upsert({ key: 'current_week_type', value: currentWeekType });
+
+        if (!err1 && !err2) {
             setIsSettingsOpen(false);
+            showToast('Pengaturan berhasil disimpan', 'success');
             fetchData();
+        } else {
+            showToast('Gagal menyimpan pengaturan', 'error');
         }
     };
 
@@ -260,9 +269,12 @@ export default function Schedule() {
             }
 
             const selectedClass = dbClasses.find(c => c.id === formData.class_id);
+            const selectedTeacher = dbTeachers.find(t => t.name === formData.teacher_name);
+
             const payload = {
                 ...formData,
-                class_name: selectedClass?.name || ''
+                class_name: selectedClass?.name || '',
+                teacher_id: selectedTeacher?.id || null // Important: Link by ID
             };
 
             const { error } = currentEntry
@@ -745,6 +757,21 @@ export default function Schedule() {
                             value={schoolStartTime}
                             onChange={(e) => setSchoolStartTime(e.target.value)}
                         />
+                    </div>
+
+                    <div className="space-y-1">
+                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Minggu Aktif Sekarang</label>
+                        <select
+                            className="w-full bg-gray-50 border-transparent rounded-xl px-4 py-3 font-bold text-gray-700 outline-none transition-all focus:bg-white focus:border-blue-500 border-2 appearance-none"
+                            value={currentWeekType}
+                            onChange={(e) => setCurrentWeekType(e.target.value)}
+                        >
+                            <option value="Minggu Ganjil">Minggu Ganjil</option>
+                            <option value="Minggu Genap">Minggu Genap</option>
+                        </select>
+                        <p className="text-[9px] text-gray-400 px-1 mt-1">
+                            Pengaturan ini akan menentukan jadwal mana yang muncul di notifikasi siswa/guru.
+                        </p>
                     </div>
 
                     <button

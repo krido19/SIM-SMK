@@ -1,0 +1,135 @@
+{
+  "candidates": [
+    {
+      "pid": 11544,
+      "name": "Antigravity.exe",
+      "cmd": "\"C:\\Users\\Administrator\\AppData\\Local\\Programs\\Antigravity\\Antigravity.exe\" ",
+      "ports": [
+        "9101",
+        "49683"
+      ],
+      "apiChecks": [
+        {
+          "port": "9101",
+          "status": "failed"
+        },
+        {
+          "port": "49683",
+          "status": "failed"
+        }
+      ]
+    },
+    {
+      "pid": 11632,
+      "name": "Antigravity.exe",
+      "cmd": "C:\\Users\\Administrator\\AppData\\Local\\Programs\\Antigravity\\Antigravity.exe --type=crashpad-handler --user-data-dir=C:\\Users\\Administrator\\AppData\\Roaming\\Antigravity /prefetch:4 --no-rate-limit --monitor-self-annotation=ptype=crashpad-handler --database=C:\\Users\\Administrator\\AppData\\Roaming\\Antigravity\\Crashpad --annotation=_companyName=Google --annotation=_productName=Antigravity --annotation=_version=1.104.0 --annotation=plat=Win64 --annotation=prod=Electron --annotation=ver=37.3.1 --initial-client-data=0x4f4,0x4f8,0x4fc,0x4f0,0x500,0x7ff63f8d27c4,0x7ff63f8d27d0,0x7ff63f8d27e0",
+      "ports": [],
+      "apiChecks": []
+    },
+    {
+      "pid": 11740,
+      "name": "Antigravity.exe",
+      "cmd": "\"C:\\Users\\Administrator\\AppData\\Local\\Programs\\Antigravity\\Antigravity.exe\" --type=gpu-process --user-data-dir=\"C:\\Users\\Administrator\\AppData\\Roaming\\Antigravity\" --gpu-preferences=UAAAAAAAAADgAAAEAAAAAAAAAAAAAAAAAABgAAEAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAEAAAAAAAAAAIAAAAAAAAAAgAAAAAAAAA --field-trial-handle=1764,i,2952258257076780837,15174276097820509337,262144 --enable-features=DocumentPolicyIncludeJSCallStacksInCrashReports,EarlyEstablishGpuChannel,EnableTransparentHwndEnlargement,EstablishGpuChannelAsync,PdfUseShowSaveFilePicker --disable-features=CalculateNativeWinOcclusion,FontationsLinuxSystemFonts,ScreenAIOCREnabled,SpareRendererForSitePerProcess,WinDelaySpellcheckServiceInit --variations-seed-version --mojo-platform-channel-handle=1744 /prefetch:2",
+      "ports": [],
+      "apiChecks": []
+    },
+    {
+      "pid": 11748,
+      "name": "Antigravity.exe",
+      "cmd": "\"C:\\Users\\Administrator\\AppData\\Local\\Programs\\Antigravity\\Antigravity.exe\" --type=utility --utility-sub-type=network.mojom.NetworkService --lang=en-US --service-sandbox-type=none --user-data-dir=\"C:\\Users\\Administrator\\AppData\\Roaming\\Antigravity\" --standard-schemes=vscode-webview,vscode-file --enable-sandbox --secure-schemes=vscode-webview,vscode-file --cors-schemes=vscode-webview,vscode-file --fetch-schemes=vscode-webview,vscode-file --service-worker-schemes=vscode-webview --code-cache-schemes=vscode-webview,vscode-file --field-trial-handle=1764,i,2952258257076780837,15174276097820509337,262144 --enable-features=DocumentPolicyIncludeJSCallStacksInCrashReports,EarlyEstablishGpuChannel,EnableTransparentHwndEnlargement,EstablishGpuChannelAsync,PdfUseShowSaveFilePicker --disable-features=CalculateNativeWinOcclusion,FontationsLinuxSystemFonts,ScreenAIOCREnabled,SpareRendererForSitePerProcess,WinDelaySpellcheckServiceInit --variations-seed-version --mojo-platform-channel-handle=1904 /prefetch:11",
+      "ports": [],
+      "apiChecks": []
+    },
+    {
+      "pid": 11932,
+      "name": "Antigravity.exe",
+      "cmd": "\"C:\\Users\\Administrator\\AppData\\Local\\Programs\\Antigravity\\Antigravity.exe\" --type=renderer --user-data-dir=\"C:\\Users\\Administrator\\AppData\\Roaming\\Antigravity\" --standard-schemes=vscode-webview,vscode-file --enable-sandbox --secure-schemes=vscode-webview,vscode-file --cors-schemes=vscode-webview,vscode-file --fetch-schemes=vscode-webview,vscode-file --service-worker-schemes=vscode-webview --code-cache-schemes=vscode-webview,vscode-file --app-user-model-id=Google.Antigravity --app-path=\"C:\\Users\\Administrator\\AppData\\Local\\Programs\\Antigravity\\resources\\app\" --enable-sandbox --enable-blink-features=HighlightAPI --disable-blink-features=FontMatchingCTMigration,StandardizedBrowserZoom, --video-capture-use-gpu-memory-buffer --lang=en-US --device-scale-factor=1 --num-raster-threads=4 --enable-main-frame-before-activation --renderer-client-id=4 --time-ticks-at-unix-epoch=-1766271614203452 --launch-time-ticks=11271496242 --field-trial-handle=1764,i,2952258257076780837,15174276097820509337,262144 --enable-features=DocumentPolicyIncludeJSCallStacksInCrashReports,EarlyEstablishGpuChannel,EnableTransparentHwndEnlargement,EstablishGpuChannelAsync,PdfUseShowSaveFilePicker --disable-features=CalculateNativeWinOcclusion,FontationsLinuxSystemFonts,ScreenAIOCREnabled,SpareRendererForSitePerProcess,WinDelaySpellcheckServiceInit --variations-seed-version --mojo-platform-channel-handle=3380 --vscode-window-config=vscode:8f6bf0e8-adb5-4830-8e61-db5a764c3fda /prefetch:1",
+      "ports": [],
+      "apiChecks": []
+    },
+    {
+      "pid": 12000,
+      "name": "Antigravity.exe",
+      "cmd": "\"C:\\Users\\Administrator\\AppData\\Local\\Programs\\Antigravity\\Antigravity.exe\" --type=renderer --user-data-dir=\"C:\\Users\\Administrator\\AppData\\Roaming\\Antigravity\" --standard-schemes=vscode-webview,vscode-file --enable-sandbox --secure-schemes=vscode-webview,vscode-file --cors-schemes=vscode-webview,vscode-file --fetch-schemes=vscode-webview,vscode-file --service-worker-schemes=vscode-webview --code-cache-schemes=vscode-webview,vscode-file --app-user-model-id=Google.Antigravity --app-path=\"C:\\Users\\Administrator\\AppData\\Local\\Programs\\Antigravity\\resources\\app\" --enable-sandbox --enable-blink-features=HighlightAPI --disable-blink-features=FontMatchingCTMigration,StandardizedBrowserZoom, --video-capture-use-gpu-memory-buffer --lang=en-US --device-scale-factor=1 --num-raster-threads=4 --enable-main-frame-before-activation --renderer-client-id=5 --time-ticks-at-unix-epoch=-1766271614203452 --launch-time-ticks=11271760539 --field-trial-handle=1764,i,2952258257076780837,15174276097820509337,262144 --enable-features=DocumentPolicyIncludeJSCallStacksInCrashReports,EarlyEstablishGpuChannel,EnableTransparentHwndEnlargement,EstablishGpuChannelAsync,PdfUseShowSaveFilePicker --disable-features=CalculateNativeWinOcclusion,FontationsLinuxSystemFonts,ScreenAIOCREnabled,SpareRendererForSitePerProcess,WinDelaySpellcheckServiceInit --variations-seed-version --mojo-platform-channel-handle=4264 --vscode-window-config=vscode:ace39177-bf38-43c9-a834-440427834f23 /prefetch:1",
+      "ports": [],
+      "apiChecks": []
+    },
+    {
+      "pid": 12096,
+      "name": "Antigravity.exe",
+      "cmd": "\"C:\\Users\\Administrator\\AppData\\Local\\Programs\\Antigravity\\Antigravity.exe\" --type=utility --utility-sub-type=node.mojom.NodeService --lang=en-US --service-sandbox-type=none --video-capture-use-gpu-memory-buffer --user-data-dir=\"C:\\Users\\Administrator\\AppData\\Roaming\\Antigravity\" --standard-schemes=vscode-webview,vscode-file --enable-sandbox --secure-schemes=vscode-webview,vscode-file --cors-schemes=vscode-webview,vscode-file --fetch-schemes=vscode-webview,vscode-file --service-worker-schemes=vscode-webview --code-cache-schemes=vscode-webview,vscode-file --field-trial-handle=1764,i,2952258257076780837,15174276097820509337,262144 --enable-features=DocumentPolicyIncludeJSCallStacksInCrashReports,EarlyEstablishGpuChannel,EnableTransparentHwndEnlargement,EstablishGpuChannelAsync,PdfUseShowSaveFilePicker --disable-features=CalculateNativeWinOcclusion,FontationsLinuxSystemFonts,ScreenAIOCREnabled,SpareRendererForSitePerProcess,WinDelaySpellcheckServiceInit --variations-seed-version --mojo-platform-channel-handle=4592 /prefetch:14",
+      "ports": [],
+      "apiChecks": []
+    },
+    {
+      "pid": 12172,
+      "name": "Antigravity.exe",
+      "cmd": "\"C:\\Users\\Administrator\\AppData\\Local\\Programs\\Antigravity\\Antigravity.exe\" --type=utility --utility-sub-type=node.mojom.NodeService --lang=en-US --service-sandbox-type=none --dns-result-order=ipv4first --experimental-network-inspection --inspect-port=0 --video-capture-use-gpu-memory-buffer --user-data-dir=\"C:\\Users\\Administrator\\AppData\\Roaming\\Antigravity\" --standard-schemes=vscode-webview,vscode-file --enable-sandbox --secure-schemes=vscode-webview,vscode-file --cors-schemes=vscode-webview,vscode-file --fetch-schemes=vscode-webview,vscode-file --service-worker-schemes=vscode-webview --code-cache-schemes=vscode-webview,vscode-file --field-trial-handle=1764,i,2952258257076780837,15174276097820509337,262144 --enable-features=DocumentPolicyIncludeJSCallStacksInCrashReports,EarlyEstablishGpuChannel,EnableTransparentHwndEnlargement,EstablishGpuChannelAsync,PdfUseShowSaveFilePicker --disable-features=CalculateNativeWinOcclusion,FontationsLinuxSystemFonts,ScreenAIOCREnabled,SpareRendererForSitePerProcess,WinDelaySpellcheckServiceInit --variations-seed-version --mojo-platform-channel-handle=4472 /prefetch:14",
+      "ports": [
+        "49695"
+      ],
+      "apiChecks": [
+        {
+          "port": "49695",
+          "status": "failed"
+        }
+      ]
+    },
+    {
+      "pid": 12232,
+      "name": "Antigravity.exe",
+      "cmd": "\"C:\\Users\\Administrator\\AppData\\Local\\Programs\\Antigravity\\Antigravity.exe\" --type=utility --utility-sub-type=node.mojom.NodeService --lang=en-US --service-sandbox-type=none --video-capture-use-gpu-memory-buffer --user-data-dir=\"C:\\Users\\Administrator\\AppData\\Roaming\\Antigravity\" --standard-schemes=vscode-webview,vscode-file --enable-sandbox --secure-schemes=vscode-webview,vscode-file --cors-schemes=vscode-webview,vscode-file --fetch-schemes=vscode-webview,vscode-file --service-worker-schemes=vscode-webview --code-cache-schemes=vscode-webview,vscode-file --field-trial-handle=1764,i,2952258257076780837,15174276097820509337,262144 --enable-features=DocumentPolicyIncludeJSCallStacksInCrashReports,EarlyEstablishGpuChannel,EnableTransparentHwndEnlargement,EstablishGpuChannelAsync,PdfUseShowSaveFilePicker --disable-features=CalculateNativeWinOcclusion,FontationsLinuxSystemFonts,ScreenAIOCREnabled,SpareRendererForSitePerProcess,WinDelaySpellcheckServiceInit --variations-seed-version --mojo-platform-channel-handle=2736 /prefetch:14",
+      "ports": [],
+      "apiChecks": []
+    },
+    {
+      "pid": 11268,
+      "name": "Antigravity.exe",
+      "cmd": "\"C:\\Users\\Administrator\\AppData\\Local\\Programs\\Antigravity\\Antigravity.exe\" --type=utility --utility-sub-type=node.mojom.NodeService --lang=en-US --service-sandbox-type=none --video-capture-use-gpu-memory-buffer --user-data-dir=\"C:\\Users\\Administrator\\AppData\\Roaming\\Antigravity\" --standard-schemes=vscode-webview,vscode-file --enable-sandbox --secure-schemes=vscode-webview,vscode-file --cors-schemes=vscode-webview,vscode-file --fetch-schemes=vscode-webview,vscode-file --service-worker-schemes=vscode-webview --code-cache-schemes=vscode-webview,vscode-file --field-trial-handle=1764,i,2952258257076780837,15174276097820509337,262144 --enable-features=DocumentPolicyIncludeJSCallStacksInCrashReports,EarlyEstablishGpuChannel,EnableTransparentHwndEnlargement,EstablishGpuChannelAsync,PdfUseShowSaveFilePicker --disable-features=CalculateNativeWinOcclusion,FontationsLinuxSystemFonts,ScreenAIOCREnabled,SpareRendererForSitePerProcess,WinDelaySpellcheckServiceInit --variations-seed-version --mojo-platform-channel-handle=3796 /prefetch:14",
+      "ports": [],
+      "apiChecks": []
+    },
+    {
+      "pid": 204,
+      "name": "Antigravity.exe",
+      "cmd": "C:\\Users\\Administrator\\AppData\\Local\\Programs\\Antigravity\\Antigravity.exe c:\\Users\\Administrator\\AppData\\Local\\Programs\\Antigravity\\resources\\app\\extensions\\markdown-language-features\\dist\\serverWorkerMain --node-ipc --clientProcessId=12172",
+      "ports": [],
+      "apiChecks": []
+    },
+    {
+      "pid": 9672,
+      "name": "Antigravity.exe",
+      "cmd": "C:\\Users\\Administrator\\AppData\\Local\\Programs\\Antigravity\\Antigravity.exe c:/Users/Administrator/AppData/Local/Programs/Antigravity/resources/app/extensions/node_modules/typescript/lib/typingsInstaller.js --globalTypingsCacheLocation C:/Users/Administrator/AppData/Local/Microsoft/TypeScript/5.9 --enableTelemetry --typesMapLocation c:/Users/Administrator/AppData/Local/Programs/Antigravity/resources/app/extensions/node_modules/typescript/lib/typesMap.json --validateDefaultNpmLocation",
+      "ports": [
+        "49672"
+      ],
+      "apiChecks": [
+        {
+          "port": "49672",
+          "status": "failed"
+        }
+      ]
+    },
+    {
+      "pid": 9996,
+      "name": "Antigravity.exe",
+      "cmd": "C:\\Users\\Administrator\\AppData\\Local\\Programs\\Antigravity\\Antigravity.exe c:\\Users\\Administrator\\AppData\\Local\\Programs\\Antigravity\\resources\\app\\extensions\\json-language-features\\server\\dist\\node\\jsonServerMain --node-ipc --clientProcessId=12172",
+      "ports": [],
+      "apiChecks": []
+    },
+    {
+      "pid": 2412,
+      "name": "Antigravity.exe",
+      "cmd": "\"C:\\Users\\Administrator\\AppData\\Local\\Programs\\Antigravity\\Antigravity.exe\" --type=utility --utility-sub-type=audio.mojom.AudioService --lang=en-US --service-sandbox-type=audio --video-capture-use-gpu-memory-buffer --user-data-dir=\"C:\\Users\\Administrator\\AppData\\Roaming\\Antigravity\" --standard-schemes=vscode-webview,vscode-file --enable-sandbox --secure-schemes=vscode-webview,vscode-file --cors-schemes=vscode-webview,vscode-file --fetch-schemes=vscode-webview,vscode-file --service-worker-schemes=vscode-webview --code-cache-schemes=vscode-webview,vscode-file --field-trial-handle=1764,i,2952258257076780837,15174276097820509337,262144 --enable-features=DocumentPolicyIncludeJSCallStacksInCrashReports,EarlyEstablishGpuChannel,EnableTransparentHwndEnlargement,EstablishGpuChannelAsync,PdfUseShowSaveFilePicker --disable-features=CalculateNativeWinOcclusion,FontationsLinuxSystemFonts,ScreenAIOCREnabled,SpareRendererForSitePerProcess,WinDelaySpellcheckServiceInit --variations-seed-version --mojo-platform-channel-handle=3892 /prefetch:12",
+      "ports": [],
+      "apiChecks": []
+    },
+    {
+      "pid": 8416,
+      "name": "Antigravity.exe",
+      "cmd": "C:\\Users\\Administrator\\AppData\\Local\\Programs\\Antigravity\\Antigravity.exe c:\\Users\\Administrator\\AppData\\Local\\Programs\\Antigravity\\resources\\app\\extensions\\css-language-features\\server\\dist\\node\\cssServerMain --node-ipc --clientProcessId=12172",
+      "ports": [],
+      "apiChecks": []
+    }
+  ]
+}
