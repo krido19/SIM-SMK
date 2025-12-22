@@ -57,43 +57,43 @@ export default function StudentAssignments() {
     return (
         <div className="space-y-8 animate-in fade-in duration-500 max-w-7xl mx-auto">
             <div>
-                <h1 className="text-3xl font-black text-gray-900 tracking-tight">Tugas Saya</h1>
-                <p className="text-sm text-gray-500 font-medium mt-1">Daftar tugas yang harus dikerjakan.</p>
+                <h1 className="text-3xl font-black text-gray-900 dark:text-gray-100 tracking-tight">Tugas Saya</h1>
+                <p className="text-sm text-gray-500 dark:text-gray-400 font-medium mt-1">Daftar tugas yang harus dikerjakan.</p>
             </div>
 
             {isLoading ? (
-                <div className="text-center py-20 text-gray-400 font-bold animate-pulse">Memuat Tugas...</div>
+                <div className="text-center py-20 text-gray-400 dark:text-gray-500 font-bold animate-pulse">Memuat Tugas...</div>
             ) : (
                 <div className="grid grid-cols-1 gap-4">
                     {assignments.length > 0 ? assignments.map((asg) => {
                         const isOverdue = new Date(asg.due_date) < new Date();
                         return (
-                            <div key={asg.id} className="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-lg transition-all flex flex-col md:flex-row gap-6 relative overflow-hidden group">
+                            <div key={asg.id} className="bg-white dark:bg-gray-900 p-6 rounded-[2rem] border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-lg transition-all flex flex-col md:flex-row gap-6 relative overflow-hidden group">
                                 {/* Decor */}
                                 <div className={`absolute left-0 top-0 bottom-0 w-2 ${isOverdue ? 'bg-red-500' : 'bg-blue-500'}`} />
 
                                 <div className="flex-1 space-y-2">
                                     <div className="flex items-center space-x-3">
-                                        <span className="px-3 py-1 bg-gray-100 text-gray-600 rounded-lg text-[10px] font-black uppercase tracking-widest flex items-center">
+                                        <span className="px-3 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-lg text-[10px] font-black uppercase tracking-widest flex items-center">
                                             <BookOpen size={12} className="mr-2" />
                                             {asg.subject_name}
                                         </span>
                                         {isOverdue && (
-                                            <span className="px-3 py-1 bg-red-50 text-red-600 rounded-lg text-[10px] font-black uppercase tracking-widest flex items-center">
+                                            <span className="px-3 py-1 bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-lg text-[10px] font-black uppercase tracking-widest flex items-center">
                                                 <AlertCircle size={12} className="mr-2" />
                                                 Terlewat
                                             </span>
                                         )}
                                     </div>
-                                    <h3 className="text-xl font-black text-gray-900 group-hover:text-blue-600 transition-colors">
+                                    <h3 className="text-xl font-black text-gray-900 dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                                         {asg.title}
                                     </h3>
-                                    <p className="text-sm text-gray-600 leading-relaxed max-w-2xl">
+                                    <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed max-w-2xl">
                                         {asg.description}
                                     </p>
-                                    <div className="flex items-center text-xs font-bold text-gray-400 pt-2">
+                                    <div className="flex items-center text-xs font-bold text-gray-400 dark:text-gray-500 pt-2">
                                         <span className="mr-1">Guru:</span>
-                                        <span className="text-gray-600">{asg.teachers?.name}</span>
+                                        <span className="text-gray-600 dark:text-gray-300">{asg.teachers?.name}</span>
                                     </div>
                                     {asg.file_url && (
                                         <div className="pt-4">
@@ -101,7 +101,7 @@ export default function StudentAssignments() {
                                                 href={asg.file_url}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                className="inline-flex items-center space-x-2 text-xs font-bold text-blue-600 hover:text-blue-700 bg-blue-50 px-4 py-2.5 rounded-xl transition-colors border border-blue-100"
+                                                className="inline-flex items-center space-x-2 text-xs font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 bg-blue-50 dark:bg-blue-900/30 px-4 py-2.5 rounded-xl transition-colors border border-blue-100 dark:border-blue-900/40"
                                             >
                                                 <Download size={14} />
                                                 <span>Download Materi/Tugas</span>
@@ -110,10 +110,10 @@ export default function StudentAssignments() {
                                     )}
                                 </div>
 
-                                <div className="flex flex-col items-end justify-center min-w-[200px] text-right border-l border-gray-50 pl-6 border-dashed">
+                                <div className="flex flex-col items-end justify-center min-w-[200px] text-right border-l border-gray-50 dark:border-gray-800 pl-6 border-dashed">
                                     <div className="mb-2">
-                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Batas Waktu</p>
-                                        <div className={`flex items-center justify-end space-x-2 font-black text-lg ${isOverdue ? 'text-red-500' : 'text-gray-800'}`}>
+                                        <p className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1">Batas Waktu</p>
+                                        <div className={`flex items-center justify-end space-x-2 font-black text-lg ${isOverdue ? 'text-red-500 dark:text-red-400' : 'text-gray-800 dark:text-gray-200'}`}>
                                             <Clock size={16} />
                                             <span>{new Date(asg.due_date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</span>
                                         </div>

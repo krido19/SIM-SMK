@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { GraduationCap, Mail, Lock, Loader2, AlertCircle, UserCircle, Users, Eye, EyeOff } from 'lucide-react';
+import { useTheme } from '../context/ThemeContext';
+import { GraduationCap, Mail, Lock, Loader2, AlertCircle, UserCircle, Users, Eye, EyeOff, Sun, Moon } from 'lucide-react';
 
 export default function Login() {
     const [schoolName, setSchoolName] = useState('SIM SMKN 4');
@@ -11,6 +12,7 @@ export default function Login() {
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const { theme, toggleTheme } = useTheme();
     const navigate = useNavigate();
 
     React.useEffect(() => {
@@ -117,39 +119,48 @@ export default function Login() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+        <div className={`min-h-screen transition-colors duration-300 flex flex-col justify-center py-12 sm:px-6 lg:px-8 ${theme === 'dark' ? 'dark bg-gray-950' : 'bg-gray-50'}`}>
+            <div className="absolute top-6 right-6">
+                <button
+                    onClick={toggleTheme}
+                    className="p-3 rounded-2xl bg-white dark:bg-gray-900 shadow-xl border border-gray-100 dark:border-gray-800 text-gray-500 dark:text-gray-400 hover:scale-110 active:scale-95 transition-all"
+                >
+                    {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+                </button>
+            </div>
+
             <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
-                <div className={`inline-flex items-center justify-center p-2 rounded-2xl mb-6 overflow-hidden w-24 h-24 ${!schoolLogo ? 'bg-blue-600 shadow-lg' : ''}`}>
+                <div className={`inline-flex items-center justify-center p-2 rounded-2xl mb-6 overflow-hidden w-24 h-24 ${!schoolLogo ? 'bg-blue-600 shadow-lg shadow-blue-200 dark:shadow-blue-900/20' : ''}`}>
                     {schoolLogo ? (
                         <img src={schoolLogo} alt="Logo" className="w-full h-full object-contain" />
                     ) : (
                         <GraduationCap className="text-white" size={48} />
                     )}
                 </div>
-                <h2 className="text-3xl font-extrabold text-gray-900 tracking-tight">
+                <h2 className="text-3xl font-extrabold text-gray-900 dark:text-gray-100 tracking-tight">
                     {schoolName}
                 </h2>
-                <p className="mt-2 text-sm text-gray-600 font-medium">
+                <p className="mt-2 text-sm text-gray-600 dark:text-gray-400 font-medium">
                     Sistem Informasi Monitoring Nilai & Absensi
                 </p>
             </div>
 
             <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md px-4">
-                <div className="bg-white py-8 px-6 shadow-2xl shadow-blue-100 sm:rounded-[2.5rem] sm:px-10 border border-gray-100">
+                <div className="bg-white dark:bg-gray-900 py-8 px-6 shadow-2xl shadow-blue-100 dark:shadow-black/20 sm:rounded-[2.5rem] sm:px-10 border border-gray-100 dark:border-gray-800">
                     <form className="space-y-6" onSubmit={handleLogin}>
                         {error && (
-                            <div className="bg-red-50 border border-red-100 text-red-600 px-4 py-3 rounded-2xl flex items-center space-x-3 text-xs font-bold animate-in slide-in-from-top-2">
+                            <div className="bg-red-50 dark:bg-red-950/20 border border-red-100 dark:border-red-900/30 text-red-600 dark:text-red-400 px-4 py-3 rounded-2xl flex items-center space-x-3 text-xs font-bold animate-in slide-in-from-top-2">
                                 <AlertCircle size={18} />
                                 <span>{error}</span>
                             </div>
                         )}
 
                         <div className="space-y-1">
-                            <label htmlFor="email" className="block text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">
+                            <label htmlFor="email" className="block text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest px-1">
                                 Email / NIS / ID OT
                             </label>
                             <div className="relative">
-                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-300">
+                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-300 dark:text-gray-600">
                                     <Mail size={18} />
                                 </div>
                                 <input
@@ -158,18 +169,18 @@ export default function Login() {
                                     required
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    className="block w-full pl-12 pr-4 py-4 bg-gray-50 border-transparent focus:bg-white focus:border-blue-500 rounded-2xl font-bold text-gray-700 outline-none transition-all border-2"
+                                    className="block w-full pl-12 pr-4 py-4 bg-gray-50 dark:bg-gray-800 border-transparent focus:bg-white dark:focus:bg-gray-800 focus:border-blue-500 rounded-2xl font-bold text-gray-700 dark:text-gray-200 outline-none transition-all border-2"
                                     placeholder="admin@school.id, NIP, atau NIS"
                                 />
                             </div>
                         </div>
 
                         <div className="space-y-1">
-                            <label htmlFor="password" className="block text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">
+                            <label htmlFor="password" className="block text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest px-1">
                                 Kata Sandi
                             </label>
                             <div className="relative">
-                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400">
+                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400 dark:text-gray-600">
                                     <Lock size={18} />
                                 </div>
                                 <input
@@ -178,13 +189,13 @@ export default function Login() {
                                     required
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    className="block w-full pl-12 pr-12 py-4 bg-gray-50 border-transparent focus:bg-white focus:border-blue-500 rounded-2xl font-bold text-gray-700 outline-none transition-all border-2"
+                                    className="block w-full pl-12 pr-12 py-4 bg-gray-50 dark:bg-gray-800 border-transparent focus:bg-white dark:focus:bg-gray-800 focus:border-blue-500 rounded-2xl font-bold text-gray-700 dark:text-gray-200 outline-none transition-all border-2"
                                     placeholder="••••••••"
                                 />
                                 <button
                                     type="button"
                                     onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-blue-600 transition-colors"
+                                    className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 dark:text-gray-500 hover:text-blue-600 transition-colors"
                                 >
                                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                                 </button>
@@ -232,29 +243,29 @@ export default function Login() {
                                 <div className="w-full border-t border-gray-100"></div>
                             </div>
                             <div className="relative flex justify-center text-[10px] font-black uppercase tracking-[0.2em]">
-                                <span className="px-4 bg-white text-gray-300">
+                                <span className="px-4 bg-white dark:bg-gray-900 text-gray-300 dark:text-gray-700">
                                     Panduan Login
                                 </span>
                             </div>
                         </div>
 
                         <div className="mt-6 space-y-3">
-                            <div className="bg-gray-50 p-4 rounded-2xl border border-gray-50 flex items-center space-x-4">
+                            <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-2xl border border-gray-50 dark:border-gray-800 flex items-center space-x-4">
                                 <UserCircle size={20} className="text-indigo-500" />
-                                <p className="text-[10px] font-bold text-gray-500 leading-tight">
-                                    Guru: Gunakan <span className="text-indigo-600">NIP</span> atau Email
+                                <p className="text-[10px] font-bold text-gray-500 dark:text-gray-400 leading-tight">
+                                    Guru: Gunakan <span className="text-indigo-600 dark:text-indigo-400">NIP</span> atau Email
                                 </p>
                             </div>
-                            <div className="bg-gray-50 p-4 rounded-2xl border border-gray-50 flex items-center space-x-4">
+                            <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-2xl border border-gray-50 dark:border-gray-800 flex items-center space-x-4">
                                 <Users size={20} className="text-blue-500" />
-                                <p className="text-[10px] font-bold text-gray-500 leading-tight">
-                                    Siswa: Gunakan <span className="text-blue-600">NIS</span> (Angka)
+                                <p className="text-[10px] font-bold text-gray-500 dark:text-gray-400 leading-tight">
+                                    Siswa: Gunakan <span className="text-blue-600 dark:text-blue-400">NIS</span> (Angka)
                                 </p>
                             </div>
-                            <div className="bg-gray-50 p-4 rounded-2xl border border-gray-50 flex items-center space-x-4">
+                            <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-2xl border border-gray-50 dark:border-gray-800 flex items-center space-x-4">
                                 <AlertCircle size={20} className="text-amber-500" />
-                                <p className="text-[10px] font-bold text-gray-500 leading-tight">
-                                    Orang Tua: Gunakan <span className="text-amber-600">OT + NIS</span> (Contoh: OT2023001)
+                                <p className="text-[10px] font-bold text-gray-500 dark:text-gray-400 leading-tight">
+                                    Orang Tua: Gunakan <span className="text-amber-600 dark:text-amber-400">OT + NIS</span> (Contoh: OT2023001)
                                 </p>
                             </div>
                         </div>

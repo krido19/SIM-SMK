@@ -64,10 +64,10 @@ const Modal = ({ isOpen, onClose, title, children, maxWidth = "max-w-md" }) => {
     if (!isOpen) return null;
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-300">
-            <div className={`bg-white rounded-3xl shadow-2xl w-full ${maxWidth} overflow-hidden animate-in zoom-in-95 duration-300 max-h-[90vh] flex flex-col`}>
-                <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
-                    <h3 className="text-xl font-black text-gray-900">{title}</h3>
-                    <button onClick={onClose} className="p-2 hover:bg-gray-200 rounded-xl transition-colors text-gray-400">
+            <div className={`bg-white dark:bg-gray-900 rounded-3xl shadow-2xl w-full ${maxWidth} overflow-hidden animate-in zoom-in-95 duration-300 border border-gray-100 dark:border-gray-800 max-h-[90vh] flex flex-col`}>
+                <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between bg-gray-50/50 dark:bg-gray-800/50">
+                    <h3 className="text-xl font-black text-gray-900 dark:text-gray-100">{title}</h3>
+                    <button onClick={onClose} className="p-2 hover:bg-gray-200 dark:hover:bg-gray-800 rounded-xl transition-colors text-gray-400">
                         <X size={20} />
                     </button>
                 </div>
@@ -318,14 +318,14 @@ export default function Schedule() {
         <div className="space-y-6 animate-in fade-in duration-500 max-w-7xl mx-auto relative">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div>
-                    <h1 className="text-3xl font-black text-gray-900 tracking-tight">Jadwal Pelajaran</h1>
-                    <p className="text-sm text-gray-500 font-medium">Manajemen KBM 12 Jam Pelajaran & Istirahat Otomatis.</p>
+                    <h1 className="text-3xl font-black text-gray-900 dark:text-gray-100 tracking-tight">Jadwal Pelajaran</h1>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">Manajemen KBM 12 Jam Pelajaran & Istirahat Otomatis.</p>
                 </div>
                 <div className="flex flex-wrap gap-3">
                     {canManage && (
                         <button
                             onClick={() => setIsSettingsOpen(true)}
-                            className="p-3 bg-white border-2 border-gray-100 rounded-2xl text-gray-400 hover:text-blue-600 hover:border-blue-100 transition-all shadow-sm"
+                            className="p-3 bg-white dark:bg-gray-900 border-2 border-gray-100 dark:border-gray-800 rounded-2xl text-gray-400 dark:text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 hover:border-blue-100 dark:hover:border-blue-900/40 transition-all shadow-sm"
                             title="Pengaturan Waktu"
                         >
                             <Clock size={20} />
@@ -335,25 +335,25 @@ export default function Schedule() {
                     {/* Searchable Class Filter */}
                     <div className="relative">
                         <div
-                            className="bg-white border-2 border-gray-100 rounded-2xl px-10 py-3 font-bold text-gray-700 shadow-sm cursor-pointer hover:border-blue-500 transition-all min-w-[200px]"
+                            className="bg-white dark:bg-gray-900 border-2 border-gray-100 dark:border-gray-800 rounded-2xl px-10 py-3 font-bold text-gray-700 dark:text-gray-200 shadow-sm cursor-pointer hover:border-blue-500 transition-all min-w-[200px]"
                             onClick={() => setIsClassDropdownOpen(!isClassDropdownOpen)}
                         >
                             <span className="truncate block">
                                 {selectedClassId === 'all' ? 'Semua Kelas' : (selectedClass?.name || 'Pilih Kelas')}
                             </span>
                         </div>
-                        <Filter className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                        <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                        <Filter className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500" size={18} />
+                        <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500" size={18} />
 
                         {isClassDropdownOpen && (
-                            <div className="absolute top-full left-0 mt-2 w-full bg-white border-2 border-gray-100 rounded-2xl shadow-2xl z-[100] overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
-                                <div className="p-2 border-b border-gray-50">
+                            <div className="absolute top-full left-0 mt-2 w-full bg-white dark:bg-gray-900 border-2 border-gray-100 dark:border-gray-800 rounded-2xl shadow-2xl z-[100] overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                                <div className="p-2 border-b border-gray-50 dark:border-gray-800">
                                     <div className="relative">
-                                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={14} />
+                                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500" size={14} />
                                         <input
                                             type="text"
                                             placeholder="Cari kelas..."
-                                            className="w-full pl-9 pr-4 py-2 bg-gray-50 rounded-xl text-sm font-bold outline-none focus:bg-white transition-all"
+                                            className="w-full pl-9 pr-4 py-2 bg-gray-50 dark:bg-gray-800 rounded-xl text-sm font-bold outline-none focus:bg-white dark:focus:bg-gray-700 transition-all text-gray-700 dark:text-gray-200"
                                             value={classSearch}
                                             onChange={(e) => setClassSearch(e.target.value)}
                                             onClick={(e) => e.stopPropagation()}
@@ -363,7 +363,7 @@ export default function Schedule() {
                                 </div>
                                 <div className="max-h-60 overflow-y-auto p-2 space-y-1">
                                     <button
-                                        className={`w-full text-left px-4 py-2 rounded-xl text-sm font-bold transition-colors ${selectedClassId === 'all' ? 'bg-blue-600 text-white' : 'hover:bg-gray-50 text-gray-600'}`}
+                                        className={`w-full text-left px-4 py-2 rounded-xl text-sm font-bold transition-colors ${selectedClassId === 'all' ? 'bg-blue-600 text-white' : 'hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400'}`}
                                         onClick={() => {
                                             setSelectedClassId('all');
                                             setIsClassDropdownOpen(false);
@@ -374,7 +374,7 @@ export default function Schedule() {
                                     {filteredClasses.map(c => (
                                         <button
                                             key={c.id}
-                                            className={`w-full text-left px-4 py-2 rounded-xl text-sm font-bold transition-colors ${selectedClassId === c.id ? 'bg-blue-600 text-white' : 'hover:bg-gray-50 text-gray-600'}`}
+                                            className={`w-full text-left px-4 py-2 rounded-xl text-sm font-bold transition-colors ${selectedClassId === c.id ? 'bg-blue-600 text-white' : 'hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400'}`}
                                             onClick={() => {
                                                 setSelectedClassId(c.id);
                                                 setIsClassDropdownOpen(false);
@@ -389,17 +389,17 @@ export default function Schedule() {
                     </div>
 
                     {/* View Mode Toggle */}
-                    <div className="flex bg-gray-100 p-1 rounded-2xl">
+                    <div className="flex bg-gray-100 dark:bg-gray-800 p-1 rounded-2xl">
                         <button
                             onClick={() => setViewMode('list')}
-                            className={`p-2 px-4 rounded-xl transition-all flex items-center space-x-2 ${viewMode === 'list' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                            className={`p-2 px-4 rounded-xl transition-all flex items-center space-x-2 ${viewMode === 'list' ? 'bg-white dark:bg-gray-900 text-blue-600 dark:text-blue-400 shadow-sm' : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'}`}
                         >
                             <ListIcon size={18} />
                             <span className="text-[10px] font-black uppercase tracking-widest hidden md:inline">Daftar</span>
                         </button>
                         <button
                             onClick={() => setViewMode('matrix')}
-                            className={`p-2 px-4 rounded-xl transition-all flex items-center space-x-2 ${viewMode === 'matrix' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                            className={`p-2 px-4 rounded-xl transition-all flex items-center space-x-2 ${viewMode === 'matrix' ? 'bg-white dark:bg-gray-900 text-blue-600 dark:text-blue-400 shadow-sm' : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'}`}
                         >
                             <Grid size={18} />
                             <span className="text-[10px] font-black uppercase tracking-widest hidden md:inline">Matrix</span>
@@ -421,14 +421,14 @@ export default function Schedule() {
             {/* Week & Day Selectors Container */}
             <div className="space-y-4">
                 {/* Week Selector */}
-                <div className="flex space-x-2 bg-gray-100 p-1 rounded-2xl w-fit">
+                <div className="flex space-x-2 bg-gray-100 dark:bg-gray-800 p-1 rounded-2xl w-fit">
                     {WeekTypes.map((week) => (
                         <button
                             key={week}
                             onClick={() => setSelectedWeek(week)}
                             className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${selectedWeek === week
-                                ? 'bg-white text-blue-600 shadow-sm'
-                                : 'text-gray-400 hover:text-gray-600'
+                                ? 'bg-white dark:bg-gray-900 text-blue-600 dark:text-blue-400 shadow-sm'
+                                : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'
                                 }`}
                         >
                             {week}
@@ -438,14 +438,14 @@ export default function Schedule() {
 
                 {/* Day Selector - Only in List Mode */}
                 {viewMode === 'list' && (
-                    <div className="flex bg-white p-1.5 rounded-[2rem] border-2 border-gray-50 shadow-sm overflow-x-auto no-scrollbar">
+                    <div className="flex bg-white dark:bg-gray-900 p-1.5 rounded-[2rem] border-2 border-gray-50 dark:border-gray-800 shadow-sm overflow-x-auto no-scrollbar">
                         {Days.map((day) => (
                             <button
                                 key={day}
                                 onClick={() => setSelectedDay(day)}
                                 className={`flex-1 min-w-[120px] py-4 px-6 rounded-[1.5rem] font-black text-xs uppercase tracking-[0.2em] transition-all duration-300 ${selectedDay === day
-                                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-200 scale-[1.02] z-10'
-                                    : 'text-gray-400 hover:bg-gray-50 hover:text-gray-600'
+                                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-200 dark:shadow-black/20 scale-[1.02] z-10'
+                                    : 'text-gray-400 dark:text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-600 dark:hover:text-gray-300'
                                     }`}
                             >
                                 {day}
@@ -463,28 +463,28 @@ export default function Schedule() {
 
                         if (slot.type === 'break') {
                             return (
-                                <div key={slot.id} className="bg-gray-50/50 border-2 border-dashed border-gray-200 rounded-[2rem] p-4 flex items-center justify-center space-x-4 opacity-60 group hover:opacity-100 transition-opacity">
-                                    <Clock size={16} className="text-gray-400" />
-                                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">{slot.label}</span>
-                                    <span className="h-px w-20 bg-gray-200" />
-                                    <span className="text-[10px] font-black text-gray-500">{slot.start} - {slot.end}</span>
+                                <div key={slot.id} className="bg-gray-50/50 dark:bg-gray-800/30 border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-[2rem] p-4 flex items-center justify-center space-x-4 opacity-60 group hover:opacity-100 transition-opacity">
+                                    <Clock size={16} className="text-gray-400 dark:text-gray-500" />
+                                    <span className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.3em]">{slot.label}</span>
+                                    <span className="h-px w-20 bg-gray-200 dark:bg-gray-800" />
+                                    <span className="text-[10px] font-black text-gray-500 dark:text-gray-400">{slot.start} - {slot.end}</span>
                                 </div>
                             );
                         }
 
                         return (
-                            <div key={slot.id} className={`group relative bg-white rounded-[2.5rem] p-6 border-2 transition-all duration-500 ${entry ? 'border-blue-50 shadow-md hover:shadow-2xl hover:border-blue-200' : 'border-gray-50 opacity-40 hover:opacity-100'}`}>
+                            <div key={slot.id} className={`group relative bg-white dark:bg-gray-900 rounded-[2.5rem] p-6 border-2 transition-all duration-500 ${entry ? 'border-blue-50 dark:border-blue-900/40 shadow-md hover:shadow-2xl dark:shadow-black/20 hover:border-blue-200 dark:hover:border-blue-800' : 'border-gray-50 dark:border-gray-800 opacity-40 hover:opacity-100'}`}>
                                 <div className="flex flex-col md:flex-row items-center gap-6 md:gap-10">
                                     {/* Session Badge */}
-                                    <div className={`flex flex-col items-center justify-center w-20 h-20 rounded-3xl border-2 transition-colors ${entry ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-100' : 'bg-gray-50 border-gray-100 text-gray-300'}`}>
+                                    <div className={`flex flex-col items-center justify-center w-20 h-20 rounded-3xl border-2 transition-colors ${entry ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-100 dark:shadow-black/40' : 'bg-gray-50 dark:bg-gray-800 border-gray-100 dark:border-gray-700 text-gray-300 dark:text-gray-600'}`}>
                                         <span className="text-[10px] font-black uppercase tracking-widest leading-none mb-1">Jam</span>
                                         <span className="text-3xl font-black">{slot.id}</span>
                                     </div>
 
                                     {/* Time Info */}
                                     <div className="text-center md:text-left min-w-[100px]">
-                                        <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Waktu</p>
-                                        <p className="text-lg font-black text-gray-900 leading-none">{slot.start} - {slot.end}</p>
+                                        <p className="text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1">Waktu</p>
+                                        <p className="text-lg font-black text-gray-900 dark:text-gray-100 leading-none">{slot.start} - {slot.end}</p>
                                     </div>
 
                                     {/* Content */}
@@ -493,34 +493,34 @@ export default function Schedule() {
                                             <>
                                                 <div className="space-y-2">
                                                     <div className="flex items-center space-x-3">
-                                                        <span className="px-3 py-1 bg-blue-50 text-blue-600 text-[10px] font-black uppercase tracking-widest rounded-lg border border-blue-100">
+                                                        <span className="px-3 py-1 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-[10px] font-black uppercase tracking-widest rounded-lg border border-blue-100 dark:border-blue-900/40">
                                                             {entry.class_name}
                                                         </span>
                                                         {entry.week_type && (
-                                                            <span className="px-3 py-1 bg-amber-50 text-amber-600 text-[10px] font-black uppercase tracking-widest rounded-lg border border-amber-100">
+                                                            <span className="px-3 py-1 bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 text-[10px] font-black uppercase tracking-widest rounded-lg border border-amber-100 dark:border-amber-900/40">
                                                                 {entry.week_type}
                                                             </span>
                                                         )}
-                                                        <h3 className="text-xl font-black text-gray-900 tracking-tight uppercase group-hover:text-blue-600 transition-colors">{entry.subject_name}</h3>
+                                                        <h3 className="text-xl font-black text-gray-900 dark:text-gray-100 tracking-tight uppercase group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">{entry.subject_name}</h3>
                                                     </div>
-                                                    <div className="flex items-center text-sm font-bold text-gray-500">
-                                                        <User size={16} className="mr-2 text-blue-400" />
+                                                    <div className="flex items-center text-sm font-bold text-gray-500 dark:text-gray-400">
+                                                        <User size={16} className="mr-2 text-blue-400 dark:text-blue-500" />
                                                         {entry.teacher_name || 'GURU BELUM DIPILIH'}
                                                     </div>
                                                 </div>
                                                 {canManage && (
                                                     <div className="flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0">
-                                                        <button onClick={() => handleOpenEdit(entry)} className="p-3 bg-blue-50 text-blue-600 rounded-2xl hover:bg-blue-600 hover:text-white transition-all">
+                                                        <button onClick={() => handleOpenEdit(entry)} className="p-3 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-2xl hover:bg-blue-600 hover:text-white transition-all border border-blue-100 dark:border-blue-900/40">
                                                             <Edit2 size={18} />
                                                         </button>
-                                                        <button onClick={() => handleDeleteClick(entry)} className="p-3 bg-red-50 text-red-600 rounded-2xl hover:bg-red-600 hover:text-white transition-all">
+                                                        <button onClick={() => handleDeleteClick(entry)} className="p-3 bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-2xl hover:bg-red-600 hover:text-white transition-all border border-red-100 dark:border-red-900/40">
                                                             <Trash2 size={18} />
                                                         </button>
                                                     </div>
                                                 )}
                                             </>
                                         ) : (
-                                            <div className="flex-1 flex items-center justify-center md:justify-start text-xs font-bold text-gray-300 uppercase tracking-widest italic italic">
+                                            <div className="flex-1 flex items-center justify-center md:justify-start text-xs font-bold text-gray-300 dark:text-gray-700 uppercase tracking-widest italic">
                                                 Kosong / Belum Ada Pelajaran
                                             </div>
                                         )}
@@ -531,13 +531,13 @@ export default function Schedule() {
                     })}
                 </div>
             ) : (
-                <div className="bg-white rounded-[2.5rem] border-2 border-gray-50 shadow-sm overflow-hidden overflow-x-auto">
+                <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] border-2 border-gray-50 dark:border-gray-800 shadow-sm overflow-hidden overflow-x-auto">
                     <table className="w-full border-collapse">
                         <thead>
-                            <tr className="bg-gray-50/50">
-                                <th className="px-6 py-4 border-b border-r border-gray-100 text-[10px] font-black text-gray-400 uppercase tracking-widest text-left sticky left-0 bg-gray-50 z-20">Jam</th>
+                            <tr className="bg-gray-50/50 dark:bg-gray-800/50">
+                                <th className="px-6 py-4 border-b border-r border-gray-100 dark:border-gray-800 text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest text-left sticky left-0 bg-gray-50 dark:bg-gray-800 z-20">Jam</th>
                                 {Days.map(day => (
-                                    <th key={day} className="px-6 py-4 border-b border-gray-100 text-[10px] font-black text-gray-900 uppercase tracking-widest min-w-[200px]">
+                                    <th key={day} className="px-6 py-4 border-b border-gray-100 dark:border-gray-800 text-[10px] font-black text-gray-900 dark:text-gray-100 uppercase tracking-widest min-w-[200px]">
                                         {day}
                                     </th>
                                 ))}
@@ -545,11 +545,11 @@ export default function Schedule() {
                         </thead>
                         <tbody>
                             {timeSlots.map(slot => (
-                                <tr key={slot.id} className={slot.type === 'break' ? 'bg-gray-50/30' : 'hover:bg-blue-50/10 transition-colors'}>
-                                    <td className="px-6 py-4 border-r border-gray-50 sticky left-0 bg-white z-10">
+                                <tr key={slot.id} className={slot.type === 'break' ? 'bg-gray-50/30 dark:bg-gray-800/20' : 'hover:bg-blue-50/10 dark:hover:bg-blue-900/10 transition-colors'}>
+                                    <td className="px-6 py-4 border-r border-gray-50 dark:border-gray-800 sticky left-0 bg-white dark:bg-gray-900 z-10">
                                         <div className="flex flex-col items-center">
-                                            <span className="text-xl font-black text-gray-900 leading-none">{slot.id || '-'}</span>
-                                            <span className="text-[10px] font-bold text-gray-400 mt-1 uppercase tracking-tighter whitespace-nowrap">{slot.start}-{slot.end}</span>
+                                            <span className="text-xl font-black text-gray-900 dark:text-gray-100 leading-none">{slot.id || '-'}</span>
+                                            <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 mt-1 uppercase tracking-tighter whitespace-nowrap">{slot.start}-{slot.end}</span>
                                         </div>
                                     </td>
                                     {Days.map(day => {
@@ -562,30 +562,30 @@ export default function Schedule() {
 
                                         if (slot.type === 'break') {
                                             return (
-                                                <td key={day} className="px-6 py-4 text-center border-b border-gray-50">
-                                                    <span className="text-[9px] font-black text-gray-300 uppercase tracking-widest whitespace-nowrap">{slot.label}</span>
+                                                <td key={day} className="px-6 py-4 text-center border-b border-gray-50 dark:border-gray-800">
+                                                    <span className="text-[9px] font-black text-gray-300 dark:text-gray-700 uppercase tracking-widest whitespace-nowrap">{slot.label}</span>
                                                 </td>
                                             );
                                         }
 
                                         return (
-                                            <td key={day} className="p-2 border-b border-gray-50 group hover:border-blue-200 transition-all">
+                                            <td key={day} className="p-2 border-b border-gray-50 dark:border-gray-800 group hover:border-blue-200 dark:hover:border-blue-800 transition-all">
                                                 {entry ? (
-                                                    <div className="bg-blue-50 border border-blue-100 rounded-2xl p-3 h-full relative group/entry shadow-sm hover:shadow-md transition-all">
+                                                    <div className="bg-blue-50 dark:bg-blue-900/30 border border-blue-100 dark:border-blue-900/40 rounded-2xl p-3 h-full relative group/entry shadow-sm hover:shadow-md transition-all">
                                                         <div className="flex flex-col space-y-1">
-                                                            <span className="text-[8px] font-black text-blue-400 uppercase tracking-tighter truncate">{entry.class_name}</span>
-                                                            <h4 className="text-xs font-black text-gray-900 uppercase truncate leading-tight group-hover/entry:text-blue-600 transition-colors">{entry.subject_name}</h4>
-                                                            <div className="flex items-center text-[9px] font-bold text-gray-500">
-                                                                <User size={10} className="mr-1 text-blue-300" />
+                                                            <span className="text-[8px] font-black text-blue-400 dark:text-blue-500 uppercase tracking-tighter truncate">{entry.class_name}</span>
+                                                            <h4 className="text-xs font-black text-gray-900 dark:text-gray-100 uppercase truncate leading-tight group-hover/entry:text-blue-600 dark:group-hover:text-blue-400 transition-colors">{entry.subject_name}</h4>
+                                                            <div className="flex items-center text-[9px] font-bold text-gray-500 dark:text-gray-400">
+                                                                <User size={10} className="mr-1 text-blue-300 dark:text-blue-500" />
                                                                 <span className="truncate">{entry.teacher_name || 'No Teacher'}</span>
                                                             </div>
                                                         </div>
                                                         {canManage && (
                                                             <div className="absolute top-1 right-1 opacity-0 group-hover/entry:opacity-100 transition-all flex scale-75 origin-top-right">
-                                                                <button onClick={() => handleOpenEdit(entry)} className="p-1.5 bg-white text-blue-600 rounded-lg hover:bg-blue-600 hover:text-white shadow-sm mr-1">
+                                                                <button onClick={() => handleOpenEdit(entry)} className="p-1.5 bg-white dark:bg-gray-800 text-blue-600 dark:text-blue-400 rounded-lg hover:bg-blue-600 hover:text-white shadow-sm mr-1 border border-gray-100 dark:border-gray-700">
                                                                     <Edit2 size={12} />
                                                                 </button>
-                                                                <button onClick={() => handleDeleteClick(entry)} className="p-1.5 bg-white text-red-600 rounded-lg hover:bg-red-600 hover:text-white shadow-sm">
+                                                                <button onClick={() => handleDeleteClick(entry)} className="p-1.5 bg-white dark:bg-gray-800 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-600 hover:text-white shadow-sm border border-gray-100 dark:border-gray-700">
                                                                     <Trash2 size={12} />
                                                                 </button>
                                                             </div>
@@ -610,7 +610,7 @@ export default function Schedule() {
                                                                 });
                                                                 setIsModalOpen(true);
                                                             }}
-                                                            className="w-full h-12 border-2 border-dashed border-gray-50 rounded-2xl flex items-center justify-center text-gray-200 hover:border-blue-200 hover:text-blue-200 transition-all opacity-0 group-hover:opacity-100 active:scale-95"
+                                                            className="w-full h-12 border-2 border-dashed border-gray-50 dark:border-gray-800 rounded-2xl flex items-center justify-center text-gray-200 dark:text-gray-700 hover:border-blue-200 dark:hover:border-blue-800 hover:text-blue-200 dark:hover:text-blue-800 transition-all opacity-0 group-hover:opacity-100 active:scale-95"
                                                         >
                                                             <Plus size={16} />
                                                         </button>
@@ -636,9 +636,9 @@ export default function Schedule() {
                 <form onSubmit={handleSubmit} className="space-y-5">
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-1">
-                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Hari</label>
+                            <label className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest px-1">Hari</label>
                             <select
-                                className="w-full bg-gray-50 border-transparent rounded-xl px-4 py-3 font-bold text-gray-700 outline-none transition-all focus:bg-white focus:border-blue-500 border-2 appearance-none"
+                                className="w-full bg-gray-50 dark:bg-gray-800 border-transparent rounded-xl px-4 py-3 font-bold text-gray-700 dark:text-gray-200 outline-none transition-all focus:bg-white dark:focus:bg-gray-700 focus:border-blue-500 border-2 appearance-none"
                                 value={formData.day}
                                 onChange={(e) => setFormData({ ...formData, day: e.target.value })}
                             >
@@ -646,9 +646,9 @@ export default function Schedule() {
                             </select>
                         </div>
                         <div className="space-y-1">
-                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Jam Ke</label>
+                            <label className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest px-1">Jam Ke</label>
                             <select
-                                className="w-full bg-gray-50 border-transparent rounded-xl px-4 py-3 font-bold text-gray-700 outline-none transition-all focus:bg-white focus:border-blue-500 border-2 appearance-none"
+                                className="w-full bg-gray-50 dark:bg-gray-800 border-transparent rounded-xl px-4 py-3 font-bold text-gray-700 dark:text-gray-200 outline-none transition-all focus:bg-white dark:focus:bg-gray-700 focus:border-blue-500 border-2 appearance-none"
                                 value={formData.jam_ke}
                                 onChange={(e) => updateTimesFromJam(e.target.value)}
                             >
@@ -658,9 +658,9 @@ export default function Schedule() {
                     </div>
 
                     <div className="space-y-1">
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Tipe Minggu</label>
+                        <label className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest px-1">Tipe Minggu</label>
                         <select
-                            className="w-full bg-gray-50 border-transparent rounded-xl px-4 py-3 font-bold text-gray-700 outline-none transition-all focus:bg-white focus:border-blue-500 border-2 appearance-none"
+                            className="w-full bg-gray-50 dark:bg-gray-800 border-transparent rounded-xl px-4 py-3 font-bold text-gray-700 dark:text-gray-200 outline-none transition-all focus:bg-white dark:focus:bg-gray-700 focus:border-blue-500 border-2 appearance-none"
                             value={formData.week_type}
                             onChange={(e) => setFormData({ ...formData, week_type: e.target.value })}
                         >
@@ -669,9 +669,9 @@ export default function Schedule() {
                     </div>
 
                     <div className="space-y-1">
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Kelas</label>
+                        <label className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest px-1">Kelas</label>
                         <select
-                            className="w-full bg-gray-50 border-transparent rounded-xl px-4 py-3 font-bold text-gray-700 outline-none transition-all focus:bg-white focus:border-blue-500 border-2 appearance-none"
+                            className="w-full bg-gray-50 dark:bg-gray-800 border-transparent rounded-xl px-4 py-3 font-bold text-gray-700 dark:text-gray-200 outline-none transition-all focus:bg-white dark:focus:bg-gray-700 focus:border-blue-500 border-2 appearance-none"
                             value={formData.class_id}
                             onChange={(e) => setFormData({ ...formData, class_id: e.target.value })}
                         >
@@ -681,9 +681,9 @@ export default function Schedule() {
                     </div>
 
                     <div className="space-y-1">
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Mata Pelajaran</label>
+                        <label className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest px-1">Mata Pelajaran</label>
                         <select
-                            className="w-full bg-gray-50 border-transparent rounded-xl px-4 py-3 font-bold text-gray-700 outline-none transition-all focus:bg-white focus:border-blue-500 border-2 appearance-none"
+                            className="w-full bg-gray-50 dark:bg-gray-800 border-transparent rounded-xl px-4 py-3 font-bold text-gray-700 dark:text-gray-200 outline-none transition-all focus:bg-white dark:focus:bg-gray-700 focus:border-blue-500 border-2 appearance-none"
                             value={formData.subject_name}
                             onChange={(e) => setFormData({ ...formData, subject_name: e.target.value, teacher_name: '' })}
                         >
@@ -693,9 +693,9 @@ export default function Schedule() {
                     </div>
 
                     <div className="space-y-1">
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Guru Pengampu</label>
+                        <label className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest px-1">Guru Pengampu</label>
                         <select
-                            className="w-full bg-gray-50 border-transparent rounded-xl px-4 py-3 font-bold text-gray-700 outline-none transition-all focus:bg-white focus:border-blue-500 border-2 appearance-none"
+                            className="w-full bg-gray-50 dark:bg-gray-800 border-transparent rounded-xl px-4 py-3 font-bold text-gray-700 dark:text-gray-200 outline-none transition-all focus:bg-white dark:focus:bg-gray-700 focus:border-blue-500 border-2 appearance-none"
                             value={formData.teacher_name}
                             onChange={(e) => setFormData({ ...formData, teacher_name: e.target.value })}
                         >
@@ -707,7 +707,7 @@ export default function Schedule() {
                                 {dbTeachers.map(t => <option key={t.id} value={t.name}>{t.name}</option>)}
                             </optgroup>
                         </select>
-                        <p className="text-[9px] text-gray-400 mt-1 flex items-center">
+                        <p className="text-[9px] text-gray-400 dark:text-gray-500 mt-1 flex items-center">
                             <Info size={10} className="mr-1" />
                             Guru disesuaikan dengan pengampu Mapel yang dipilih.
                         </p>
@@ -715,12 +715,12 @@ export default function Schedule() {
 
                     <div className="grid grid-cols-2 gap-4 pt-2 opacity-60">
                         <div className="space-y-1">
-                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Mulai</label>
-                            <input disabled type="text" className="w-full bg-gray-100 border-transparent rounded-xl px-4 py-3 font-bold text-gray-500 outline-none" value={formData.start_time} />
+                            <label className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest px-1">Mulai</label>
+                            <input disabled type="text" className="w-full bg-gray-100 dark:bg-gray-800 border-transparent rounded-xl px-4 py-3 font-bold text-gray-500 dark:text-gray-400 outline-none" value={formData.start_time} />
                         </div>
                         <div className="space-y-1">
-                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Selesai</label>
-                            <input disabled type="text" className="w-full bg-gray-100 border-transparent rounded-xl px-4 py-3 font-bold text-gray-500 outline-none" value={formData.end_time} />
+                            <label className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest px-1">Selesai</label>
+                            <input disabled type="text" className="w-full bg-gray-100 dark:bg-gray-800 border-transparent rounded-xl px-4 py-3 font-bold text-gray-500 dark:text-gray-400 outline-none" value={formData.end_time} />
                         </div>
                     </div>
 
@@ -742,34 +742,34 @@ export default function Schedule() {
                 title="Pengaturan Waktu Sekolah"
             >
                 <div className="space-y-4">
-                    <div className="p-4 bg-blue-50 rounded-2xl border border-blue-100 flex items-start space-x-3 mb-4">
-                        <Info size={18} className="text-blue-600 shrink-0 mt-0.5" />
-                        <p className="text-[11px] text-blue-700 font-bold leading-relaxed tracking-tight">
+                    <div className="p-4 bg-blue-50 dark:bg-blue-900/30 rounded-2xl border border-blue-100 dark:border-blue-900/40 flex items-start space-x-3 mb-4">
+                        <Info size={18} className="text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
+                        <p className="text-[11px] text-blue-700 dark:text-blue-300 font-bold leading-relaxed tracking-tight">
                             Mengubah Jam Mulai Sekolah akan menggeser seluruh jadwal (Jam 1 - Jam 12) secara otomatis. Durasi per jam adalah 45 menit.
                         </p>
                     </div>
 
                     <div className="space-y-1">
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Jam Mulai (Jam 1)</label>
+                        <label className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest px-1">Jam Mulai (Jam 1)</label>
                         <input
                             type="time"
-                            className="w-full bg-gray-50 border-transparent rounded-xl px-4 py-3 font-bold text-gray-700 outline-none transition-all focus:bg-white focus:border-blue-500 border-2"
+                            className="w-full bg-gray-50 dark:bg-gray-800 border-transparent rounded-xl px-4 py-3 font-bold text-gray-700 dark:text-gray-200 outline-none transition-all focus:bg-white dark:focus:bg-gray-700 focus:border-blue-500 border-2"
                             value={schoolStartTime}
                             onChange={(e) => setSchoolStartTime(e.target.value)}
                         />
                     </div>
 
                     <div className="space-y-1">
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Minggu Aktif Sekarang</label>
+                        <label className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest px-1">Minggu Aktif Sekarang</label>
                         <select
-                            className="w-full bg-gray-50 border-transparent rounded-xl px-4 py-3 font-bold text-gray-700 outline-none transition-all focus:bg-white focus:border-blue-500 border-2 appearance-none"
+                            className="w-full bg-gray-50 dark:bg-gray-800 border-transparent rounded-xl px-4 py-3 font-bold text-gray-700 dark:text-gray-200 outline-none transition-all focus:bg-white dark:focus:bg-gray-700 focus:border-blue-500 border-2 appearance-none"
                             value={currentWeekType}
                             onChange={(e) => setCurrentWeekType(e.target.value)}
                         >
                             <option value="Minggu Ganjil">Minggu Ganjil</option>
                             <option value="Minggu Genap">Minggu Genap</option>
                         </select>
-                        <p className="text-[9px] text-gray-400 px-1 mt-1">
+                        <p className="text-[9px] text-gray-400 dark:text-gray-500 px-1 mt-1">
                             Pengaturan ini akan menentukan jadwal mana yang muncul di notifikasi siswa/guru.
                         </p>
                     </div>

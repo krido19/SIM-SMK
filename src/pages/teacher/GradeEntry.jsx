@@ -122,11 +122,11 @@ export default function GradeEntry() {
         <div className="space-y-6 animate-in fade-in duration-500">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Input Nilai Siswa</h1>
+                    <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Input Nilai Siswa</h1>
                     <div className="flex flex-wrap gap-3 mt-2">
                         <div className="relative group">
                             <select
-                                className="appearance-none bg-white border border-gray-100 px-4 py-2 pr-10 rounded-xl text-xs font-black text-gray-600 focus:ring-2 focus:ring-blue-500 transition-all outline-none cursor-pointer shadow-sm"
+                                className="appearance-none bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 px-4 py-2 pr-10 rounded-xl text-xs font-black text-gray-600 dark:text-gray-400 focus:ring-2 focus:ring-blue-500 transition-all outline-none cursor-pointer shadow-sm"
                                 value={selectedClassId}
                                 onChange={(e) => setSelectedClassId(e.target.value)}
                             >
@@ -136,7 +136,7 @@ export default function GradeEntry() {
                         </div>
                         <div className="relative group">
                             <select
-                                className="appearance-none bg-white border border-gray-100 px-4 py-2 pr-10 rounded-xl text-xs font-black text-gray-600 focus:ring-2 focus:ring-blue-500 transition-all outline-none cursor-pointer shadow-sm"
+                                className="appearance-none bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 px-4 py-2 pr-10 rounded-xl text-xs font-black text-gray-600 dark:text-gray-400 focus:ring-2 focus:ring-blue-500 transition-all outline-none cursor-pointer shadow-sm"
                                 value={selectedSubjectId}
                                 onChange={(e) => setSelectedSubjectId(e.target.value)}
                             >
@@ -146,7 +146,7 @@ export default function GradeEntry() {
                         </div>
                         <div className="relative group">
                             <select
-                                className="appearance-none bg-white border border-gray-100 px-4 py-2 pr-10 rounded-xl text-xs font-black text-gray-600 focus:ring-2 focus:ring-blue-500 transition-all outline-none cursor-pointer shadow-sm"
+                                className="appearance-none bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 px-4 py-2 pr-10 rounded-xl text-xs font-black text-gray-600 dark:text-gray-400 focus:ring-2 focus:ring-blue-500 transition-all outline-none cursor-pointer shadow-sm"
                                 value={selectedSemester}
                                 onChange={(e) => setSelectedSemester(parseInt(e.target.value))}
                             >
@@ -158,14 +158,14 @@ export default function GradeEntry() {
                     </div>
                 </div>
                 <div className="flex space-x-2">
-                    <button className="flex items-center space-x-2 bg-gray-100 hover:bg-gray-200 text-gray-600 px-4 py-2.5 rounded-xl font-bold transition-all">
+                    <button className="flex items-center space-x-2 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400 px-4 py-2.5 rounded-xl font-bold transition-all">
                         <Upload size={18} />
                         <span className="hidden sm:inline">Import</span>
                     </button>
                     <button
                         onClick={handleSave}
                         disabled={isSaving}
-                        className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl font-bold transition-all shadow-md active:scale-95 disabled:opacity-50"
+                        className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl font-bold transition-all shadow-md dark:shadow-black/20 active:scale-95 disabled:opacity-50"
                     >
                         {isSaving ? (
                             <span className="flex items-center space-x-2">
@@ -183,43 +183,43 @@ export default function GradeEntry() {
             </div>
 
             {lastSaved && (
-                <div className="bg-green-50 border border-green-100 text-green-700 px-4 py-2 rounded-xl text-xs font-bold flex items-center shadow-sm animate-in slide-in-from-top-2">
+                <div className="bg-green-50 dark:bg-green-900/30 border border-green-100 dark:border-green-900/40 text-green-700 dark:text-green-400 px-4 py-2 rounded-xl text-xs font-bold flex items-center shadow-sm animate-in slide-in-from-top-2">
                     <CheckCircle2 size={14} className="mr-2" />
                     Perubahan terakhir disimpan pada {lastSaved}
                 </div>
             )}
 
             {/* Excel-like Table */}
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-xl overflow-hidden">
+            <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-xl overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                         <thead>
-                            <tr className="bg-gray-50 border-b border-gray-100 font-bold text-gray-400 text-[10px] uppercase tracking-[0.2em]">
+                            <tr className="bg-gray-50 dark:bg-gray-800/50 border-b border-gray-100 dark:border-gray-800 font-bold text-gray-400 dark:text-gray-500 text-[10px] uppercase tracking-[0.2em]">
                                 <th className="px-6 py-4 w-16 text-center">No</th>
                                 <th className="px-6 py-4">Nama Siswa</th>
                                 <th className="px-6 py-4 w-32 text-center">Tugas</th>
                                 <th className="px-6 py-4 w-32 text-center">UTS</th>
                                 <th className="px-6 py-4 w-32 text-center">UAS</th>
-                                <th className="px-6 py-4 w-32 text-center bg-blue-50/50 text-blue-600">Akhir</th>
+                                <th className="px-6 py-4 w-32 text-center bg-blue-50/50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400">Akhir</th>
                                 <th className="px-6 py-4 w-40 text-center">Status</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-50">
+                        <tbody className="divide-y divide-gray-50 dark:divide-gray-800">
                             {students.map((student, index) => {
                                 const final = calculateFinal(student);
                                 return (
-                                    <tr key={student.id} className="hover:bg-blue-50/20 transition-colors group">
-                                        <td className="px-6 py-4 text-center text-sm font-bold text-gray-400">{index + 1}</td>
+                                    <tr key={student.id} className="hover:bg-blue-50/20 dark:hover:bg-blue-900/10 transition-colors group">
+                                        <td className="px-6 py-4 text-center text-sm font-bold text-gray-400 dark:text-gray-600">{index + 1}</td>
                                         <td className="px-6 py-4">
                                             <div>
-                                                <p className="text-sm font-bold text-gray-900">{student.name}</p>
-                                                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{student.nis}</p>
+                                                <p className="text-sm font-bold text-gray-900 dark:text-gray-100">{student.name}</p>
+                                                <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">{student.nis}</p>
                                             </div>
                                         </td>
                                         <td className="px-4 py-2">
                                             <input
                                                 type="number"
-                                                className="w-full bg-gray-50 border-transparent focus:bg-white focus:border-blue-500 rounded-lg py-2 text-center font-bold text-gray-700 transition-all outline-none"
+                                                className="w-full bg-gray-50 dark:bg-gray-800 border-transparent focus:bg-white dark:focus:bg-gray-700 focus:border-blue-500 rounded-lg py-2 text-center font-bold text-gray-700 dark:text-gray-200 transition-all outline-none"
                                                 value={student.tugas}
                                                 onChange={(e) => handleScoreChange(student.id, 'tugas', e.target.value)}
                                             />
@@ -227,7 +227,7 @@ export default function GradeEntry() {
                                         <td className="px-4 py-2">
                                             <input
                                                 type="number"
-                                                className="w-full bg-gray-50 border-transparent focus:bg-white focus:border-blue-500 rounded-lg py-2 text-center font-bold text-gray-700 transition-all outline-none"
+                                                className="w-full bg-gray-50 dark:bg-gray-800 border-transparent focus:bg-white dark:focus:bg-gray-700 focus:border-blue-500 rounded-lg py-2 text-center font-bold text-gray-700 dark:text-gray-200 transition-all outline-none"
                                                 value={student.uts}
                                                 onChange={(e) => handleScoreChange(student.id, 'uts', e.target.value)}
                                             />
@@ -235,24 +235,24 @@ export default function GradeEntry() {
                                         <td className="px-4 py-2">
                                             <input
                                                 type="number"
-                                                className="w-full bg-gray-50 border-transparent focus:bg-white focus:border-blue-500 rounded-lg py-2 text-center font-bold text-gray-700 transition-all outline-none"
+                                                className="w-full bg-gray-50 dark:bg-gray-800 border-transparent focus:bg-white dark:focus:bg-gray-700 focus:border-blue-500 rounded-lg py-2 text-center font-bold text-gray-700 dark:text-gray-200 transition-all outline-none"
                                                 value={student.uas}
                                                 onChange={(e) => handleScoreChange(student.id, 'uas', e.target.value)}
                                             />
                                         </td>
-                                        <td className="px-6 py-4 text-center bg-blue-50/30">
-                                            <span className={`text-lg font-black ${final < 75 ? 'text-red-600' : 'text-blue-600'}`}>
+                                        <td className="px-6 py-4 text-center bg-blue-50/30 dark:bg-blue-900/10">
+                                            <span className={`text-lg font-black ${final < 75 ? 'text-red-600 dark:text-red-400' : 'text-blue-600 dark:text-blue-400'}`}>
                                                 {final}
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 text-center">
                                             {final < 75 ? (
-                                                <span className="inline-flex items-center px-2 py-1 bg-red-50 text-red-600 text-[10px] font-black uppercase rounded">
+                                                <span className="inline-flex items-center px-2 py-1 bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-[10px] font-black uppercase rounded border border-red-100/50 dark:border-red-900/40">
                                                     <AlertCircle size={12} className="mr-1" />
                                                     Remedial
                                                 </span>
                                             ) : (
-                                                <span className="inline-flex items-center px-2 py-1 bg-green-50 text-green-600 text-[10px] font-black uppercase rounded">
+                                                <span className="inline-flex items-center px-2 py-1 bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400 text-[10px] font-black uppercase rounded border border-green-100/50 dark:border-green-900/40">
                                                     Lulus
                                                 </span>
                                             )}

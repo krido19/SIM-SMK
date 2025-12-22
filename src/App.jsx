@@ -22,47 +22,50 @@ import Assignments from './pages/teacher/Assignments'
 import StudentAssignments from './pages/student/StudentAssignments'
 
 import { FeedbackProvider } from './context/FeedbackContext'
+import { ThemeProvider } from './context/ThemeContext'
 
 const queryClient = new QueryClient()
 
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <FeedbackProvider>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/login" element={<Login />} />
+      <ThemeProvider>
+        <FeedbackProvider>
+          <BrowserRouter>
+            <Routes>
+              <Route path="/login" element={<Login />} />
 
-            <Route element={<DashboardLayout />}>
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/profile" element={<Profile />} />
+              <Route element={<DashboardLayout />}>
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/profile" element={<Profile />} />
 
-              {/* Admin Routes */}
-              <Route path="/admin/students" element={<Students />} />
-              <Route path="/admin/teachers" element={<Teachers />} />
-              <Route path="/admin/subjects" element={<Subjects />} />
-              <Route path="/admin/classes" element={<Classes />} />
-              <Route path="/admin/schedule" element={<Schedule />} />
-              <Route path="/admin/announcements" element={<Announcements />} />
-              <Route path="/admin/fonnte" element={<FonnteSettings />} />
-              <Route path="/admin/backup" element={<DatabaseBackup />} />
-              <Route path="/admin/settings" element={<GeneralSettings />} />
+                {/* Admin Routes */}
+                <Route path="/admin/students" element={<Students />} />
+                <Route path="/admin/teachers" element={<Teachers />} />
+                <Route path="/admin/subjects" element={<Subjects />} />
+                <Route path="/admin/classes" element={<Classes />} />
+                <Route path="/admin/schedule" element={<Schedule />} />
+                <Route path="/admin/announcements" element={<Announcements />} />
+                <Route path="/admin/fonnte" element={<FonnteSettings />} />
+                <Route path="/admin/backup" element={<DatabaseBackup />} />
+                <Route path="/admin/settings" element={<GeneralSettings />} />
 
-              {/* Teacher Routes */}
-              <Route path="/teacher/grades" element={<GradeEntry />} />
-              <Route path="/teacher/attendance" element={<AttendanceEntry />} />
-              <Route path="/teacher/assignments" element={<Assignments />} />
+                {/* Teacher Routes */}
+                <Route path="/teacher/grades" element={<GradeEntry />} />
+                <Route path="/teacher/attendance" element={<AttendanceEntry />} />
+                <Route path="/teacher/assignments" element={<Assignments />} />
 
-              {/* Student/Parent Routes */}
-              <Route path="/student/grades" element={<StudentGrades />} />
-              <Route path="/student/attendance" element={<StudentAttendance />} />
-              <Route path="/student/assignments" element={<StudentAssignments />} />
+                {/* Student/Parent Routes */}
+                <Route path="/student/grades" element={<StudentGrades />} />
+                <Route path="/student/attendance" element={<StudentAttendance />} />
+                <Route path="/student/assignments" element={<StudentAssignments />} />
 
-              <Route path="/" element={<Navigate to="/login" replace />} />
-            </Route>
-          </Routes>
-        </BrowserRouter>
-      </FeedbackProvider>
+                <Route path="/" element={<Navigate to="/login" replace />} />
+              </Route>
+            </Routes>
+          </BrowserRouter>
+        </FeedbackProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   )
 }

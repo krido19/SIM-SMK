@@ -77,9 +77,9 @@ const AdminDashboard = () => {
 
     if (isLoading) return <div className="animate-pulse space-y-8">
         <div className="grid grid-cols-4 gap-8">
-            {[1, 2, 3, 4].map(i => <div key={i} className="h-32 bg-gray-100 rounded-[2rem]" />)}
+            {[1, 2, 3, 4].map(i => <div key={i} className="h-32 bg-gray-100 dark:bg-gray-800 rounded-[2rem]" />)}
         </div>
-        <div className="h-96 bg-gray-100 rounded-[3rem]" />
+        <div className="h-96 bg-gray-100 dark:bg-gray-800 rounded-[3rem]" />
     </div>;
 
     return (

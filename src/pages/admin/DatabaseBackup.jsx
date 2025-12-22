@@ -116,17 +116,17 @@ export default function DatabaseBackup() {
     return (
         <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
             {/* Header Section */}
-            <div className="bg-white p-10 rounded-[3rem] border border-gray-100 shadow-sm relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-blue-50 rounded-full -mr-32 -mt-32 opacity-40" />
+            <div className="bg-white dark:bg-gray-900 p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-sm relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-blue-50 dark:bg-blue-900/10 rounded-full -mr-32 -mt-32 opacity-40" />
 
                 <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
                     <div className="space-y-4">
-                        <div className="inline-flex p-4 rounded-3xl bg-blue-50 text-blue-600 shadow-inner">
+                        <div className="inline-flex p-4 rounded-3xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 shadow-inner">
                             <Database size={32} />
                         </div>
                         <div>
-                            <h1 className="text-4xl font-black text-gray-900 tracking-tight">Database Backup</h1>
-                            <p className="text-gray-500 font-medium mt-2">Export seluruh data sistem ke dalam format SQL (.sql)</p>
+                            <h1 className="text-4xl font-black text-gray-900 dark:text-gray-100 tracking-tight">Database Backup</h1>
+                            <p className="text-gray-500 dark:text-gray-400 font-medium mt-2">Export seluruh data sistem ke dalam format SQL (.sql)</p>
                         </div>
                     </div>
 
@@ -136,8 +136,8 @@ export default function DatabaseBackup() {
                         className={`
                             group relative flex items-center justify-center space-x-3 px-8 py-5 rounded-2xl font-black transition-all shadow-xl active:scale-95
                             ${isExporting
-                                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                : 'bg-blue-600 hover:bg-blue-700 text-white shadow-blue-100 hover:shadow-blue-200'}
+                                ? 'bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 cursor-not-allowed'
+                                : 'bg-blue-600 hover:bg-blue-700 text-white shadow-blue-100 dark:shadow-black/20 hover:shadow-blue-200'}
                         `}
                     >
                         {isExporting ? (
@@ -155,26 +155,26 @@ export default function DatabaseBackup() {
             {/* Info and Status Section */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Warning Card */}
-                <div className="bg-amber-50 p-8 rounded-[2.5rem] border border-amber-100 space-y-4">
-                    <div className="flex items-center space-x-3 text-amber-700">
+                <div className="bg-amber-50 dark:bg-amber-900/20 p-8 rounded-[2.5rem] border border-amber-100 dark:border-amber-900/30 space-y-4">
+                    <div className="flex items-center space-x-3 text-amber-700 dark:text-amber-400">
                         <AlertTriangle size={24} />
                         <h3 className="font-black uppercase tracking-widest text-xs">Peringatan Penting</h3>
                     </div>
-                    <p className="text-amber-800/70 text-sm leading-relaxed font-medium">
+                    <p className="text-amber-800/70 dark:text-amber-400/70 text-sm leading-relaxed font-medium">
                         Fitur ini akan mengambil seluruh baris data dari semua tabel.
                         Pastikan koneksi internet Anda stabil. Simpan file hasil backup di tempat yang aman.
                     </p>
                 </div>
 
                 {/* Scope Card */}
-                <div className="bg-indigo-50 p-8 rounded-[2.5rem] border border-indigo-100 space-y-4">
-                    <div className="flex items-center space-x-3 text-indigo-700">
+                <div className="bg-indigo-50 dark:bg-indigo-900/20 p-8 rounded-[2.5rem] border border-indigo-100 dark:border-indigo-900/30 space-y-4">
+                    <div className="flex items-center space-x-3 text-indigo-700 dark:text-indigo-400">
                         <ShieldCheck size={24} />
                         <h3 className="font-black uppercase tracking-widest text-xs">Cakupan Backup</h3>
                     </div>
                     <div className="flex flex-wrap gap-2">
                         {tables.map(t => (
-                            <span key={t} className="px-3 py-1 bg-white/50 text-indigo-700 text-[10px] font-bold rounded-lg border border-indigo-100/50 capitalize">
+                            <span key={t} className="px-3 py-1 bg-white/50 dark:bg-gray-800/50 text-indigo-700 dark:text-indigo-400 text-[10px] font-bold rounded-lg border border-indigo-100/50 dark:border-indigo-900/40 capitalize">
                                 {t}
                             </span>
                         ))}
@@ -184,38 +184,38 @@ export default function DatabaseBackup() {
 
             {/* Status Messages */}
             {status === 'success' && (
-                <div className="bg-emerald-50 p-6 rounded-3xl border border-emerald-100 flex items-center space-x-4 animate-in zoom-in-95 duration-300">
-                    <div className="p-2 bg-emerald-500 text-white rounded-full">
+                <div className="bg-emerald-50 dark:bg-emerald-900/20 p-6 rounded-3xl border border-emerald-100 dark:border-emerald-900/30 flex items-center space-x-4 animate-in zoom-in-95 duration-300">
+                    <div className="p-2 bg-emerald-500 dark:bg-emerald-600 text-white rounded-full">
                         <CheckCircle2 size={20} />
                     </div>
                     <div>
-                        <h4 className="text-emerald-900 font-bold">Backup Selesai!</h4>
-                        <p className="text-emerald-700 text-sm">File SQL telah diunduh ke komputer Anda.</p>
+                        <h4 className="text-emerald-900 dark:text-emerald-100 font-bold">Backup Selesai!</h4>
+                        <p className="text-emerald-700 dark:text-emerald-400 text-sm">File SQL telah diunduh ke komputer Anda.</p>
                     </div>
                 </div>
             )}
 
             {status === 'error' && (
-                <div className="bg-red-50 p-6 rounded-3xl border border-red-100 flex items-center space-x-4 animate-in shake duration-500">
-                    <div className="p-2 bg-red-500 text-white rounded-full">
+                <div className="bg-red-50 dark:bg-red-900/20 p-6 rounded-3xl border border-red-100 dark:border-red-900/30 flex items-center space-x-4 animate-in shake duration-500">
+                    <div className="p-2 bg-red-500 dark:bg-red-600 text-white rounded-full">
                         <X size={20} />
                     </div>
                     <div>
-                        <h4 className="text-red-900 font-bold">Backup Gagal</h4>
-                        <p className="text-red-700 text-sm">{error}</p>
+                        <h4 className="text-red-900 dark:text-red-100 font-bold">Backup Gagal</h4>
+                        <p className="text-red-700 dark:text-red-400 text-sm">{error}</p>
                     </div>
                 </div>
             )}
 
             {/* Migration Tutorial Section */}
-            <div className="bg-white p-10 rounded-[3rem] border border-gray-100 shadow-sm space-y-8">
-                <div className="flex items-center space-x-4 border-b border-gray-50 pb-6">
-                    <div className="p-3 bg-indigo-50 text-indigo-600 rounded-2xl">
+            <div className="bg-white dark:bg-gray-900 p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-sm space-y-8">
+                <div className="flex items-center space-x-4 border-b border-gray-50 dark:border-gray-800 pb-6">
+                    <div className="p-3 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-2xl">
                         <Terminal size={24} />
                     </div>
                     <div>
-                        <h2 className="text-xl font-black text-gray-900">Tutorial Migrasi Supabase</h2>
-                        <p className="text-sm text-gray-400 font-medium">Cara memindahkan data ke project Supabase baru</p>
+                        <h2 className="text-xl font-black text-gray-900 dark:text-gray-100">Tutorial Migrasi Supabase</h2>
+                        <p className="text-sm text-gray-400 dark:text-gray-500 font-medium">Cara memindahkan data ke project Supabase baru</p>
                     </div>
                 </div>
 
@@ -223,21 +223,21 @@ export default function DatabaseBackup() {
                     {/* Step 1 */}
                     <div className="space-y-4">
                         <div className="flex items-center space-x-3">
-                            <span className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-600 text-white text-xs font-black">1</span>
-                            <h3 className="font-bold text-gray-900">Export SQL</h3>
+                            <span className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-600 dark:bg-blue-500 text-white text-xs font-black">1</span>
+                            <h3 className="font-bold text-gray-900 dark:text-gray-100">Export SQL</h3>
                         </div>
-                        <p className="text-sm text-gray-500 leading-relaxed">
-                            Klik tombol <b>"Mulai Backup"</b> di atas. Anda akan mendapatkan file berformat <code className="bg-gray-100 px-1 rounded">.sql</code> yang berisi seluruh data dan struktur web ini.
+                        <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
+                            Klik tombol <b>"Mulai Backup"</b> di atas. Anda akan mendapatkan file berformat <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded">.sql</code> yang berisi seluruh data dan struktur web ini.
                         </p>
                     </div>
 
                     {/* Step 2 */}
                     <div className="space-y-4">
                         <div className="flex items-center space-x-3">
-                            <span className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-600 text-white text-xs font-black">2</span>
-                            <h3 className="font-bold text-gray-900">SQL Editor</h3>
+                            <span className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-600 dark:bg-blue-500 text-white text-xs font-black">2</span>
+                            <h3 className="font-bold text-gray-900 dark:text-gray-100">SQL Editor</h3>
                         </div>
-                        <p className="text-sm text-gray-500 leading-relaxed">
+                        <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
                             Buka Dashboard Supabase baru Anda, pilih menu <b>"SQL Editor"</b>, lalu buat <b>"New Query"</b>. Paste seluruh isi file SQL tadi ke dalamnya.
                         </p>
                     </div>
@@ -245,21 +245,21 @@ export default function DatabaseBackup() {
                     {/* Step 3 */}
                     <div className="space-y-4">
                         <div className="flex items-center space-x-3">
-                            <span className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-600 text-white text-xs font-black">3</span>
-                            <h3 className="font-bold text-gray-900">Run & Refresh</h3>
+                            <span className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-600 dark:bg-blue-500 text-white text-xs font-black">3</span>
+                            <h3 className="font-bold text-gray-900 dark:text-gray-100">Run & Refresh</h3>
                         </div>
-                        <p className="text-sm text-gray-500 leading-relaxed">
+                        <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
                             Klik tombol <b>"Run"</b>. Setelah sukses, seluruh tabel dan data Anda akan muncul secara ajaib di project Supabase baru.
                         </p>
                     </div>
                 </div>
 
-                <div className="bg-gray-50 p-6 rounded-3xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="bg-gray-50 dark:bg-gray-800/50 p-6 rounded-3xl flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div className="flex items-center space-x-4">
-                        <div className="p-2 bg-white rounded-xl shadow-sm text-gray-400">
+                        <div className="p-2 bg-white dark:bg-gray-800 rounded-xl shadow-sm text-gray-400 dark:text-gray-500">
                             <Settings size={20} />
                         </div>
-                        <p className="text-xs text-gray-500 font-medium italic">
+                        <p className="text-xs text-gray-500 dark:text-gray-400 font-medium italic">
                             <b>Catatan:</b> Jangan lupa buat bucket <b>"announcements"</b> secara manual di menu Storage agar gambar bisa tampil.
                         </p>
                     </div>
@@ -267,7 +267,7 @@ export default function DatabaseBackup() {
                         href="https://supabase.com/dashboard"
                         target="_blank"
                         rel="noreferrer"
-                        className="flex items-center space-x-2 text-blue-600 text-xs font-black uppercase tracking-widest hover:underline"
+                        className="flex items-center space-x-2 text-blue-600 dark:text-blue-400 text-xs font-black uppercase tracking-widest hover:underline"
                     >
                         <span>Buka Supabase</span>
                         <ExternalLink size={14} />

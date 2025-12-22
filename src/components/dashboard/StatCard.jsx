@@ -7,7 +7,7 @@ const StatCard = ({ title, value, icon: Icon, trend, color, to }) => {
         <>
             <div className={`absolute -right-4 -top-4 w-24 h-24 rounded-full opacity-5 group-hover:scale-150 transition-transform ${color}`} />
             <div className="flex items-start justify-between relative z-10">
-                <div className={`p-4 rounded-2xl ${color.replace('bg-', 'bg-').replace('600', '50')} ${color.replace('bg-', 'text-')}`}>
+                <div className={`p-4 rounded-2xl ${color.replace('bg-', 'bg-').replace('600', '50')} dark:bg-gray-800 dark:bg-opacity-50 ${color.replace('bg-', 'text-')} dark:text-blue-400`}>
                     <Icon size={24} />
                 </div>
                 {trend && (
@@ -18,11 +18,11 @@ const StatCard = ({ title, value, icon: Icon, trend, color, to }) => {
                 )}
             </div>
             <div className="mt-6 relative z-10">
-                <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">{title}</h3>
-                <p className="text-4xl font-black text-gray-900 mt-1">{value}</p>
+                <h3 className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em]">{title}</h3>
+                <p className="text-4xl font-black text-gray-900 dark:text-gray-100 mt-1">{value}</p>
             </div>
             {to && (
-                <div className="mt-4 flex items-center text-[10px] font-black uppercase tracking-widest text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="mt-4 flex items-center text-[10px] font-black uppercase tracking-widest text-blue-600 dark:text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity">
                     <span>Lihat Detail</span>
                     <ChevronRight size={12} className="ml-1" />
                 </div>
@@ -30,7 +30,7 @@ const StatCard = ({ title, value, icon: Icon, trend, color, to }) => {
         </>
     );
 
-    const classes = "bg-white p-6 rounded-[2.5rem] border border-gray-100 shadow-sm hover:shadow-xl transition-all group overflow-hidden relative text-left w-full";
+    const classes = "bg-white dark:bg-gray-900 p-6 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-xl dark:shadow-black/20 transition-all group overflow-hidden relative text-left w-full";
 
     if (to) {
         return (

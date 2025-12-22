@@ -102,49 +102,49 @@ export default function GeneralSettings() {
     return (
         <div className="max-w-2xl mx-auto space-y-6 animate-in fade-in duration-500">
             <div className="flex items-center space-x-4">
-                <div className="h-14 w-14 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600 border-2 border-white shadow-sm transition-transform hover:scale-110">
+                <div className="h-14 w-14 rounded-2xl bg-blue-50 dark:bg-gray-800 flex items-center justify-center text-blue-600 dark:text-blue-400 border-2 border-white dark:border-gray-700 shadow-sm transition-transform hover:scale-110">
                     <Settings size={28} />
                 </div>
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Pengaturan Umum</h1>
-                    <p className="text-sm text-gray-500 font-medium">Konfigurasi identitas aplikasi.</p>
+                    <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Pengaturan Umum</h1>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">Konfigurasi identitas aplikasi.</p>
                 </div>
             </div>
 
-            <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-xl overflow-hidden">
+            <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 shadow-xl overflow-hidden">
                 <div className="p-8">
-                    <div className="bg-blue-50/50 rounded-2xl p-4 flex items-start space-x-3 mb-8 border border-blue-100/50">
-                        <Info className="text-blue-600 mt-1 shrink-0" size={20} />
-                        <p className="text-sm text-blue-600 font-medium leading-relaxed">
+                    <div className="bg-blue-50/50 dark:bg-blue-900/20 rounded-2xl p-4 flex items-start space-x-3 mb-8 border border-blue-100/50 dark:border-blue-900/40">
+                        <Info className="text-blue-600 dark:text-blue-400 mt-1 shrink-0" size={20} />
+                        <p className="text-sm text-blue-600 dark:text-blue-400 font-medium leading-relaxed">
                             Nama dan Logo ini akan muncul di Sidebar Dashboard dan Halaman Login.
                         </p>
                     </div>
 
                     <form onSubmit={handleSave} className="space-y-6">
                         <div className="space-y-2">
-                            <label className="flex items-center space-x-2 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] px-1">
+                            <label className="flex items-center space-x-2 text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] px-1">
                                 <GraduationCap size={12} />
                                 <span>Logo Sekolah</span>
                             </label>
                             <div className="relative group">
                                 {logoPreview ? (
-                                    <div className="relative h-32 w-32 rounded-3xl overflow-hidden border-4 border-white shadow-xl mx-auto">
+                                    <div className="relative h-32 w-32 rounded-3xl overflow-hidden border-4 border-white dark:border-gray-800 shadow-xl mx-auto">
                                         <img src={logoPreview} className="w-full h-full object-cover" />
                                         <button
                                             type="button"
                                             onClick={() => { setLogoPreview(null); setSchoolLogo('') }}
-                                            className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-lg hover:bg-red-600 shadow-lg"
+                                            className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-lg hover:bg-red-600 shadow-lg transition-transform hover:scale-110 active:scale-95"
                                         >
                                             <Settings size={14} />
                                         </button>
                                     </div>
                                 ) : (
-                                    <label className="flex flex-col items-center justify-center h-32 w-32 rounded-3xl border-2 border-dashed border-gray-200 bg-gray-50 hover:bg-white hover:border-blue-500 transition-all cursor-pointer group mx-auto">
+                                    <label className="flex flex-col items-center justify-center h-32 w-32 rounded-3xl border-2 border-dashed border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 hover:bg-white dark:hover:bg-gray-800 hover:border-blue-500 transition-all cursor-pointer group mx-auto">
                                         <div className="flex flex-col items-center justify-center">
-                                            <div className="p-2 bg-white rounded-xl shadow-sm mb-2 group-hover:scale-110 transition-transform">
+                                            <div className="p-2 bg-white dark:bg-gray-900 rounded-xl shadow-sm mb-2 group-hover:scale-110 transition-transform">
                                                 {isUploading ? <Loader2 className="animate-spin text-blue-600" size={16} /> : <Settings className="text-gray-400 group-hover:text-blue-600" size={16} />}
                                             </div>
-                                            <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest">
+                                            <p className="text-[8px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">
                                                 {isUploading ? '...' : 'Upload Logo'}
                                             </p>
                                         </div>
@@ -155,14 +155,14 @@ export default function GeneralSettings() {
                         </div>
 
                         <div className="space-y-2">
-                            <label className="flex items-center space-x-2 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] px-1">
+                            <label className="flex items-center space-x-2 text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] px-1">
                                 <GraduationCap size={12} />
                                 <span>Nama Sekolah / Aplikasi</span>
                             </label>
                             <input
                                 required
                                 type="text"
-                                className="w-full bg-gray-50 border-transparent focus:bg-white focus:border-blue-500 rounded-3xl px-6 py-5 font-bold text-gray-700 outline-none transition-all border-2"
+                                className="w-full bg-gray-50 dark:bg-gray-800 border-transparent focus:bg-white dark:focus:bg-gray-800 focus:border-blue-500 rounded-3xl px-6 py-5 font-bold text-gray-700 dark:text-gray-200 outline-none transition-all border-2"
                                 placeholder="Contoh: SIM SMKN 4"
                                 value={schoolName}
                                 onChange={(e) => setSchoolName(e.target.value)}

@@ -22,10 +22,10 @@ const Modal = ({ isOpen, onClose, title, children }) => {
     if (!isOpen) return null;
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-300">
-            <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-300">
-                <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
-                    <h3 className="text-xl font-black text-gray-900">{title}</h3>
-                    <button onClick={onClose} className="p-2 hover:bg-gray-200 rounded-xl transition-colors text-gray-400">
+            <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-300 border border-gray-100 dark:border-gray-800">
+                <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between bg-gray-50/50 dark:bg-gray-800/50">
+                    <h3 className="text-xl font-black text-gray-900 dark:text-gray-100">{title}</h3>
+                    <button onClick={onClose} className="p-2 hover:bg-gray-200 dark:hover:bg-gray-800 rounded-xl transition-colors text-gray-400">
                         <X size={20} />
                     </button>
                 </div>
@@ -172,8 +172,8 @@ export default function Announcements() {
         <div className="space-y-6 animate-in fade-in duration-500">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Pengumuman</h1>
-                    <p className="text-sm text-gray-500">Kelola berita dan informasi penting untuk seluruh civitas sekolah.</p>
+                    <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Pengumuman</h1>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Kelola berita dan informasi penting untuk seluruh civitas sekolah.</p>
                 </div>
                 {canManage && (
                     <button
@@ -191,7 +191,7 @@ export default function Announcements() {
                     <div
                         key={ann.id}
                         onClick={() => setViewAnnouncement(ann)}
-                        className="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm hover:shadow-xl transition-all group relative overflow-hidden flex flex-col cursor-pointer active:scale-[0.98]"
+                        className="bg-white dark:bg-gray-900 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-xl dark:shadow-black/20 transition-all group relative overflow-hidden flex flex-col cursor-pointer active:scale-[0.98]"
                     >
                         {ann.image_url && (
                             <div className="w-full h-48 overflow-hidden relative">
@@ -201,24 +201,24 @@ export default function Announcements() {
                         )}
                         <div className="p-8 flex-1">
                             {!ann.image_url && (
-                                <div className={`absolute top-0 right-0 w-32 h-32 bg-rose-50 rounded-full -mr-16 -mt-16 opacity-40 group-hover:scale-150 transition-transform duration-700`} />
+                                <div className={`absolute top-0 right-0 w-32 h-32 bg-rose-50 dark:bg-rose-900/10 rounded-full -mr-16 -mt-16 opacity-40 group-hover:scale-150 transition-transform duration-700`} />
                             )}
 
                             <div className="flex items-start justify-between mb-6 relative z-10">
-                                <div className="p-4 rounded-2xl bg-rose-50 text-rose-600 shadow-sm">
+                                <div className="p-4 rounded-2xl bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 shadow-sm">
                                     <Megaphone size={24} />
                                 </div>
                                 {canManage && (
                                     <div className="flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()}>
                                         <button
                                             onClick={() => handleOpenEdit(ann)}
-                                            className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all"
+                                            className="p-2 text-gray-400 dark:text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-xl transition-all"
                                         >
                                             <Edit2 size={18} />
                                         </button>
                                         <button
                                             onClick={() => handleDelete(ann.id)}
-                                            className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all"
+                                            className="p-2 text-gray-400 dark:text-gray-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-xl transition-all"
                                         >
                                             <Trash2 size={18} />
                                         </button>
@@ -228,13 +228,13 @@ export default function Announcements() {
 
                             <div className="relative z-10 space-y-4">
                                 <div>
-                                    <span className="px-3 py-1 bg-gray-100 text-gray-600 text-[10px] font-black uppercase tracking-[0.2em] rounded-full">
+                                    <span className="px-3 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 text-[10px] font-black uppercase tracking-[0.2em] rounded-full border border-gray-100 dark:border-gray-700">
                                         {ann.category}
                                     </span>
-                                    <h3 className="text-2xl font-black text-gray-900 mt-3 tracking-tight">{ann.title}</h3>
+                                    <h3 className="text-2xl font-black text-gray-900 dark:text-gray-100 mt-3 tracking-tight">{ann.title}</h3>
                                 </div>
-                                <p className="text-gray-500 text-sm leading-relaxed line-clamp-3">{ann.content}</p>
-                                <div className="pt-4 border-t border-gray-50 flex items-center text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                                <p className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed line-clamp-3">{ann.content}</p>
+                                <div className="pt-4 border-t border-gray-50 dark:border-gray-800 flex items-center text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">
                                     <Calendar size={14} className="mr-2" />
                                     Diposting: {ann.date}
                                 </div>
@@ -252,19 +252,19 @@ export default function Announcements() {
             >
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="space-y-1">
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Judul Pengumuman</label>
+                        <label className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest px-1">Judul Pengumuman</label>
                         <input
                             required
                             type="text"
-                            className="w-full bg-gray-50 border-transparent rounded-xl px-4 py-3 font-bold text-gray-700 outline-none transition-all focus:bg-white focus:border-rose-500 border-2"
+                            className="w-full bg-gray-50 dark:bg-gray-800 border-transparent rounded-xl px-4 py-3 font-bold text-gray-700 dark:text-gray-200 outline-none transition-all focus:bg-white dark:focus:bg-gray-700 focus:border-rose-500 border-2"
                             value={formData.title}
                             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                         />
                     </div>
                     <div className="space-y-1">
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Kategori</label>
+                        <label className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest px-1">Kategori</label>
                         <select
-                            className="w-full bg-gray-50 border-transparent rounded-xl px-4 py-3 font-bold text-gray-700 outline-none transition-all focus:bg-white focus:border-rose-500 border-2 appearance-none"
+                            className="w-full bg-gray-50 dark:bg-gray-800 border-transparent rounded-xl px-4 py-3 font-bold text-gray-700 dark:text-gray-200 outline-none transition-all focus:bg-white dark:focus:bg-gray-700 focus:border-rose-500 border-2 appearance-none"
                             value={formData.category}
                             onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                         >
@@ -275,21 +275,21 @@ export default function Announcements() {
                         </select>
                     </div>
                     <div className="space-y-1">
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Isi Pengumuman</label>
+                        <label className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest px-1">Isi Pengumuman</label>
                         <textarea
                             required
                             rows="4"
-                            className="w-full bg-gray-50 border-transparent rounded-xl px-4 py-3 font-bold text-gray-700 outline-none transition-all focus:bg-white focus:border-rose-500 border-2 resize-none"
+                            className="w-full bg-gray-50 dark:bg-gray-800 border-transparent rounded-xl px-4 py-3 font-bold text-gray-700 dark:text-gray-200 outline-none transition-all focus:bg-white dark:focus:bg-gray-700 focus:border-rose-500 border-2 resize-none"
                             value={formData.content}
                             onChange={(e) => setFormData({ ...formData, content: e.target.value })}
                         ></textarea>
                     </div>
 
                     <div className="space-y-2">
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Foto Pengumuman (Opsional)</label>
+                        <label className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest px-1">Foto Pengumuman (Opsional)</label>
                         <div className="relative group">
                             {imagePreview ? (
-                                <div className="relative w-full h-40 rounded-2xl overflow-hidden border-2 border-dashed border-rose-200">
+                                <div className="relative w-full h-40 rounded-2xl overflow-hidden border-2 border-dashed border-rose-200 dark:border-rose-900/40">
                                     <img src={imagePreview} className="w-full h-full object-cover" />
                                     <button
                                         type="button"
@@ -300,12 +300,12 @@ export default function Announcements() {
                                     </button>
                                 </div>
                             ) : (
-                                <label className="flex flex-col items-center justify-center w-full h-40 rounded-2xl border-2 border-dashed border-gray-200 bg-gray-50 hover:bg-white hover:border-rose-500 transition-all cursor-pointer group">
+                                <label className="flex flex-col items-center justify-center w-full h-40 rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50 hover:bg-white dark:hover:bg-gray-800 hover:border-rose-500 transition-all cursor-pointer group">
                                     <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                                        <div className="p-3 bg-white rounded-xl shadow-sm mb-3 group-hover:scale-110 transition-transform">
+                                        <div className="p-3 bg-white dark:bg-gray-800 rounded-xl shadow-sm mb-3 group-hover:scale-110 transition-transform">
                                             {isUploading ? <Loader2 className="animate-spin text-rose-600" size={20} /> : <ImageIcon className="text-gray-400 group-hover:text-rose-600" size={20} />}
                                         </div>
-                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                                        <p className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">
                                             {isUploading ? 'Sedang Mengunggah...' : 'Klik untuk Unggah Foto'}
                                         </p>
                                     </div>
@@ -327,12 +327,12 @@ export default function Announcements() {
             {/* View Detail Modal */}
             {viewAnnouncement && (
                 <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-in fade-in duration-300">
-                    <div className="bg-white rounded-[3rem] shadow-2xl w-full max-w-2xl overflow-hidden animate-in zoom-in-95 duration-300 max-h-[90vh] flex flex-col">
+                    <div className="bg-white dark:bg-gray-900 rounded-[3rem] shadow-2xl w-full max-w-2xl overflow-hidden animate-in zoom-in-95 duration-300 max-h-[90vh] flex flex-col border border-gray-100 dark:border-gray-800">
                         <div className="relative">
                             {viewAnnouncement.image_url ? (
                                 <img src={viewAnnouncement.image_url} className="w-full h-64 object-cover" />
                             ) : (
-                                <div className="w-full h-32 bg-gradient-to-br from-rose-50 from-rose-50 to-rose-100" />
+                                <div className="w-full h-32 bg-gradient-to-br from-rose-50 to-rose-100 dark:from-rose-900/20 dark:to-rose-800/20" />
                             )}
                             <button
                                 onClick={() => setViewAnnouncement(null)}
@@ -348,24 +348,24 @@ export default function Announcements() {
                         </div>
 
                         <div className="p-10 overflow-y-auto space-y-6">
-                            <div className="flex items-center space-x-3 text-[10px] font-black text-gray-400 uppercase tracking-widest">
-                                <Calendar size={14} className="text-rose-500" />
+                            <div className="flex items-center space-x-3 text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">
+                                <Calendar size={14} className="text-rose-500 dark:text-rose-600" />
                                 <span>Dipublikasikan pada {viewAnnouncement.date}</span>
                             </div>
 
-                            <h2 className="text-4xl font-black text-gray-900 tracking-tight leading-tight">
+                            <h2 className="text-4xl font-black text-gray-900 dark:text-gray-100 tracking-tight leading-tight">
                                 {viewAnnouncement.title}
                             </h2>
 
-                            <div className="prose prose-rose max-w-none">
-                                <p className="text-gray-600 text-lg leading-relaxed whitespace-pre-wrap">
+                            <div className="prose prose-rose dark:prose-invert max-w-none">
+                                <p className="text-gray-600 dark:text-gray-400 text-lg leading-relaxed whitespace-pre-wrap">
                                     {viewAnnouncement.content}
                                 </p>
                             </div>
 
                             <button
                                 onClick={() => setViewAnnouncement(null)}
-                                className="w-full bg-gray-100 hover:bg-gray-200 text-gray-900 font-black py-5 rounded-[1.5rem] transition-all flex items-center justify-center space-x-2 active:scale-95 text-xs uppercase tracking-widest mt-8"
+                                className="w-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-100 font-black py-5 rounded-[1.5rem] transition-all flex items-center justify-center space-x-2 active:scale-95 text-xs uppercase tracking-widest mt-8 border border-gray-200 dark:border-gray-700"
                             >
                                 Tutup Pengumuman
                             </button>
