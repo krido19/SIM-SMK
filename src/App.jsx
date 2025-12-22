@@ -13,6 +13,7 @@ import Schedule from './pages/admin/Schedule'
 import Announcements from './pages/admin/Announcements'
 import FonnteSettings from './pages/admin/FonnteSettings'
 import DatabaseBackup from './pages/admin/DatabaseBackup' // Added this import
+import GeneralSettings from './pages/admin/GeneralSettings'
 import GradeEntry from './pages/teacher/GradeEntry'
 import AttendanceEntry from './pages/teacher/AttendanceEntry'
 import StudentGrades from './pages/student/StudentGrades'
@@ -45,6 +46,7 @@ function App() {
               <Route path="/admin/announcements" element={<Announcements />} />
               <Route path="/admin/fonnte" element={<FonnteSettings />} />
               <Route path="/admin/backup" element={<DatabaseBackup />} />
+              <Route path="/admin/settings" element={<GeneralSettings />} />
 
               {/* Teacher Routes */}
               <Route path="/teacher/grades" element={<GradeEntry />} />

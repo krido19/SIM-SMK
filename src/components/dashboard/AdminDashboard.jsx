@@ -11,10 +11,12 @@ const AdminDashboard = () => {
         totalSubjects: 0,
         avgGrade: 84.2
     });
+    const [attendanceData, setAttendanceData] = useState([0, 0, 0, 0, 0, 0]);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         fetchData();
+        fetchAttendanceData();
     }, []);
 
     const fetchData = async () => {
@@ -33,12 +35,52 @@ const AdminDashboard = () => {
             });
         } catch (error) {
             console.error('Error fetching admin dashboard data:', error);
+        }
+    };
+
+    const fetchAttendanceData = async () => {
+        try {
+            // Get dates for Mon-Sat of current week
+            const today = new Date();
+            const dayOfWeek = today.getDay(); // 0 (Sun) to 6 (Sat)
+            const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+
+            const dates = [];
+            for (let i = 0; i < 6; i++) {
+                const date = new Date(today);
+                date.setDate(today.getDate() + diffToMonday + i);
+                dates.push(date.toISOString().split('T')[0]);
+            }
+
+            const { data, error } = await supabase
+                .from('attendance')
+                .select('status, date')
+                .in('date', dates);
+
+            if (error) throw error;
+
+            const weeklyStats = dates.map(date => {
+                const dayRecords = data.filter(r => r.date === date);
+                if (dayRecords.length === 0) return 0;
+
+                const present = dayRecords.filter(r => r.status === 'Hadir').length;
+                return Math.round((present / dayRecords.length) * 100);
+            });
+
+            setAttendanceData(weeklyStats);
+        } catch (error) {
+            console.error('Error fetching attendance data:', error);
         } finally {
             setIsLoading(false);
         }
     };
 
-    if (isLoading) return <div className="animate-pulse space-y-8">...</div>;
+    if (isLoading) return <div className="animate-pulse space-y-8">
+        <div className="grid grid-cols-4 gap-8">
+            {[1, 2, 3, 4].map(i => <div key={i} className="h-32 bg-gray-100 rounded-[2rem]" />)}
+        </div>
+        <div className="h-96 bg-gray-100 rounded-[3rem]" />
+    </div>;
 
     return (
         <div className="space-y-10">
@@ -52,7 +94,7 @@ const AdminDashboard = () => {
             <AnalyticsChart
                 title="Kehadiran Mingguan"
                 subtitle="Persentase kehadiran seluruh tingkatan"
-                data={[75, 82, 90, 85, 95, 88]}
+                data={attendanceData}
                 labels={['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab']}
             />
         </div>

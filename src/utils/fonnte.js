@@ -26,7 +26,7 @@ export const sendWhatsApp = async (target, message, showToast) => {
             .from('settings')
             .select('value')
             .eq('key', 'fonnte_token')
-            .single();
+            .maybeSingle();
 
         if (settingData && settingData.value) {
             fonnteToken = settingData.value;

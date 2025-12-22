@@ -18,7 +18,7 @@ export default function FonnteSettings() {
             .from('settings')
             .select('*')
             .eq('key', 'fonnte_token')
-            .single();
+            .maybeSingle();
 
         if (data) {
             setToken(data.value);

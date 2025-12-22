@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { supabase } from '../lib/supabase';
 import {
     LayoutDashboard,
     Users,
@@ -17,7 +18,8 @@ import {
     Award,
     ChevronDown,
     MessageCircle,
-    Database
+    Database,
+    Settings
 } from 'lucide-react';
 
 const SidebarLink = ({ to, icon: Icon, children }) => (
@@ -40,6 +42,8 @@ export default function DashboardLayout() {
     const [role, setRole] = useState(localStorage.getItem('userRole') || 'admin');
     const [userName, setUserName] = useState(localStorage.getItem('userName') || '');
     const [userClass, setUserClass] = useState(localStorage.getItem('userClass') || '');
+    const [schoolName, setSchoolName] = useState('SIM SMKN 4');
+    const [schoolLogo, setSchoolLogo] = useState('');
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -55,7 +59,23 @@ export default function DashboardLayout() {
         setRole(storedRole);
         if (storedName) setUserName(storedName);
         if (storedClass) setUserClass(storedClass);
+
+        fetchSchoolName();
     }, [navigate]);
+
+    const fetchSchoolName = async () => {
+        const { data } = await supabase
+            .from('settings')
+            .select('key, value')
+            .or('key.eq.school_name,key.eq.school_logo');
+
+        if (data) {
+            const name = data.find(s => s.key === 'school_name')?.value;
+            const logo = data.find(s => s.key === 'school_logo')?.value;
+            if (name) setSchoolName(name);
+            if (logo) setSchoolLogo(logo);
+        }
+    };
 
     const handleLogout = () => {
         localStorage.removeItem('userRole');
@@ -78,6 +98,7 @@ export default function DashboardLayout() {
             { to: '/admin/announcements', icon: Bell, label: 'Pengumuman' },
             { to: '/admin/fonnte', icon: MessageCircle, label: 'Fonnte WhatsApp' },
             { to: '/admin/backup', icon: Database, label: 'Backup SQL' },
+            { to: '/admin/settings', icon: Settings, label: 'Pengaturan Umum' },
         ],
         guru: [
             { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
@@ -122,10 +143,16 @@ export default function DashboardLayout() {
                 <div className="h-full flex flex-col p-6">
                     <div className="flex items-center justify-between mb-10 px-2 text-blue-600">
                         <div className="flex items-center space-x-3">
-                            <div className="bg-blue-600 p-2.5 rounded-2xl shadow-lg shadow-blue-100">
-                                <GraduationCap className="text-white" size={24} />
+                            <div className={`p-1 rounded-2xl flex items-center justify-center overflow-hidden w-12 h-12 ${!schoolLogo ? 'bg-blue-600 shadow-lg shadow-blue-100' : ''}`}>
+                                {schoolLogo ? (
+                                    <img src={schoolLogo} alt="Logo" className="w-full h-full object-contain" />
+                                ) : (
+                                    <GraduationCap className="text-white" size={24} />
+                                )}
                             </div>
-                            <h1 className="text-2xl font-black tracking-tighter uppercase whitespace-nowrap">SIM SMKN 4</h1>
+                            <h1 className="text-xl font-black tracking-tighter uppercase leading-tight">
+                                {schoolName}
+                            </h1>
                         </div>
                         <button className="lg:hidden" onClick={() => setIsSidebarOpen(false)}>
                             <X size={20} className="text-gray-400" />

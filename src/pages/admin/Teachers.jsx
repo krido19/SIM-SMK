@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '../../lib/supabase';
 import { sendWhatsApp } from '../../utils/fonnte';
 import { useFeedback } from '../../context/FeedbackContext';
+import * as XLSX from 'xlsx';
 import {
     Plus,
     Search,
@@ -16,16 +17,20 @@ import {
     Save,
     CheckCircle2,
     ChevronDown,
-    MessageCircle
+    MessageCircle,
+    FileSpreadsheet,
+    FileUp,
+    Info,
+    Loader2
 } from 'lucide-react';
 
 
 
-const Modal = ({ isOpen, onClose, title, children }) => {
+const Modal = ({ isOpen, onClose, title, children, maxWidth = "max-w-md" }) => {
     if (!isOpen) return null;
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-300">
-            <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-300">
+            <div className={`bg-white rounded-3xl shadow-2xl w-full ${maxWidth} overflow-hidden animate-in zoom-in-95 duration-300`}>
                 <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
                     <h3 className="text-xl font-black text-gray-900">{title}</h3>
                     <button onClick={onClose} className="p-2 hover:bg-gray-200 rounded-xl transition-colors text-gray-400">
@@ -48,7 +53,10 @@ export default function Teachers() {
     const [formData, setFormData] = useState({ name: '', nip: '', specialty: 'Matematika', email: '', status: 'Aktif', wa_number: '' });
     const [filterSpecialty, setFilterSpecialty] = useState('Semua');
     const [isLoading, setIsLoading] = useState(true);
+    const [uploadLoading, setUploadLoading] = useState(false);
+    const [importedTeachers, setImportedTeachers] = useState([]);
     const { showToast, showConfirm } = useFeedback();
+    const fileInputRef = useRef(null);
     const [dbSpecialties, setDbSpecialties] = useState(['Matematika', 'Bahasa Indonesia', 'Fisika', 'Biologi', 'Informatika', 'Kimia', 'Ekonomi', 'Sejarah', 'Geografi', 'Sosiologi', 'Bahasa Inggris', 'PJOK', 'PAI', 'Seni Budaya', 'PKn']);
 
     useEffect(() => {
@@ -81,7 +89,54 @@ export default function Teachers() {
     const handleOpenAdd = () => {
         setCurrentTeacher(null);
         setFormData({ name: '', nip: '', specialty: 'Matematika', email: '', status: 'Aktif', wa_number: '' });
+        setImportedTeachers([]);
         setIsModalOpen(true);
+    };
+
+    const handleDownloadTemplate = () => {
+        const ws = XLSX.utils.json_to_sheet([
+            { NIP: '198501012010011001', 'Nama Guru': 'Budi Santoso, S.Pd', 'Mata Pelajaran': 'Informatika', 'Email': 'budi@school.id', 'No WA': '628123456789' },
+            { NIP: '199005052015022002', 'Nama Guru': 'Siti Maryam, M.Pd', 'Mata Pelajaran': 'Matematika', 'Email': 'siti@school.id', 'No WA': '628987654321' }
+        ]);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Template Guru");
+        XLSX.writeFile(wb, "Template_Import_Guru.xlsx");
+    };
+
+    const handleFileUpload = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        setUploadLoading(true);
+        const reader = new FileReader();
+        reader.onload = (evt) => {
+            try {
+                const bstr = evt.target.result;
+                const wb = XLSX.read(bstr, { type: 'binary' });
+                const wsname = wb.SheetNames[0];
+                const ws = wb.Sheets[wsname];
+                const data = XLSX.utils.sheet_to_json(ws);
+
+                // Transform data
+                const teachers = data.map((item, idx) => ({
+                    id: idx + 1,
+                    nip: String(item.NIP || item.nip || '').trim(),
+                    name: item['Nama Guru'] || item.Nama || item.name || 'Guru ' + (idx + 1),
+                    specialty: item['Mata Pelajaran'] || item.specialty || 'Matematika',
+                    email: item.Email || item.email || '-',
+                    wa_number: String(item['No WA'] || item['WA'] || item.wa_number || '-').trim(),
+                    status: 'Aktif'
+                })).filter(t => t.nip !== '');
+
+                setImportedTeachers(teachers);
+                showToast(`${teachers.length} guru terdeteksi dari Excel`, 'info');
+            } catch (err) {
+                showToast('Gagal membaca file Excel. Pastikan format kolom benar (NIP, Nama Guru, Mata Pelajaran).', 'error');
+            } finally {
+                setUploadLoading(false);
+            }
+        };
+        reader.readAsBinaryString(file);
     };
 
     const handleOpenEdit = (teacher) => {
@@ -142,16 +197,40 @@ export default function Teachers() {
                 setIsModalOpen(false);
             }
         } else {
-            const { error } = await supabase
-                .from('teachers')
-                .insert([payload]);
+            // Check for bulk import first
+            if (importedTeachers.length > 0) {
+                const teachersToInsert = importedTeachers.map(t => ({
+                    name: t.name,
+                    nip: t.nip,
+                    email: t.email,
+                    specialty: t.specialty,
+                    wa_number: t.wa_number,
+                    status: t.status
+                }));
 
-            if (error) {
-                showToast('Gagal menambah guru: ' + error.message, 'error');
+                const { error } = await supabase
+                    .from('teachers')
+                    .insert(teachersToInsert);
+
+                if (error) {
+                    showToast('Gagal mengimport guru: ' + error.message, 'error');
+                } else {
+                    showToast(`${importedTeachers.length} data guru berhasil diimport`, 'success');
+                    fetchTeachers();
+                    setIsModalOpen(false);
+                }
             } else {
-                showToast('Data guru berhasil ditambah', 'success');
-                fetchTeachers();
-                setIsModalOpen(false);
+                const { error } = await supabase
+                    .from('teachers')
+                    .insert([payload]);
+
+                if (error) {
+                    showToast('Gagal menambah guru: ' + error.message, 'error');
+                } else {
+                    showToast('Data guru berhasil ditambah', 'success');
+                    fetchTeachers();
+                    setIsModalOpen(false);
+                }
             }
         }
         setIsLoading(false);
@@ -281,89 +360,175 @@ export default function Teachers() {
             <Modal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
-                title={currentTeacher ? 'Edit Data Guru' : 'Tambah Guru Baru'}
+                title={currentTeacher ? 'Edit Data Guru' : 'Tambah Guru & Import Excel'}
+                maxWidth="max-w-4xl"
             >
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    <div className="space-y-1">
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Nama Lengkap & Gelar</label>
-                        <input
-                            required
-                            type="text"
-                            className="w-full bg-gray-50 border-transparent rounded-xl px-4 py-3 font-bold text-gray-700 outline-none transition-all focus:bg-white focus:border-indigo-500 border-2"
-                            value={formData.name}
-                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        />
-                    </div>
-                    <div className="space-y-1">
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">NIP</label>
-                        <input
-                            required
-                            type="text"
-                            className="w-full bg-gray-50 border-transparent rounded-xl px-4 py-3 font-bold text-gray-700 outline-none transition-all focus:bg-white focus:border-indigo-500 border-2"
-                            value={formData.nip}
-                            onChange={(e) => setFormData({ ...formData, nip: e.target.value })}
-                        />
-                    </div>
-                    <div className="space-y-1">
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Email</label>
-                        <input
-                            required
-                            type="text"
-                            className="w-full bg-gray-50 border-transparent rounded-xl px-4 py-3 font-bold text-gray-700 outline-none transition-all focus:bg-white focus:border-indigo-500 border-2"
-                            placeholder="email@example.com atau -"
-                            value={formData.email}
-                            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                        />
-                    </div>
-                    <div className="space-y-1">
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">No. WhatsApp</label>
-                        <input
-                            type="text"
-                            className="w-full bg-gray-50 border-transparent rounded-xl px-4 py-3 font-bold text-gray-700 outline-none transition-all focus:bg-white focus:border-indigo-500 border-2"
-                            placeholder="62812... atau -"
-                            value={formData.wa_number}
-                            onChange={(e) => setFormData({ ...formData, wa_number: e.target.value })}
-                        />
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-1">
-                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Mata Pelajaran</label>
-                            <div className="relative">
+                <form onSubmit={handleSubmit} className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        {/* Form Section */}
+                        <div className="space-y-4">
+                            <div className="space-y-1">
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Nama Lengkap & Gelar</label>
                                 <input
-                                    list="mapel-list"
-                                    required
+                                    required={importedTeachers.length === 0}
+                                    type="text"
                                     className="w-full bg-gray-50 border-transparent rounded-xl px-4 py-3 font-bold text-gray-700 outline-none transition-all focus:bg-white focus:border-indigo-500 border-2"
-                                    placeholder="Ketik atau pilih mapel..."
-                                    value={formData.specialty}
-                                    onChange={(e) => setFormData({ ...formData, specialty: e.target.value })}
+                                    value={formData.name}
+                                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                    disabled={importedTeachers.length > 0}
                                 />
-                                <datalist id="mapel-list">
-                                    {dbSpecialties.map(s => (
-                                        <option key={s} value={s} />
-                                    ))}
-                                </datalist>
-                                <ChevronDown size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                            </div>
+                            <div className="space-y-1">
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">NIP</label>
+                                <input
+                                    required={importedTeachers.length === 0}
+                                    type="text"
+                                    className="w-full bg-gray-50 border-transparent rounded-xl px-4 py-3 font-bold text-gray-700 outline-none transition-all focus:bg-white focus:border-indigo-500 border-2"
+                                    value={formData.nip}
+                                    onChange={(e) => setFormData({ ...formData, nip: e.target.value })}
+                                    disabled={importedTeachers.length > 0}
+                                />
+                            </div>
+                            <div className="space-y-1">
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Email</label>
+                                <input
+                                    required={importedTeachers.length === 0}
+                                    type="text"
+                                    className="w-full bg-gray-50 border-transparent rounded-xl px-4 py-3 font-bold text-gray-700 outline-none transition-all focus:bg-white focus:border-indigo-500 border-2"
+                                    placeholder="email@example.com atau -"
+                                    value={formData.email}
+                                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                    disabled={importedTeachers.length > 0}
+                                />
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-1">
+                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Mata Pelajaran</label>
+                                    <input
+                                        list="mapel-list"
+                                        required={importedTeachers.length === 0}
+                                        className="w-full bg-gray-50 border-transparent rounded-xl px-4 py-3 font-bold text-gray-700 outline-none transition-all focus:bg-white focus:border-indigo-500 border-2"
+                                        placeholder="Mapel..."
+                                        value={formData.specialty}
+                                        onChange={(e) => setFormData({ ...formData, specialty: e.target.value })}
+                                        disabled={importedTeachers.length > 0}
+                                    />
+                                </div>
+                                <div className="space-y-1">
+                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">No. WhatsApp</label>
+                                    <input
+                                        type="text"
+                                        className="w-full bg-gray-50 border-transparent rounded-xl px-4 py-3 font-bold text-gray-700 outline-none transition-all focus:bg-white focus:border-indigo-500 border-2"
+                                        placeholder="62812... atau -"
+                                        value={formData.wa_number}
+                                        onChange={(e) => setFormData({ ...formData, wa_number: e.target.value })}
+                                        disabled={importedTeachers.length > 0}
+                                    />
+                                </div>
+                            </div>
+                            <div className="space-y-1">
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Status</label>
+                                <select
+                                    className="w-full bg-gray-50 border-transparent rounded-xl px-4 py-3 font-bold text-gray-700 outline-none transition-all focus:bg-white focus:border-indigo-500 border-2"
+                                    value={formData.status}
+                                    onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                                    disabled={importedTeachers.length > 0}
+                                >
+                                    <option value="Aktif">Aktif</option>
+                                    <option value="Izin">Izin</option>
+                                    <option value="Cuti">Cuti</option>
+                                </select>
                             </div>
                         </div>
-                        <div className="space-y-1">
-                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Status</label>
-                            <select
-                                className="w-full bg-gray-50 border-transparent rounded-xl px-4 py-3 font-bold text-gray-700 outline-none transition-all focus:bg-white focus:border-indigo-500 border-2 appearance-none"
-                                value={formData.status}
-                                onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                            >
-                                <option value="Aktif">Aktif</option>
-                                <option value="Izin">Izin</option>
-                                <option value="Cuti">Cuti</option>
-                            </select>
-                        </div>
+
+                        {/* Excel Section (Only for Add) */}
+                        {!currentTeacher && (
+                            <div className="space-y-4">
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Import Data (Excel)</label>
+                                <div
+                                    onClick={() => fileInputRef.current?.click()}
+                                    className="h-44 border-4 border-dashed border-gray-100 rounded-[2rem] flex flex-col items-center justify-center space-y-3 cursor-pointer hover:border-indigo-200 hover:bg-indigo-50 transition-all group overflow-hidden"
+                                >
+                                    <input
+                                        type="file"
+                                        ref={fileInputRef}
+                                        className="hidden"
+                                        accept=".xlsx, .xls"
+                                        onChange={handleFileUpload}
+                                    />
+                                    {uploadLoading ? (
+                                        <Loader2 className="animate-spin text-indigo-500" size={32} />
+                                    ) : importedTeachers.length > 0 ? (
+                                        <>
+                                            <div className="p-3 bg-green-50 text-green-600 rounded-2xl">
+                                                <CheckCircle2 size={32} />
+                                            </div>
+                                            <p className="text-xs font-black text-green-700 uppercase tracking-widest">{importedTeachers.length} Guru Terdeteksi</p>
+                                            <button type="button" className="text-[10px] font-bold text-gray-400 underline hover:text-indigo-600">Ganti File</button>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <div className="p-3 bg-indigo-50 text-indigo-600 rounded-2xl group-hover:scale-110 transition-transform">
+                                                <FileSpreadsheet size={32} />
+                                            </div>
+                                            <p className="text-xs font-bold text-gray-400 text-center px-4">Pilih atau Seret File Excel</p>
+                                            <p className="text-[9px] font-black text-gray-300 uppercase tracking-widest">(NIP, Nama, Mapel, Email, WA)</p>
+                                        </>
+                                    )}
+                                </div>
+                                <div className="flex justify-center">
+                                    <button
+                                        type="button"
+                                        onClick={handleDownloadTemplate}
+                                        className="flex items-center space-x-2 text-[10px] font-black text-indigo-600 hover:text-indigo-700 uppercase tracking-widest bg-indigo-50 px-4 py-2 rounded-xl transition-all hover:shadow-md"
+                                    >
+                                        <FileUp size={14} className="rotate-180" />
+                                        <span>Download Format Excel</span>
+                                    </button>
+                                </div>
+                                <div className="bg-blue-50 p-3 rounded-2xl border border-blue-100 text-[10px] text-blue-600 font-bold leading-relaxed">
+                                    <Info size={14} className="inline mr-1 mb-0.5" />
+                                    NIP akan otomatis digunakan sebagai ID & Password login default ('guru123' juga aktif).
+                                </div>
+                            </div>
+                        )}
                     </div>
+
+                    {/* Preview Table */}
+                    {importedTeachers.length > 0 && !currentTeacher && (
+                        <div className="bg-gray-50 rounded-2xl border border-gray-100 overflow-hidden">
+                            <div className="px-4 py-2 bg-gray-100 text-[10px] font-black text-gray-400 uppercase tracking-widest">Preview 3 Data Pertama</div>
+                            <div className="max-h-32 overflow-y-auto p-4 space-y-3 no-scrollbar">
+                                {importedTeachers.slice(0, 3).map(t => (
+                                    <div key={t.id} className="flex items-center justify-between text-xs font-bold text-gray-600">
+                                        <div className="flex items-center space-x-3">
+                                            <span className="text-gray-300 font-black">#{t.nip}</span>
+                                            <div>
+                                                <p>{t.name}</p>
+                                                <p className="text-[10px] text-gray-400">{t.specialty}</p>
+                                            </div>
+                                        </div>
+                                        <div className="text-right">
+                                            <span className="text-indigo-500 block">{t.email}</span>
+                                            <span className="text-[10px] text-gray-400">WA: {t.wa_number}</span>
+                                        </div>
+                                    </div>
+                                ))}
+                                {importedTeachers.length > 3 && (
+                                    <p className="text-[10px] text-gray-400 text-center font-bold">...dan {importedTeachers.length - 3} guru lainnya</p>
+                                )}
+                            </div>
+                        </div>
+                    )}
+
                     <button
                         type="submit"
                         className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-black py-4 rounded-2xl shadow-xl shadow-indigo-100 transition-all flex items-center justify-center space-x-2 active:scale-95"
                     >
                         <Save size={20} />
-                        <span className="uppercase tracking-widest text-xs">Simpan Perubahan</span>
+                        <span className="uppercase tracking-widest text-xs">
+                            {importedTeachers.length > 0 ? `Simpan & Import ${importedTeachers.length} Guru` : 'Simpan Data Guru'}
+                        </span>
                     </button>
                 </form>
             </Modal>

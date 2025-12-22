@@ -30,7 +30,7 @@ export default function StudentAssignments() {
                 .from('students')
                 .select('class_id')
                 .eq('id', userId)
-                .single();
+                .maybeSingle();
 
             if (student) {
                 setStudentClassId(student.class_id);

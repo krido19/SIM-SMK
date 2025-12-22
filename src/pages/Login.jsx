@@ -4,12 +4,32 @@ import { supabase } from '../lib/supabase';
 import { GraduationCap, Mail, Lock, Loader2, AlertCircle, UserCircle, Users, Eye, EyeOff } from 'lucide-react';
 
 export default function Login() {
+    const [schoolName, setSchoolName] = useState('SIM SMKN 4');
+    const [schoolLogo, setSchoolLogo] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const navigate = useNavigate();
+
+    React.useEffect(() => {
+        fetchSchoolName();
+    }, []);
+
+    const fetchSchoolName = async () => {
+        const { data } = await supabase
+            .from('settings')
+            .select('key, value')
+            .or('key.eq.school_name,key.eq.school_logo');
+
+        if (data) {
+            const name = data.find(s => s.key === 'school_name')?.value;
+            const logo = data.find(s => s.key === 'school_logo')?.value;
+            if (name) setSchoolName(name);
+            if (logo) setSchoolLogo(logo);
+        }
+    };
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -99,11 +119,15 @@ export default function Login() {
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
             <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
-                <div className="inline-flex items-center justify-center p-3 bg-blue-600 rounded-2xl shadow-lg mb-6">
-                    <GraduationCap className="text-white" size={40} />
+                <div className={`inline-flex items-center justify-center p-2 rounded-2xl mb-6 overflow-hidden w-24 h-24 ${!schoolLogo ? 'bg-blue-600 shadow-lg' : ''}`}>
+                    {schoolLogo ? (
+                        <img src={schoolLogo} alt="Logo" className="w-full h-full object-contain" />
+                    ) : (
+                        <GraduationCap className="text-white" size={48} />
+                    )}
                 </div>
                 <h2 className="text-3xl font-extrabold text-gray-900 tracking-tight">
-                    SIM SMKN 4
+                    {schoolName}
                 </h2>
                 <p className="mt-2 text-sm text-gray-600 font-medium">
                     Sistem Informasi Monitoring Nilai & Absensi

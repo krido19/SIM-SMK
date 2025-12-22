@@ -34,7 +34,7 @@ const StudentDashboard = ({ userName }) => {
             }
 
             if (studentId) {
-                const { data: studentData } = await supabase.from('students').select('class_id').eq('id', studentId).single();
+                const { data: studentData } = await supabase.from('students').select('class_id').eq('id', studentId).maybeSingle();
 
                 // Grades
                 const { data: grades } = await supabase.from('grades').select('score').eq('student_id', studentId);
