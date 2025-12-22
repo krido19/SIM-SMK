@@ -30,7 +30,11 @@ export default function Dashboard() {
             setCurrentWeekType(weekType);
 
             // 2. Fetch Announcements
-            const { data: ann } = await supabase.from('announcements').select('*').order('created_at', { ascending: false }).limit(4);
+            const { data: ann } = await supabase
+                .from('announcements')
+                .select('id, title, date, content')
+                .order('created_at', { ascending: false })
+                .limit(4);
             setAnnouncements(ann || []);
 
             // 3. Fetch Next Class
@@ -49,7 +53,14 @@ export default function Dashboard() {
             const today = days[new Date().getDay()];
             const currentTime = new Date().toTimeString().substring(0, 5);
 
-            let query = supabase.from('schedules').select('*').eq('day', today).eq('week_type', weekType).gte('end_time', currentTime).order('start_time', { ascending: true }).limit(1);
+            let query = supabase
+                .from('schedules')
+                .select('subject_name, class_name, teacher_name, start_time, end_time, day, week_type')
+                .eq('day', today)
+                .eq('week_type', weekType)
+                .gte('end_time', currentTime)
+                .order('start_time', { ascending: true })
+                .limit(1);
 
             if (role === 'guru') {
                 const userId = localStorage.getItem('userId');
@@ -58,7 +69,11 @@ export default function Dashboard() {
             } else if (role === 'siswa') {
                 const userId = localStorage.getItem('userId');
                 if (userId) {
-                    const { data: s } = await supabase.from('students').select('class_id').eq('id', userId).maybeSingle();
+                    const { data: s } = await supabase
+                        .from('students')
+                        .select('class_id')
+                        .eq('id', userId)
+                        .maybeSingle();
                     if (s?.class_id) query = query.eq('class_id', s.class_id);
                     else return;
                 } else return;

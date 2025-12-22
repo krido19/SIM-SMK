@@ -208,28 +208,90 @@ export default function Teachers() {
                     status: t.status
                 }));
 
-                const { error } = await supabase
-                    .from('teachers')
-                    .insert(teachersToInsert);
+                // Deduplicate by NIP before sending
+                const uniqueTeachersMap = new Map();
+                for (const t of teachersToInsert) {
+                    uniqueTeachersMap.set(t.nip, t);
+                }
+                const uniqueTeachers = Array.from(uniqueTeachersMap.values());
 
-                if (error) {
-                    showToast('Gagal mengimport guru: ' + error.message, 'error');
-                } else {
-                    showToast(`${importedTeachers.length} data guru berhasil diimport`, 'success');
+                try {
+                    // 1. Fetch existing teachers with these NIPs to get their actual IDs
+                    const { data: existing, error: fetchErr } = await supabase
+                        .from('teachers')
+                        .select('id, nip')
+                        .in('nip', uniqueTeachers.map(t => t.nip));
+
+                    if (fetchErr) throw fetchErr;
+
+                    const existingMap = new Map(existing?.map(e => [e.nip, e.id]));
+                    const toUpdate = [];
+                    const toInsert = [];
+
+                    for (const t of uniqueTeachers) {
+                        if (existingMap.has(t.nip)) {
+                            toUpdate.push({ ...t, id: existingMap.get(t.nip) });
+                        } else {
+                            toInsert.push(t);
+                        }
+                    }
+
+                    // 2. Perform updates for existing ones (using IDs makes upsert reliable)
+                    if (toUpdate.length > 0) {
+                        const { error: upErr } = await supabase.from('teachers').upsert(toUpdate);
+                        if (upErr) throw upErr;
+                    }
+
+                    // 3. Perform inserts for new ones
+                    if (toInsert.length > 0) {
+                        const { error: insErr } = await supabase.from('teachers').insert(toInsert);
+                        if (insErr) throw insErr;
+                    }
+
+                    showToast(`${uniqueTeachers.length} data guru berhasil diproses (${toInsert.length} baru, ${toUpdate.length} diperbarui)`, 'success');
                     fetchTeachers();
                     setIsModalOpen(false);
+
+                } catch (error) {
+                    console.error('Teacher Import Error:', error);
+                    if (error.code === '23505') {
+                        showToast('Gagal: Terdapat Email atau NIP duplikat di sistem.', 'error');
+                    } else {
+                        showToast('Gagal memproses data: ' + (error.message || 'Terjadi kesalahan sistem'), 'error');
+                    }
                 }
             } else {
-                const { error } = await supabase
-                    .from('teachers')
-                    .insert([payload]);
+                try {
+                    // Robust check for single insert/update
+                    const { data: existing } = await supabase
+                        .from('teachers')
+                        .select('id')
+                        .eq('nip', payload.nip)
+                        .maybeSingle();
 
-                if (error) {
-                    showToast('Gagal menambah guru: ' + error.message, 'error');
-                } else {
-                    showToast('Data guru berhasil ditambah', 'success');
+                    if (existing) {
+                        const { error } = await supabase
+                            .from('teachers')
+                            .update(payload)
+                            .eq('id', existing.id);
+                        if (error) throw error;
+                        showToast('Data guru berhasil diperbarui', 'success');
+                    } else {
+                        const { error } = await supabase
+                            .from('teachers')
+                            .insert([payload]);
+                        if (error) throw error;
+                        showToast('Data guru berhasil ditambah', 'success');
+                    }
                     fetchTeachers();
                     setIsModalOpen(false);
+                } catch (error) {
+                    console.error('Teacher Save Error:', error);
+                    if (error.code === '23505') {
+                        showToast('Gagal: NIP atau Email sudah terdaftar pada guru lain.', 'error');
+                    } else {
+                        showToast('Gagal menyimpan guru: ' + error.message, 'error');
+                    }
                 }
             }
         }
