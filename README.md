@@ -14,40 +14,37 @@ Vocational School (SMK) seringkali menghadapi tantangan operasional yang unik:
 
 ---
 
-## ✨ Fitur Unggulan
+## ✨ Fitur Utama (Berdasarkan Peran)
 
-### 🛡️ Core Infrastructure & Optimization
-- **Role-Based Architecture**: Dashboard telah direfaktorisasi menjadi komponen modular (`AdminDashboard`, `TeacherDashboard`, `StudentDashboard`) untuk performa dan maintainability tinggi.
-- **Premium Feedback System**: Notifikasi Toast dan Modal Konfirmasi yang cantik (Glassmorphism), meningkatkan pengalaman interaksi pengguna.
-- **Supabase Integration**: Keamanan data ketat menggunakan RLS (Row Level Security) dan penyimpanan aset via Supabase Storage.
-
-### 📅 Manajemen Akademik (Admin)
-- **Smart Scheduling Matrix**: Tampilan grid mingguan interaktif dengan deteksi tabrakan jadwal (*Collision Detection*) otomatis.
-- **Alternating Weeks & Semesters**: Dukungan penuh untuk jadwal Minggu Ganjil/Genap serta pemisahan data nilai per semester.
-- **Excel Batch Import**: Daftarkan ribuan siswa sekaligus melalui integrasi file Excel (.xlsx).
+### 🛡️ Administrator (Super Control)
+- **General Settings Customization**: Ubah Nama Sekolah dan Logo aplikasi langsung dari dashboard. Perubahan akan langsung tercermin di Sidebar dan Halaman Login.
+- **Full Database Backup**: Ekspor seluruh skema dan data database ke dalam file `.sql` dalam satu klik.
+- **Smart Scheduling Matrix**: Tampilan grid mingguan interaktif dengan deteksi tabrakan jadwal otomatis.
+- **Batch Data Management**: 
+  - **Excel Import Siswa**: Daftarkan ribuan siswa sekaligus.
+  - **Excel Import Guru**: Daftarkan seluruh tenaga pengajar dengan cepat melalui file Excel.
+- **Real-time Attendance Analytics**: Grafik mingguan yang menghitung otomatis persentase kehadiran siswa dari Senin hingga Sabtu.
 
 ### 📝 Portal Guru (Manajemen Kelas)
-- **Multi-Semester Grade Entry**: Input nilai (Tugas, UTS, UAS) dengan filter semester (Ganjil/Genap) yang terintegrasi.
-- **Digital Attendance**: Checklist kehadiran harian dengan kalkulasi otomatis persentase kehadiran untuk dashboard.
-- **Assignment System**: Buat tugas dengan lampiran file dan pantau status pengumpulan siswa secara real-time.
-- **WhatsApp Integration**: Komunikasi instan ke Orang Tua/Siswa via Fonnte API.
+- **Digital Attendance**: Checklist kehadiran harian yang terintegrasi dengan WhatsApp (via Fonnte).
+- **Multi-Semester Grade Entry**: Input nilai (Tugas, UTS, UAS) dengan filter semester yang akurat.
+- **Assignment System**: Buat tugas dengan lampiran file dan pantau status pengumpulan siswa.
 
 ### 📊 Portal Siswa & Orang Tua
-- **Interactive Attendance History**: Visualisasi riwayat kehadiran dalam format Kalender Interaktif (Heatmap style) dan Daftar Detail.
-- **Academic Performance**: Monitoring nilai rata-rata dan detail per mata pelajaran sesuai semester aktif.
-- **Schedule & Task Alerts**: Notifikasi kelas yang sedang berlangsung serta hitungan tugas yang menunggu (*pending tasks*).
+- **Interactive Attendance History**: Visualisasi riwayat kehadiran dalam format Kalender Interaktif (Heatmap style).
+- **Academic Performance**: Monitoring nilai rata-rata dan detail per mata pelajaran.
+- **Schedule & Task Alerts**: Notifikasi kelas yang sedang berlangsung serta hitungan tugas yang menunggu.
 
 ---
 
 ## 🛠️ Teknologi (Tech Stack)
 
 - **Frontend**: React 19 + Vite
-- **Styling**: Tailwind CSS (Glassmorphism UI)
-- **Database**: Supabase (PostgreSQL)
-- **Auth**: Supabase Auth with Role Mapping
-- **Storage**: Supabase Storage (Materials & Assignments)
+- **Styling**: Tailwind CSS (Premium Glassmorphism UI)
 - **Icons**: Lucide React
-- **Data Handling**: TanStack Query & XLSX
+- **Backend & Database**: Supabase (PostgreSQL)
+- **Data Export/Import**: XLSX (Excel Handling)
+- **Third Party**: Fonnte API (WhatsApp Gateway)
 
 ---
 
@@ -55,26 +52,37 @@ Vocational School (SMK) seringkali menghadapi tantangan operasional yang unik:
 
 ### 1. Prasyarat
 - Node.js (v18+)
-- Supabase Project
+- Proyek Supabase aktif
 
-### 2. Instalasi
+### 2. Instalasi Lokal
 ```bash
 git clone https://github.com/krido19/SIM-SMK.git
 cd SIM-SMK
 npm install
 ```
 
-### 3. Setup Database
-Jalankan skema di folder `supabase/migrations`. Pastikan menjalankan migrasi `20251221_add_unique_constraint_to_grades.sql` untuk mendukung fitur multi-semester.
+### 3. Konfigurasi Environment
+Buat file `.env` di root folder:
+```env
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
 
-### 4. Jalankan Aplikasi
+### 4. Setup Database (Penting)
+1. Jalankan perintah SQL yang ada di menu **Admin > Backup & Export** di awal (atau gunakan dump `.sql` yang tersedia).
+2. Pastikan Storage Bucket di Supabase sudah dibuat:
+   - `announcements` (Public) - Untuk foto pengumuman dan logo.
+   - `assignments` (Public) - Untuk file tugas.
+3. Aktifkan RLS (Row Level Security) pada semua tabel (Script sudah tersedia di SQL dump).
+
+### 5. Jalankan Aplikasi
 ```bash
 npm run dev
 ```
 
 ---
 
-## 📖 Akun Demo
+## 📖 Akun Demo Default
 
 | Peran | Login (Email/ID) | Password |
 | :--- | :--- | :--- |
@@ -85,17 +93,16 @@ npm run dev
 
 ---
 
-## 📸 Dokumentasi Fitur
+## 📸 Pratinjau Dashboard
 
-### Dashboard Modular (Teacher & Student)
-![Teacher Dashboard](C:/Users/Administrator/.gemini/antigravity/brain/e67d7396-497d-44ab-940e-3f2145ee51b5/teacher_dashboard_refactored_1766290449561.png)
-*Tampilan dashboard yang dipersonalisasi sesuai peran pengguna.*
+### Fitur Kustomisasi Logo & Nama
+Dashboard sekarang mendukung identitas sekolah yang dinamis. Cukup unggah logo Anda di menu Pengaturan Umum.
 
-### Riwayat Absensi & Nilai
-![Attendance History](C:/Users/Administrator/.gemini/antigravity/brain/e67d7396-497d-44ab-940e-3f2145ee51b5/attendance_calendar_1766289253612.png)
-*Monitoring presensi interaktif untuk transparansi kehadiran siswa.*
+### Analytics Absensi Real-time
+Grafik di dashboard Admin kini menunjukkan persentase kehadiran asli yang dihitung dari database setiap minggunya.
 
 ---
 
 ## 📄 Lisensi
-Copyright © 2025. Implementasi SIM-SMK Modern.
+Copyright © 2025. **SIM-SMK Modern Framework**.
+Dioptimalkan untuk produktivitas pendidikan Indonesia.
