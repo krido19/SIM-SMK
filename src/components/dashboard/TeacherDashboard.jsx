@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
-import { Hash, Users, ClipboardList, TrendingUp } from 'lucide-react';
+import { Hash, Users, ClipboardList, TrendingUp, ChevronRight, AlertCircle } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import StatCard from './StatCard';
-import AnalyticsChart from './AnalyticsChart';
 
 const TeacherDashboard = ({ userName }) => {
     const [stats, setStats] = useState({
@@ -97,23 +97,43 @@ const TeacherDashboard = ({ userName }) => {
         }
     };
 
-    if (isLoading) return <div className="animate-pulse">...</div>;
+    if (isLoading) return <div className="animate-pulse font-mono text-[10px] uppercase">Retrieving Records...</div>;
 
     return (
-        <div className="space-y-10">
+        <div className="space-y-12">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                <StatCard title="Kelas Diampu" value={stats.classesTaught?.toString() || "0"} icon={Hash} color="bg-blue-600" />
-                <StatCard title="Jumlah Siswa" value={stats.totalStudents?.toString() || "0"} icon={Users} color="bg-indigo-600" />
-                <StatCard title="Tugas Menunggu" value={stats.pendingTasks?.toString() || "0"} icon={ClipboardList} color="bg-orange-600" />
-                <StatCard title="Kehadiran" value={stats.attendance} icon={TrendingUp} color="bg-emerald-600" />
+                <StatCard title="Assigned Sections" value={stats.classesTaught?.toString() || "0"} icon={Hash} />
+                <StatCard title="Student Roster" value={stats.totalStudents?.toString() || "0"} icon={Users} />
+                <StatCard title="Pending Review" value={stats.pendingTasks?.toString() || "0"} icon={ClipboardList} trend={stats.pendingTasks > 0 ? "- Action Reqd" : ""} to="/teacher/assignments" />
+                <StatCard title="Daily Attendance" value={stats.attendance} icon={TrendingUp} />
             </div>
 
-            <AnalyticsChart
-                title="Kehadiran Mingguan"
-                subtitle="Persentase kehadiran seluruh tingkatan"
-                data={[75, 82, 90, 85, 95, 88]}
-                labels={['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab']}
-            />
+            <div className="bg-paper p-8 border-2 border-ink shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] relative newsprint-texture">
+                <div className="flex items-center justify-between mb-8 border-b-2 border-ink pb-4">
+                    <div className="flex items-center gap-3">
+                        <AlertCircle size={24} className="text-newsprint-red" strokeWidth={1.5} />
+                        <h3 className="text-2xl font-serif font-black text-ink uppercase tracking-tight">Required Actions</h3>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="border border-ink/20 p-6 hover:bg-ink hover:text-paper transition-colors group">
+                        <h4 className="font-serif font-bold text-xl mb-2">Record Daily Attendance</h4>
+                        <p className="font-body text-sm mb-6 opacity-70">The attendance roster for your active classes requires your signature for today's session.</p>
+                        <Link to="/teacher/attendance" className="inline-flex items-center text-[10px] font-mono font-bold uppercase tracking-widest border-b border-current pb-1 group-hover:text-newsprint-red">
+                            Open Roster <ChevronRight size={14} className="ml-1" />
+                        </Link>
+                    </div>
+
+                    <div className="border border-ink/20 p-6 hover:bg-ink hover:text-paper transition-colors group">
+                        <h4 className="font-serif font-bold text-xl mb-2">Grade Open Assignments</h4>
+                        <p className="font-body text-sm mb-6 opacity-70">You have coursework submissions pending your review and grading.</p>
+                        <Link to="/teacher/assignments" className="inline-flex items-center text-[10px] font-mono font-bold uppercase tracking-widest border-b border-current pb-1 group-hover:text-newsprint-red">
+                            Open Gradebook <ChevronRight size={14} className="ml-1" />
+                        </Link>
+                    </div>
+                </div>
+            </div>
         </div>
     );
 };

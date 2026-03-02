@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
-import { Award, BookOpen, Calendar, ClipboardList } from 'lucide-react';
+import { Award, BookOpen, Calendar, ClipboardList, Clock, ChevronRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import StatCard from './StatCard';
-import AnalyticsChart from './AnalyticsChart';
 
 const StudentDashboard = ({ userName }) => {
     const [stats, setStats] = useState({
@@ -79,24 +79,45 @@ const StudentDashboard = ({ userName }) => {
         }
     };
 
-    if (isLoading) return <div className="animate-pulse">...</div>;
+    if (isLoading) return <div className="animate-pulse font-mono text-[10px] uppercase">Retrieving Academic File...</div>;
 
     return (
-        <div className="space-y-10">
+        <div className="space-y-12">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                <StatCard title="Rata-rata Nilai" value={stats.avgGrade?.toString() || "0"} icon={Award} trend="+5%" color="bg-blue-600" to="/student/grades" />
-                <StatCard title="Jumlah Mapel" value={stats.totalSubjects?.toString() || "0"} icon={BookOpen} color="bg-indigo-600" />
-                <StatCard title="Presensi Semester" value={stats.attendance || "0%"} icon={Calendar} color="bg-emerald-600" to="/student/attendance" />
-                <StatCard title="Tugas Menunggu" value={stats.pendingTasks?.toString() || "0"} icon={ClipboardList} color="bg-orange-600" to="/student/assignments" />
+                <StatCard title="Overall Standing" value={stats.avgGrade?.toString() || "0"} icon={Award} to="/student/grades" />
+                <StatCard title="Enrolled Subjects" value={stats.totalSubjects?.toString() || "0"} icon={BookOpen} />
+                <StatCard title="Attendance Record" value={stats.attendance || "0%"} icon={Calendar} to="/student/attendance" />
+                <StatCard title="Open Coursework" value={stats.pendingTasks?.toString() || "0"} icon={ClipboardList} to="/student/assignments" trend={stats.pendingTasks > 0 ? "Due Soon" : ""} />
             </div>
 
-            <AnalyticsChart
-                title="Performa Akademik"
-                subtitle="Tren nilai dalam 6 bulan terakhir"
-                data={[82, 85, 84, 88, 92, 88]}
-                labels={['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun']}
-                type="score"
-            />
+            <div className="bg-paper p-8 border-2 border-ink shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] relative newsprint-texture">
+                <div className="flex items-center justify-between mb-8 border-b-2 border-ink pb-4">
+                    <div className="flex items-center gap-3">
+                        <Clock size={24} className="text-ink" strokeWidth={1.5} />
+                        <h3 className="text-2xl font-serif font-black text-ink uppercase tracking-tight">Impending Deadlines</h3>
+                    </div>
+                </div>
+
+                {stats.pendingTasks > 0 ? (
+                    <div className="space-y-4">
+                        <div className="flex items-start justify-between border-b border-ink/20 pb-4">
+                            <div>
+                                <p className="text-[10px] font-mono font-bold uppercase tracking-widest text-newsprint-red mb-1">Due within 48 hours</p>
+                                <h4 className="font-serif font-bold text-xl">Review Pending Assignments</h4>
+                                <p className="font-body text-sm opacity-70">You have {stats.pendingTasks} incomplete tasks requiring submission.</p>
+                            </div>
+                            <Link to="/student/assignments" className="py-2 px-4 border-2 border-ink font-sans font-bold text-[10px] uppercase tracking-widest hover:bg-ink hover:text-paper transition-all">
+                                Go to Inbox
+                            </Link>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="py-12 flex flex-col items-center justify-center opacity-40">
+                        <Award size={48} className="mb-4" strokeWidth={1} />
+                        <p className="font-serif italic text-lg text-center">Your ledger is clear. No impending deadlines.</p>
+                    </div>
+                )}
+            </div>
         </div>
     );
 };

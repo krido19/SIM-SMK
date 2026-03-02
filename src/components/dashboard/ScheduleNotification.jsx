@@ -1,37 +1,44 @@
 import React from 'react';
-import { Clock } from 'lucide-react';
+import { Clock, MapPin } from 'lucide-react';
 
 const ScheduleNotification = ({ nextClass, role }) => {
     if (!nextClass) return null;
 
     return (
-        <div className="bg-gradient-to-r from-indigo-600 to-blue-600 rounded-[2.5rem] p-8 shadow-xl shadow-blue-200 text-white relative overflow-hidden animate-in slide-in-from-top-4 duration-500">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full -mr-16 -mt-16 blur-2xl pointer-events-none"></div>
-            <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-                <div>
-                    <div className="flex items-center space-x-3 mb-2">
-                        <span className="px-3 py-1 bg-white/20 backdrop-blur-md rounded-lg text-[10px] font-black uppercase tracking-widest border border-white/10">
-                            Sedang / Akan Berlangsung
+        <div className="bg-ink p-8 border-2 border-ink shadow-[8px_8px_0px_0px_rgba(204,0,0,1)] text-paper relative overflow-hidden animate-in slide-in-from-top-4 duration-500 group">
+            <div className="absolute top-0 right-0 w-32 h-full bg-newsprint-red skew-x-[-20deg] translate-x-16 opacity-10 group-hover:translate-x-12 transition-transform duration-700"></div>
+
+            <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
+                <div className="flex-1">
+                    <div className="flex items-center gap-4 mb-4">
+                        <span className="px-2 py-1 bg-newsprint-red text-paper text-[9px] font-mono font-black uppercase tracking-widest">
+                            In Session / Up Next
                         </span>
-                        <span className="flex items-center text-[10px] font-bold text-blue-100">
-                            <Clock size={12} className="mr-1" />
-                            {nextClass.start_time} - {nextClass.end_time} WIB
+                        <span className="flex items-center text-[10px] font-mono font-bold text-paper/60 uppercase tracking-widest">
+                            <Clock size={12} className="mr-2 text-newsprint-red" />
+                            {nextClass.start_time} — {nextClass.end_time} WIB
                         </span>
                     </div>
-                    <h2 className="text-3xl font-black uppercase tracking-wide leading-none mb-1">
+
+                    <h2 className="text-4xl lg:text-5xl font-serif font-black tracking-tighter leading-none mb-3 italic">
                         {nextClass.subject_name}
                     </h2>
-                    <p className="text-blue-100 font-medium flex items-center">
+
+                    <div className="flex items-center gap-4 text-paper/70 font-body text-sm">
+                        <span className="h-px w-8 bg-newsprint-red"></span>
                         {role === 'guru' ? (
-                            <>Mengajar di Kelas <b className="text-white ml-1">{nextClass.class_name}</b></>
+                            <p>Directing Class: <b className="text-paper font-serif italic">{nextClass.class_name}</b></p>
                         ) : (
-                            <>Guru: <b className="text-white ml-1">{nextClass.teacher_name}</b></>
+                            <p>Assigned Faculty: <b className="text-paper font-serif italic">{nextClass.teacher_name}</b></p>
                         )}
-                    </p>
+                    </div>
                 </div>
-                <div className="bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/10 text-center min-w-[100px]">
-                    <p className="text-[10px] font-black uppercase tracking-widest mb-1 opacity-70">Ruangan</p>
-                    <p className="text-2xl font-black">{nextClass.class_name}</p>
+
+                <div className="shrink-0 flex flex-col items-center justify-center p-6 border-2 border-white/20 bg-white/5 min-w-[140px] relative overflow-hidden">
+                    <div className="absolute top-0 left-0 w-full h-1 bg-newsprint-red"></div>
+                    <MapPin size={16} className="text-newsprint-red mb-2 opacity-50" />
+                    <p className="text-[9px] font-mono font-black uppercase tracking-widest mb-1 opacity-40">Station</p>
+                    <p className="text-2xl font-serif font-black italic tracking-tight">{nextClass.class_name}</p>
                 </div>
             </div>
         </div>

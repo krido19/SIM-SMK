@@ -75,27 +75,22 @@ const AdminDashboard = () => {
         }
     };
 
-    if (isLoading) return <div className="animate-pulse space-y-8">
-        <div className="grid grid-cols-4 gap-8">
-            {[1, 2, 3, 4].map(i => <div key={i} className="h-32 bg-gray-100 dark:bg-gray-800 rounded-[2rem]" />)}
-        </div>
-        <div className="h-96 bg-gray-100 dark:bg-gray-800 rounded-[3rem]" />
-    </div>;
+    if (isLoading) return <div className="animate-pulse font-mono text-[10px] uppercase">Compiling Statistics...</div>;
 
     return (
-        <div className="space-y-10">
+        <div className="space-y-12">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                <StatCard title="Total Siswa" value={stats.totalStudents.toLocaleString()} icon={Users} trend="+12%" color="bg-blue-600" />
-                <StatCard title="Total Guru" value={stats.totalTeachers.toString()} icon={UserCircle} color="bg-indigo-600" />
-                <StatCard title="Mata Pelajaran" value={stats.totalSubjects.toString()} icon={BookOpen} color="bg-emerald-600" />
-                <StatCard title="Rata-rata Nilai" value={stats.avgGrade.toString()} icon={TrendingUp} trend="+2.4%" color="bg-violet-600" />
+                <StatCard title="Total Enrollment" value={stats.totalStudents.toLocaleString()} icon={Users} trend="+12%" />
+                <StatCard title="Active Faculty" value={stats.totalTeachers.toString()} icon={UserCircle} />
+                <StatCard title="Course Catalog" value={stats.totalSubjects.toString()} icon={BookOpen} />
+                <StatCard title="District Avg" value={stats.avgGrade.toString()} icon={TrendingUp} trend="+2.4%" />
             </div>
 
             <AnalyticsChart
-                title="Kehadiran Mingguan"
-                subtitle="Persentase kehadiran seluruh tingkatan"
+                title="System-Wide Attendance"
+                subtitle="Percentage of active daily attendance across all sections"
                 data={attendanceData}
-                labels={['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab']}
+                labels={['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']}
             />
         </div>
     );

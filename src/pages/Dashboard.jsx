@@ -87,16 +87,31 @@ export default function Dashboard() {
     };
 
     return (
-        <div className="space-y-10 animate-in fade-in duration-700">
-            {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="space-y-12 animate-in fade-in duration-500">
+            {/* Editorial Header */}
+            <div className="border-b-4 border-ink pb-8 flex flex-col md:flex-row md:items-end justify-between gap-6">
                 <div>
-                    <h1 className="text-4xl font-black text-gray-900 tracking-tight leading-none">Beranda</h1>
-                    <p className="text-gray-500 font-medium mt-3">Selamat datang kembali, <span className="text-blue-600 font-bold">{userName}</span>. Berikut ringkasan Anda.</p>
+                    <div className="flex items-center gap-2 mb-4">
+                        <span className="bg-newsprint-red text-white text-[10px] font-mono font-bold px-2 py-1 uppercase tracking-widest animate-pulse">
+                            Live Bulletin
+                        </span>
+                        <span className="text-[10px] font-mono uppercase tracking-[0.2em] opacity-40">
+                            Ref: SMK-SIM/DAILY/{new Date().getFullYear()}
+                        </span>
+                    </div>
+                    <h1 className="text-6xl lg:text-8xl font-serif font-black text-ink tracking-tighter leading-[0.85]">
+                        The Front Page
+                    </h1>
+                    <p className="font-body text-xl text-ink/70 mt-4 max-w-2xl leading-relaxed">
+                        Welcome back, <span className="text-ink font-black underline decoration-newsprint-red decoration-2 underline-offset-4">{userName}</span>.
+                        Your daily briefing and institutional overview are ready.
+                    </p>
                 </div>
-                <div className="bg-white p-2 rounded-2xl border border-gray-100 shadow-sm flex items-center space-x-2">
-                    <div className="h-10 px-4 flex items-center bg-blue-50 text-blue-600 rounded-xl text-xs font-black uppercase tracking-widest">
-                        {currentWeekType} | Semester Ganjil 2023/2024
+                <div className="shrink-0 flex flex-col items-end gap-2">
+                    <div className="border-2 border-ink p-4 bg-white shadow-[4px_4px_0px_0px_rgba(17,17,17,1)]">
+                        <p className="text-[10px] font-mono font-bold uppercase tracking-widest border-b border-ink/10 pb-2 mb-2">Academic Cycle</p>
+                        <p className="text-sm font-serif font-bold italic">{currentWeekType}</p>
+                        <p className="text-[11px] font-mono opacity-60 mt-1 uppercase">Semester Ganjil 23/24</p>
                     </div>
                 </div>
             </div>
@@ -105,16 +120,21 @@ export default function Dashboard() {
             <ScheduleNotification nextClass={nextClass} role={role} />
 
             {/* Role-Specific Dashboard Content */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-                <div className="lg:col-span-2">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+                <div className="lg:col-span-8 border-r-2 border-ink lg:pr-12 last:border-0 last:pr-0">
                     {role === 'admin' && <AdminDashboard />}
                     {role === 'guru' && <TeacherDashboard userName={userName} />}
                     {(role === 'siswa' || role === 'parent') && <StudentDashboard userName={userName} />}
                 </div>
 
                 {/* Shared Right Sidebar */}
-                <div className="lg:col-span-1">
-                    <Announcements announcements={announcements} />
+                <div className="lg:col-span-4">
+                    <div className="sticky top-24">
+                        <h2 className="text-3xl font-serif font-black underline decoration-ink/10 underline-offset-8 mb-8 pb-2 border-b-2 border-ink uppercase tracking-tight">
+                            The Gazette
+                        </h2>
+                        <Announcements announcements={announcements} />
+                    </div>
                 </div>
             </div>
         </div>

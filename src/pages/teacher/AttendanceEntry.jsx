@@ -92,102 +92,118 @@ export default function AttendanceEntry() {
     };
 
     return (
-        <div className="space-y-6 animate-in fade-in duration-500">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="space-y-6">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b-4 border-ink pb-6">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Input Absensi Harian</h1>
-                    <div className="flex items-center space-x-3 mt-2">
-                        <div className="relative group">
+                    <h1 className="text-4xl font-serif font-black text-ink uppercase tracking-tighter leading-none mb-1">Attendance Roster</h1>
+                    <p className="font-mono text-[10px] uppercase tracking-widest opacity-60">Official Daily Roll Call</p>
+
+                    <div className="flex items-center space-x-4 mt-6">
+                        <div className="border-2 border-ink p-1 bg-white relative">
+                            <span className="absolute -top-2 left-2 bg-paper px-1 text-[8px] font-mono font-bold uppercase tracking-widest text-ink">Section</span>
                             <select
-                                className="appearance-none bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 px-4 py-2 pr-10 rounded-xl text-xs font-black text-gray-600 dark:text-gray-400 focus:ring-2 focus:ring-blue-500 transition-all outline-none cursor-pointer shadow-sm"
+                                className="appearance-none bg-transparent px-4 py-1 pr-8 text-xs font-bold font-mono uppercase tracking-widest text-ink focus:outline-none cursor-pointer"
                                 value={selectedClassId}
                                 onChange={(e) => setSelectedClassId(e.target.value)}
                             >
-                                {dbClasses.map(c => <option key={c.id} value={c.id}>Kelas: {c.name}</option>)}
+                                {dbClasses.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                             </select>
-                            <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                            <ChevronDown size={14} className="absolute right-2 top-1/2 -translate-y-1/2 text-ink pointer-events-none" strokeWidth={3} />
                         </div>
-                        <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest bg-gray-50 dark:bg-gray-800 px-3 py-2 rounded-xl border border-gray-100 dark:border-gray-800">Sesi: Pagi</p>
-                    </div>
-                </div>
-                <div className="flex items-center space-x-3 bg-white dark:bg-gray-900 p-2 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm">
-                    <Calendar size={18} className="ml-2 text-blue-500 dark:text-blue-400" />
-                    <input
-                        type="date"
-                        className="border-none focus:ring-0 text-sm font-bold text-gray-700 dark:text-gray-200 bg-transparent"
-                        value={selectedDate}
-                        onChange={(e) => setSelectedDate(e.target.value)}
-                    />
-                </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {attendance.map((student) => (
-                    <div key={student.id} className="bg-white dark:bg-gray-900 p-6 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-md transition-all group">
-                        <div className="flex items-center space-x-4 mb-6">
-                            <div className="h-12 w-12 rounded-2xl bg-gray-50 dark:bg-gray-800 flex items-center justify-center text-gray-400 dark:text-gray-500 font-bold border-2 border-white dark:border-gray-700 shadow-sm overflow-hidden">
-                                <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${student.name}`} alt="avatar" />
-                            </div>
-                            <div>
-                                <h3 className="font-bold text-gray-900 dark:text-gray-100">{student.name}</h3>
-                                <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">{student.nis}</p>
-                            </div>
-                        </div>
-
-                        <div className="grid grid-cols-4 gap-2">
-                            {[
-                                {
-                                    label: 'Hadir', val: 'Hadir',
-                                    active: 'bg-green-600 border-green-600 text-white shadow-lg shadow-green-200 dark:shadow-green-900/40 scale-105',
-                                    inactive: 'bg-white dark:bg-gray-800 border-gray-50 dark:border-gray-700 text-gray-400 hover:border-green-200 dark:hover:border-green-800 hover:text-green-600'
-                                },
-                                {
-                                    label: 'Sakit', val: 'Sakit',
-                                    active: 'bg-orange-500 border-orange-500 text-white shadow-lg shadow-orange-200 dark:shadow-orange-900/40 scale-105',
-                                    inactive: 'bg-white dark:bg-gray-800 border-gray-50 dark:border-gray-700 text-gray-400 hover:border-orange-200 dark:hover:border-orange-800 hover:text-orange-600'
-                                },
-                                {
-                                    label: 'Izin', val: 'Izin',
-                                    active: 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-200 dark:shadow-blue-900/40 scale-105',
-                                    inactive: 'bg-white dark:bg-gray-800 border-gray-50 dark:border-gray-700 text-gray-400 hover:border-blue-200 dark:hover:border-blue-800 hover:text-blue-600'
-                                },
-                                {
-                                    label: 'Alpa', val: 'Alpa',
-                                    active: 'bg-red-600 border-red-600 text-white shadow-lg shadow-red-200 dark:shadow-red-900/40 scale-105',
-                                    inactive: 'bg-white dark:bg-gray-800 border-gray-50 dark:border-gray-700 text-gray-400 hover:border-red-200 dark:hover:border-red-800 hover:text-red-600'
-                                }
-                            ].map((opt) => (
-                                <button
-                                    key={opt.val}
-                                    onClick={() => setStatus(student.id, opt.val)}
-                                    className={`py-2 rounded-xl text-[10px] font-black uppercase transition-all border-2 ${student.status === opt.val ? opt.active : opt.inactive}`}
-                                >
-                                    {opt.label}
-                                </button>
-                            ))}
+                        <div className="border-2 border-ink p-1 bg-white relative">
+                            <span className="absolute -top-2 left-2 bg-paper px-1 text-[8px] font-mono font-bold uppercase tracking-widest text-ink">Date</span>
+                            <input
+                                type="date"
+                                className="bg-transparent border-none focus:outline-none px-2 py-1 text-xs font-bold font-mono uppercase tracking-widest text-ink"
+                                value={selectedDate}
+                                onChange={(e) => setSelectedDate(e.target.value)}
+                            />
                         </div>
                     </div>
-                ))}
-            </div>
-
-            <div className="sticky bottom-6 left-0 right-0 p-4 bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg border border-gray-100 dark:border-gray-800 shadow-2xl dark:shadow-black/40 rounded-3xl flex items-center justify-between mx-auto max-w-2xl">
+                </div>
                 <div className="flex items-center space-x-4">
-                    <div className="flex -space-x-2">
-                        {[1, 2, 3].map(i => (
-                            <div key={i} className="h-8 w-8 rounded-full border-2 border-white dark:border-gray-700 bg-green-500 dark:bg-green-600 flex items-center justify-center">
-                                <Check size={14} className="text-white" />
-                            </div>
-                        ))}
+                    <div className="text-right">
+                        <p className="font-mono text-[10px] font-bold uppercase tracking-widest">{attendance.filter(a => a.status === 'Hadir').length}/{attendance.length} PRESENT</p>
                     </div>
-                    <p className="text-sm font-bold text-gray-800 dark:text-gray-100">Semua Data Sudah Diisi</p>
+                    <button
+                        onClick={handleSave}
+                        className="flex items-center space-x-2 border-2 border-ink bg-ink text-paper hover:bg-newsprint-red hover:border-newsprint-red hover:text-white px-6 py-3 font-mono text-[10px] font-bold uppercase tracking-widest transition-colors shadow-[4px_4px_0px_0px_rgba(204,0,0,0.2)] hover:shadow-none active:translate-y-[2px] active:translate-x-[2px]"
+                    >
+                        <Save size={16} strokeWidth={2} />
+                        <span>Commit Roster</span>
+                    </button>
                 </div>
-                <button
-                    onClick={handleSave}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-2xl font-bold shadow-lg shadow-blue-200 dark:shadow-black/20 transition-all active:scale-95"
-                >
-                    Simpan Absensi
-                </button>
             </div>
+
+            {isLoading ? (
+                <div className="py-20 text-center font-mono text-[10px] uppercase tracking-widest">Retrieving Official Manifest...</div>
+            ) : (
+                <div className="border-2 border-ink bg-white overflow-hidden shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] relative newsprint-texture">
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left border-collapse">
+                            <thead>
+                                <tr className="bg-ink text-paper font-mono text-[10px] uppercase tracking-widest border-b-2 border-ink">
+                                    <th className="p-3 border-r border-paper/20 w-16 text-center">No</th>
+                                    <th className="p-3 border-r border-paper/20">Student Record</th>
+                                    <th className="p-0 border-r border-paper/20 text-center" colSpan="4">
+                                        <div className="border-b border-paper/20 py-1">Daily Status</div>
+                                        <div className="grid grid-cols-4 divide-x divide-paper/20">
+                                            <div className="py-1">Present</div>
+                                            <div className="py-1">Sick</div>
+                                            <div className="py-1">Excused</div>
+                                            <div className="py-1">Absent</div>
+                                        </div>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y-2 divide-ink">
+                                {attendance.map((student, index) => (
+                                    <tr key={student.id} className="hover:bg-neutral-50 transition-colors">
+                                        <td className="p-3 border-r border-ink text-center font-mono text-xs text-ink/60">{index + 1}</td>
+                                        <td className="p-3 border-r border-ink">
+                                            <div>
+                                                <p className="font-serif font-black text-ink">{student.name}</p>
+                                                <p className="font-mono text-[9px] uppercase tracking-widest text-ink/60">ID: {student.nis}</p>
+                                            </div>
+                                        </td>
+                                        <td className="p-0" colSpan="4">
+                                            <div className="grid grid-cols-4 h-full divide-x-2 divide-ink/20">
+                                                {[
+                                                    { label: 'Hadir', val: 'Hadir', activeClass: 'bg-green-100 text-green-800 border-b-2 border-green-800' },
+                                                    { label: 'Sakit', val: 'Sakit', activeClass: 'bg-amber-100 text-amber-800 border-b-2 border-amber-800' },
+                                                    { label: 'Izin', val: 'Izin', activeClass: 'bg-blue-100 text-blue-800 border-b-2 border-blue-800' },
+                                                    { label: 'Alpa', val: 'Alpa', activeClass: 'bg-newsprint-red text-white border-b-2 border-newsprint-red' }
+                                                ].map((opt) => (
+                                                    <button
+                                                        key={opt.val}
+                                                        onClick={() => setStatus(student.id, opt.val)}
+                                                        className={`h-full w-full py-4 text-[10px] font-mono font-bold uppercase tracking-widest transition-colors
+                                                            ${student.status === opt.val
+                                                                ? opt.activeClass
+                                                                : 'text-ink/40 hover:bg-neutral-100 hover:text-ink border-b-2 border-transparent'
+                                                            }
+                                                        `}
+                                                    >
+                                                        {student.status === opt.val && <Check size={12} className="inline-block mr-1" strokeWidth={3} />}
+                                                        {opt.label}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                                {attendance.length === 0 && (
+                                    <tr>
+                                        <td colSpan="6" className="p-8 text-center font-serif italic text-ink/60">
+                                            No student records found in this section.
+                                        </td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

@@ -28,10 +28,18 @@ const Assignments = lazy(() => import('./pages/teacher/Assignments'))
 const StudentAssignments = lazy(() => import('./pages/student/StudentAssignments'))
 
 const LoadingFallback = () => (
-  <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-4">
-    <div className="flex flex-col items-center space-y-4">
-      <div className="w-16 h-16 border-4 border-indigo-600/20 border-t-indigo-600 rounded-full animate-spin"></div>
-      <p className="text-indigo-600 dark:text-indigo-400 font-black uppercase tracking-[0.2em] text-[10px] animate-pulse">Memuat SIM SMK...</p>
+  <div className="min-h-screen bg-neutral-100 flex items-center justify-center p-4 newsprint-texture">
+    <div className="flex flex-col items-center space-y-6">
+      <div className="relative w-24 h-24 border-4 border-ink p-1 bg-white shadow-[8px_8px_0px_0px_rgba(17,17,17,1)]">
+        <div className="absolute inset-1 bg-ink animate-pulse" style={{ animationDuration: '1s' }}></div>
+        <div className="absolute bottom-0 right-0 w-4 h-4 bg-newsprint-red mix-blend-multiply flex items-center justify-center">
+          <div className="w-1 h-1 bg-white animate-ping"></div>
+        </div>
+      </div>
+      <div className="border-t-4 border-ink pt-2 text-center w-48">
+        <p className="text-ink font-serif font-black uppercase tracking-tighter text-2xl leading-none">Newsprint</p>
+        <p className="text-ink font-mono font-bold uppercase tracking-[0.3em] text-[8px] mt-1">Initializing Press...</p>
+      </div>
     </div>
   </div>
 )

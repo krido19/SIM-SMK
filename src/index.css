@@ -1,30 +1,70 @@
 @import "tailwindcss";
 
+@theme {
+  --color-paper: #F9F9F7;
+  --color-ink: #111111;
+  --color-divider: #E5E5E0;
+  --color-newsprint-red: #CC0000;
+  --font-serif: "Playfair Display", "Times New Roman", serif;
+  --font-body: "Lora", "Georgia", serif;
+  --font-sans: "Inter", "Helvetica Neue", sans-serif;
+  --font-mono: "JetBrains Mono", "Courier New", monospace;
+}
 
 :root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
+  --foreground-rgb: 17, 17, 17;
+  --background-start-rgb: 249, 249, 247;
+  --background-end-rgb: 249, 249, 247;
+}
+
+* {
+  border-radius: 0 !important;
 }
 
 body {
-  @apply bg-gray-50 text-gray-900;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  /* Add subtle newsprint texture */
+  background-image: 
+    radial-gradient(var(--color-ink) 0.5px, transparent 0.5px),
+    radial-gradient(var(--color-ink) 0.5px, transparent 0.5px);
+  background-size: 20px 20px;
+  background-position: 0 0, 10px 10px;
+  background-attachment: fixed;
+  position: relative;
+}
+
+/* Make sure the pseudo element for texture sits behind content */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(17,17,17,0.03) 2px, rgba(17,17,17,0.03) 4px);
+  pointer-events: none;
+  z-index: 9999; /* overlay everything with a subtle line pattern */
+  opacity: 0.5;
+}
+
+.newsprint-texture {
+  position: relative;
 }
 
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 12px;
+  height: 12px;
 }
 
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: var(--color-paper);
+  border-left: 2px solid var(--color-ink);
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-gray-300 rounded-full;
+  background: var(--color-ink);
+  border: 2px solid var(--color-ink);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-gray-400;
+  background: var(--color-newsprint-red);
 }

@@ -1,42 +1,61 @@
 import React from 'react';
-import { CheckCircle2, XCircle, AlertCircle, Info, X } from 'lucide-react';
+import { AlertCircle, Info, X } from 'lucide-react';
 
 const Toast = ({ show, message, type, onClose }) => {
     if (!show) return null;
 
+    const typeStyles = {
+        success: 'border-ink bg-white text-ink',
+        error: 'border-newsprint-red bg-newsprint-red text-white',
+        warning: 'border-ink bg-neutral-100 text-ink',
+        info: 'border-ink bg-ink text-white'
+    };
+
+    const headerText = {
+        success: 'OFFICIAL RECORD',
+        error: 'URGENT NOTICE',
+        warning: 'ADVISORY ALERT',
+        info: 'SYSTEM DISPATCH'
+    };
+
     return (
-        <div className="fixed top-8 left-1/2 -translate-x-1/2 z-[10000] animate-in slide-in-from-top-8 duration-500">
-            <div className={`flex items-center space-x-4 px-8 py-5 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.1)] border-2 backdrop-blur-2xl ${type === 'success' ? 'bg-white/90 border-green-100 text-green-800' :
-                    type === 'error' ? 'bg-white/90 border-red-100 text-red-800' :
-                        type === 'warning' ? 'bg-white/90 border-amber-100 text-amber-800' :
-                            'bg-white/90 border-blue-100 text-blue-800'
-                }`}>
-                <div className={`p-2 rounded-2xl ${type === 'success' ? 'bg-green-100 text-green-600' :
-                        type === 'error' ? 'bg-red-100 text-red-600' :
-                            type === 'warning' ? 'bg-amber-100 text-amber-600' :
-                                'bg-blue-100 text-blue-600'
-                    }`}>
-                    {type === 'success' && <CheckCircle2 size={24} />}
-                    {type === 'error' && <XCircle size={24} />}
-                    {type === 'warning' && <AlertCircle size={24} />}
-                    {type === 'info' && <Info size={24} />}
+        <div className="fixed bottom-6 right-6 z-[10000] flex justify-end p-4 animate-in slide-in-from-bottom-5 duration-300 pointer-events-none">
+            <div className={`pointer-events-auto flex flex-col border-2 shadow-[8px_8px_0px_0px_rgba(17,17,17,1)] ${typeStyles[type] || typeStyles.info} max-w-sm w-full animate-in fade-in zoom-in-95`}>
+
+                {/* Header Strip */}
+                <div className={`flex items-center justify-between px-3 py-1.5 border-b-2 ${type === 'error' ? 'border-white/20' : 'border-ink/20'} ${type === 'info' ? 'border-white/20' : ''}`}>
+                    <div className="flex items-center space-x-2">
+                        {type === 'error' && <div className="w-1.5 h-1.5 bg-white animate-pulse" />}
+                        {type !== 'error' && <div className={`w-1.5 h-1.5 ${type === 'info' ? 'bg-white' : 'bg-ink'} animate-pulse`} />}
+                        <span className="font-mono text-[9px] font-black uppercase tracking-[0.2em]">
+                            {headerText[type] || headerText.info}
+                        </span>
+                    </div>
+                    <button
+                        onClick={onClose}
+                        className={`p-0.5 hover:bg-black/10 transition-colors`}
+                    >
+                        <X size={14} strokeWidth={2.5} />
+                    </button>
                 </div>
 
-                <div className="flex flex-col pr-12">
-                    <span className="text-[10px] font-black uppercase tracking-[0.2em] leading-none opacity-40 mb-1.5">
-                        {type === 'success' ? 'Berhasil' :
-                            type === 'error' ? 'Gagal' :
-                                type === 'warning' ? 'Peringatan' : 'Informasi'}
-                    </span>
-                    <span className="text-base font-black tracking-tight">{message}</span>
-                </div>
+                {/* Body */}
+                <div className="flex p-4 gap-4 items-start relative overflow-hidden">
+                    <div className={`shrink-0 p-2 border-2 ${type === 'error' ? 'border-white/20 bg-black/10' : 'border-ink/10 bg-black/5'} ${type === 'info' ? 'border-white/20 bg-white/10' : ''}`}>
+                        {type === 'error' || type === 'warning' ? (
+                            <AlertCircle size={24} strokeWidth={2} />
+                        ) : (
+                            <Info size={24} strokeWidth={2} />
+                        )}
+                    </div>
 
-                <button
-                    onClick={onClose}
-                    className="absolute right-6 p-2 hover:bg-black/5 rounded-xl transition-all active:scale-90"
-                >
-                    <X size={18} className="text-gray-400" />
-                </button>
+                    <div className="flex flex-col flex-1 pr-2 relative z-10">
+                        <span className="font-serif font-black text-lg leading-tight uppercase tracking-tight">{message}</span>
+                        <span className="font-mono text-[8px] font-bold uppercase tracking-widest mt-2 pt-2 border-t border-current opacity-60">
+                            ID: {Math.random().toString(36).substring(2, 8).toUpperCase()} - {new Date().toLocaleTimeString('en-US', { hour12: false })}
+                        </span>
+                    </div>
+                </div>
             </div>
         </div>
     );

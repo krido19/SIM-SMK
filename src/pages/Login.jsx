@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useTheme } from '../context/ThemeContext';
-import { GraduationCap, Mail, Lock, Loader2, AlertCircle, UserCircle, Users, Eye, EyeOff, Sun, Moon } from 'lucide-react';
+import { Loader2, AlertCircle, Eye, EyeOff, Sun, Moon } from 'lucide-react';
 
 export default function Login() {
     const [schoolName, setSchoolName] = useState('SIM SMKN 4');
@@ -109,164 +109,167 @@ export default function Login() {
                 }
             }
 
-            setError('ID atau Password salah. Gunakan: admin@school.id, guru@school.id, NIS, atau OT+NIS.');
+            setError('Authentication failed. Invalid ID or Password provided.');
         } catch (err) {
             console.error('Login error:', err);
-            setError('Terjadi kesalahan sistem.');
+            setError('System error. Please contact administration.');
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <div className={`min-h-screen transition-colors duration-300 flex flex-col justify-center py-12 sm:px-6 lg:px-8 ${theme === 'dark' ? 'dark bg-gray-950' : 'bg-gray-50'}`}>
-            <div className="absolute top-6 right-6">
-                <button
-                    onClick={toggleTheme}
-                    className="p-3 rounded-2xl bg-white dark:bg-gray-900 shadow-xl border border-gray-100 dark:border-gray-800 text-gray-500 dark:text-gray-400 hover:scale-110 active:scale-95 transition-all"
-                >
-                    {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
-                </button>
-            </div>
+        <div className="min-h-screen grid grid-cols-1 lg:grid-cols-2 text-ink bg-paper newsprint-texture selection:bg-ink selection:text-paper">
 
-            <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
-                <div className={`inline-flex items-center justify-center p-2 rounded-2xl mb-6 overflow-hidden w-24 h-24 ${!schoolLogo ? 'bg-blue-600 shadow-lg shadow-blue-200 dark:shadow-blue-900/20' : ''}`}>
-                    {schoolLogo ? (
-                        <img src={schoolLogo} alt="Logo" className="w-full h-full object-contain" />
-                    ) : (
-                        <GraduationCap className="text-white" size={48} />
-                    )}
+            {/* Left Column - Editorial Cover */}
+            <div className="hidden lg:flex flex-col justify-between p-12 border-r-4 border-ink bg-ink text-paper relative overflow-hidden">
+                <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
+
+                <div className="relative z-10 flex justify-between items-start border-b-2 border-paper/30 pb-4">
+                    <span className="font-mono text-[10px] uppercase tracking-[0.3em]">Volume I - Issue No. {new Date().getDate()}</span>
+                    <span className="font-mono text-[10px] uppercase tracking-[0.3em] font-bold">{new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
                 </div>
-                <h2 className="text-3xl font-extrabold text-gray-900 dark:text-gray-100 tracking-tight">
-                    {schoolName}
-                </h2>
-                <p className="mt-2 text-sm text-gray-600 dark:text-gray-400 font-medium">
-                    Sistem Informasi Monitoring Nilai & Absensi
-                </p>
+
+                <div className="relative z-10 flex flex-col justify-center flex-1 my-12">
+                    <h1 className="text-8xl xl:text-9xl font-serif font-black uppercase tracking-tighter leading-[0.85] mb-8">
+                        The<br />Daily<br />Ledger.
+                    </h1>
+                    <div className="border-l-4 border-newsprint-red pl-6 py-2">
+                        <p className="font-mono text-sm uppercase tracking-widest leading-relaxed max-w-md text-paper/80 font-bold">
+                            Official Academic Information System for {schoolName}. Authenticated access required for entry.
+                        </p>
+                    </div>
+                </div>
+
+                <div className="relative z-10 grid grid-cols-3 gap-8 py-6 border-t-2 border-paper/30 font-mono text-[10px] uppercase tracking-widest text-paper/60">
+                    <div>
+                        <p className="font-bold text-paper mb-1">Students</p>
+                        <p>Academic Records & Schedules</p>
+                    </div>
+                    <div>
+                        <p className="font-bold text-paper mb-1">Faculty</p>
+                        <p>Grading & Attendance Management</p>
+                    </div>
+                    <div>
+                        <p className="font-bold text-paper mb-1">Administration</p>
+                        <p>System Oversight & Configurations</p>
+                    </div>
+                </div>
             </div>
 
-            <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md px-4">
-                <div className="bg-white dark:bg-gray-900 py-8 px-6 shadow-2xl shadow-blue-100 dark:shadow-black/20 sm:rounded-[2.5rem] sm:px-10 border border-gray-100 dark:border-gray-800">
-                    <form className="space-y-6" onSubmit={handleLogin}>
-                        {error && (
-                            <div className="bg-red-50 dark:bg-red-950/20 border border-red-100 dark:border-red-900/30 text-red-600 dark:text-red-400 px-4 py-3 rounded-2xl flex items-center space-x-3 text-xs font-bold animate-in slide-in-from-top-2">
-                                <AlertCircle size={18} />
-                                <span>{error}</span>
-                            </div>
-                        )}
+            {/* Right Column - Login Form */}
+            <div className="flex flex-col justify-center items-center p-6 sm:p-12 relative bg-paper transition-colors duration-300">
+                <div className="absolute top-6 right-6 z-20">
+                    <button
+                        onClick={toggleTheme}
+                        className="p-2 border-2 border-ink bg-white hover:bg-ink hover:text-white transition-all shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] active:translate-y-[2px] active:translate-x-[2px] active:shadow-none"
+                    >
+                        {theme === 'dark' ? <Sun size={20} strokeWidth={2} /> : <Moon size={20} strokeWidth={2} />}
+                    </button>
+                </div>
 
-                        <div className="space-y-1">
-                            <label htmlFor="email" className="block text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest px-1">
-                                Email / NIS / ID OT
-                            </label>
-                            <div className="relative">
-                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-300 dark:text-gray-600">
-                                    <Mail size={18} />
-                                </div>
-                                <input
-                                    id="email"
-                                    type="text"
-                                    required
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    className="block w-full pl-12 pr-4 py-4 bg-gray-50 dark:bg-gray-800 border-transparent focus:bg-white dark:focus:bg-gray-800 focus:border-blue-500 rounded-2xl font-bold text-gray-700 dark:text-gray-200 outline-none transition-all border-2"
-                                    placeholder="admin@school.id, NIP, atau NIS"
-                                />
-                            </div>
+                <div className="w-full max-w-md mx-auto relative z-10">
+                    {/* Mobile Header */}
+                    <div className="lg:hidden text-center mb-12 border-b-4 border-ink pb-6">
+                        <h1 className="text-5xl font-serif font-black uppercase tracking-tighter leading-none mb-4">
+                            The Ledger.
+                        </h1>
+                        <p className="font-mono text-[10px] uppercase tracking-widest font-bold">
+                            {schoolName} • Information System
+                        </p>
+                    </div>
+
+                    <div className="bg-white border-2 border-ink shadow-[12px_12px_0px_0px_rgba(17,17,17,1)] relative">
+                        <div className="bg-ink text-paper p-4 flex justify-between items-center border-b-2 border-ink">
+                            <h2 className="font-mono font-black uppercase tracking-widest text-sm">Authentication Portal</h2>
+                            <div className="w-2 h-2 bg-newsprint-red rounded-full animate-pulse" />
                         </div>
 
-                        <div className="space-y-1">
-                            <label htmlFor="password" className="block text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest px-1">
-                                Kata Sandi
-                            </label>
-                            <div className="relative">
-                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400 dark:text-gray-600">
-                                    <Lock size={18} />
-                                </div>
-                                <input
-                                    id="password"
-                                    type={showPassword ? 'text' : 'password'}
-                                    required
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    className="block w-full pl-12 pr-12 py-4 bg-gray-50 dark:bg-gray-800 border-transparent focus:bg-white dark:focus:bg-gray-800 focus:border-blue-500 rounded-2xl font-bold text-gray-700 dark:text-gray-200 outline-none transition-all border-2"
-                                    placeholder="••••••••"
-                                />
-                                <button
-                                    type="button"
-                                    onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 dark:text-gray-500 hover:text-blue-600 transition-colors"
-                                >
-                                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                                </button>
-                            </div>
-                        </div>
-
-                        <div className="flex items-center justify-between px-1">
-                            <div className="flex items-center">
-                                <input
-                                    id="remember-me"
-                                    name="remember-me"
-                                    type="checkbox"
-                                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                                />
-                                <label htmlFor="remember-me" className="ml-2 block text-xs font-bold text-gray-500">
-                                    Ingat saya
-                                </label>
-                            </div>
-
-                            <div className="text-xs">
-                                <a href="#" className="font-black text-blue-600 hover:text-blue-500 uppercase tracking-widest">
-                                    Lupa?
-                                </a>
-                            </div>
-                        </div>
-
-                        <div>
-                            <button
-                                type="submit"
-                                disabled={loading}
-                                className="w-full h-14 bg-blue-600 hover:bg-blue-700 text-white font-black rounded-2xl shadow-xl shadow-blue-100 transition-all flex items-center justify-center space-x-2 active:scale-95 disabled:opacity-50"
-                            >
-                                {loading ? (
-                                    <Loader2 className="animate-spin" size={24} />
-                                ) : (
-                                    <span className="uppercase tracking-widest text-sm">Masuk Sekarang</span>
+                        <div className="p-8">
+                            <form className="space-y-6" onSubmit={handleLogin}>
+                                {error && (
+                                    <div className="bg-newsprint-red text-white p-4 flex items-start space-x-3 border-2 border-ink shadow-[4px_4px_0px_0px_rgba(17,17,17,1)]">
+                                        <AlertCircle size={20} className="shrink-0 mt-0.5" />
+                                        <span className="font-mono text-[10px] uppercase tracking-widest font-bold leading-tight">{error}</span>
+                                    </div>
                                 )}
-                            </button>
-                        </div>
-                    </form>
 
-                    <div className="mt-10">
-                        <div className="relative">
-                            <div className="absolute inset-0 flex items-center">
-                                <div className="w-full border-t border-gray-100"></div>
-                            </div>
-                            <div className="relative flex justify-center text-[10px] font-black uppercase tracking-[0.2em]">
-                                <span className="px-4 bg-white dark:bg-gray-900 text-gray-300 dark:text-gray-700">
-                                    Panduan Login
-                                </span>
-                            </div>
+                                <div className="space-y-2">
+                                    <label htmlFor="email" className="block text-[10px] font-mono font-black text-ink uppercase tracking-[0.2em]">
+                                        Identification (Email/NIS/NIP)
+                                    </label>
+                                    <input
+                                        id="email"
+                                        type="text"
+                                        required
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        className="w-full px-4 py-3 bg-neutral-50 border-2 border-ink focus:bg-white focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2 transition-all font-mono font-bold text-ink placeholder:text-ink/30"
+                                        placeholder="Enter ID..."
+                                    />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label htmlFor="password" className="block text-[10px] font-mono font-black text-ink uppercase tracking-[0.2em]">
+                                        Passcode
+                                    </label>
+                                    <div className="relative">
+                                        <input
+                                            id="password"
+                                            type={showPassword ? 'text' : 'password'}
+                                            required
+                                            value={password}
+                                            onChange={(e) => setPassword(e.target.value)}
+                                            className="w-full pl-4 pr-12 py-3 bg-neutral-50 border-2 border-ink focus:bg-white focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2 transition-all font-mono font-bold text-ink placeholder:text-ink/30"
+                                            placeholder="••••••••"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowPassword(!showPassword)}
+                                            className="absolute inset-y-0 right-0 px-4 flex items-center text-ink/50 hover:text-ink transition-colors border-l-2 border-ink bg-neutral-100 hover:bg-neutral-200"
+                                        >
+                                            {showPassword ? <EyeOff size={16} strokeWidth={2} /> : <Eye size={16} strokeWidth={2} />}
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <button
+                                    type="submit"
+                                    disabled={loading}
+                                    className="w-full py-4 mt-8 bg-ink hover:bg-newsprint-red text-paper font-mono font-black uppercase tracking-[0.2em] border-2 border-transparent transition-colors flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    {loading ? (
+                                        <>
+                                            <Loader2 className="animate-spin" size={18} strokeWidth={3} />
+                                            <span>Verifying...</span>
+                                        </>
+                                    ) : (
+                                        <span>Authorize Access</span>
+                                    )}
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    {/* Guidelines */}
+                    <div className="mt-12">
+                        <div className="flex items-center justify-between border-b-2 border-ink pb-2 mb-6">
+                            <h3 className="font-serif font-black text-ink uppercase text-sm tracking-tight">Access Guidelines</h3>
+                            <span className="font-mono text-[8px] uppercase tracking-widest text-ink/60">Ref: IDX-001</span>
                         </div>
 
-                        <div className="mt-6 space-y-3">
-                            <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-2xl border border-gray-50 dark:border-gray-800 flex items-center space-x-4">
-                                <UserCircle size={20} className="text-indigo-500" />
-                                <p className="text-[10px] font-bold text-gray-500 dark:text-gray-400 leading-tight">
-                                    Guru: Gunakan <span className="text-indigo-600 dark:text-indigo-400">NIP</span> atau Email
-                                </p>
+                        <div className="grid grid-cols-1 gap-4 font-mono text-[10px] uppercase tracking-widest text-ink/80">
+                            <div className="flex border-l-2 border-ink pl-4 py-1">
+                                <span className="w-16 font-black text-ink shrink-0">Faculty:</span>
+                                <span>Use Official NIP or valid email format.</span>
                             </div>
-                            <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-2xl border border-gray-50 dark:border-gray-800 flex items-center space-x-4">
-                                <Users size={20} className="text-blue-500" />
-                                <p className="text-[10px] font-bold text-gray-500 dark:text-gray-400 leading-tight">
-                                    Siswa: Gunakan <span className="text-blue-600 dark:text-blue-400">NIS</span> (Angka)
-                                </p>
+                            <div className="flex border-l-2 border-ink pl-4 py-1">
+                                <span className="w-16 font-black text-ink shrink-0">Student:</span>
+                                <span>Use officially assigned numeric NIS.</span>
                             </div>
-                            <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-2xl border border-gray-50 dark:border-gray-800 flex items-center space-x-4">
-                                <AlertCircle size={20} className="text-amber-500" />
-                                <p className="text-[10px] font-bold text-gray-500 dark:text-gray-400 leading-tight">
-                                    Orang Tua: Gunakan <span className="text-amber-600 dark:text-amber-400">OT + NIS</span> (Contoh: OT2023001)
-                                </p>
+                            <div className="flex border-l-2 border-newsprint-red pl-4 py-1">
+                                <span className="w-16 font-black text-newsprint-red shrink-0">Parent:</span>
+                                <span>Prefix 'OT' to Student NIS (e.g. OT2023001).</span>
                             </div>
                         </div>
                     </div>

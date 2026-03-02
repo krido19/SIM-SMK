@@ -69,11 +69,12 @@ VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
 
 ### 4. Setup Database (Penting)
-1. Jalankan perintah SQL yang ada di menu **Admin > Backup & Export** di awal (atau gunakan dump `.sql` yang tersedia).
-2. Pastikan Storage Bucket di Supabase sudah dibuat:
+1. 📖 **Baca panduan lengkap struktur database dan data percobaan (seed) di [README_SQL.md](./README_SQL.md). PENTING: Jika ada perubahan skema SQL, harap perbarui file referensi ini juga.**
+2. Jalankan perintah SQL yang ada di file **`supabase/full_setup.sql`** langsung di tab **SQL Editor** pada Supabase untuk mengimpor schema & dummy data secara berurutan. (Menggunakan `seed.sql` saja akan error jika tabel belum dibuat).
+3. Pastikan Storage Bucket di Supabase sudah dibuat:
    - `announcements` (Public) - Untuk foto pengumuman dan logo.
    - `assignments` (Public) - Untuk file tugas.
-3. Aktifkan RLS (Row Level Security) pada semua tabel (Script sudah tersedia di SQL dump).
+4. Aktifkan RLS (Row Level Security) pada semua tabel (Sudah diaktifkan di file SQL setup).
 
 ### 5. Jalankan Aplikasi
 ```bash

@@ -105,41 +105,46 @@ export default function StudentAttendance() {
 
     return (
         <div className="space-y-8 animate-in fade-in duration-500 max-w-7xl mx-auto pb-10">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b-4 border-ink pb-6">
                 <div>
-                    <h1 className="text-3xl font-black text-gray-900 dark:text-gray-100 tracking-tight">Rekap Kehadiran</h1>
-                    <p className="text-gray-500 dark:text-gray-400 font-medium mt-1">Pantau kedisiplinan dan riwayat kehadiran Anda.</p>
+                    <h1 className="text-4xl font-serif font-black text-ink uppercase tracking-tighter leading-none mb-1">Attendance Record</h1>
+                    <p className="font-mono text-[10px] uppercase tracking-widest opacity-60 mt-2">Official Monitoring Log</p>
                 </div>
 
-                <div className="flex bg-white dark:bg-gray-900 p-1.5 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm self-start">
+                <div className="flex border-2 border-ink p-1 bg-white self-start shadow-[4px_4px_0px_0px_rgba(17,17,17,1)]">
                     <button
                         onClick={() => setViewMode('calendar')}
-                        className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${viewMode === 'calendar' ? 'bg-blue-600 text-white shadow-lg' : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'}`}
+                        className={`flex items-center space-x-2 px-4 py-2 text-[10px] font-mono font-bold uppercase tracking-widest transition-colors ${viewMode === 'calendar' ? 'bg-ink text-paper' : 'text-ink/60 hover:bg-neutral-100 hover:text-ink'}`}
                     >
-                        <CalendarDays size={16} />
-                        <span>Kalender</span>
+                        <CalendarDays size={14} strokeWidth={2} />
+                        <span>Calendar</span>
                     </button>
+                    <div className="w-0.5 bg-ink/20 mx-1"></div>
                     <button
                         onClick={() => setViewMode('list')}
-                        className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${viewMode === 'list' ? 'bg-blue-600 text-white shadow-lg' : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'}`}
+                        className={`flex items-center space-x-2 px-4 py-2 text-[10px] font-mono font-bold uppercase tracking-widest transition-colors ${viewMode === 'list' ? 'bg-ink text-paper' : 'text-ink/60 hover:bg-neutral-100 hover:text-ink'}`}
                     >
-                        <PieChart size={16} />
-                        <span>Daftar</span>
+                        <PieChart size={14} strokeWidth={2} />
+                        <span>List</span>
                     </button>
                 </div>
             </div>
 
             {/* Stats Overview */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                {attendanceStats.map((stat) => (
-                    <div key={stat.label} className="bg-white dark:bg-gray-900 p-6 rounded-[2rem] border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-xl transition-all group overflow-hidden relative">
-                        <div className={`absolute -right-4 -top-4 w-20 h-20 rounded-full opacity-5 group-hover:scale-150 transition-transform ${stat.color}`} />
-                        <div className="flex items-center justify-between mb-4 relative z-10">
-                            <div className={`h-1.5 w-8 rounded-full ${stat.color}`} />
-                            <span className={`text-[10px] font-black uppercase tracking-widest ${stat.text}`}>{stat.label}</span>
+                {[
+                    { label: 'Present', value: stats.hadir, bgClass: 'bg-green-100', dotClass: 'bg-green-600', textClass: 'text-green-800' },
+                    { label: 'Sick', value: stats.sakit, bgClass: 'bg-amber-100', dotClass: 'bg-amber-600', textClass: 'text-amber-800' },
+                    { label: 'Excused', value: stats.izin, bgClass: 'bg-blue-100', dotClass: 'bg-blue-600', textClass: 'text-blue-800' },
+                    { label: 'Absent', value: stats.alpa, bgClass: 'bg-newsprint-red', dotClass: 'bg-ink', textClass: 'text-white' },
+                ].map((stat) => (
+                    <div key={stat.label} className={`border-2 border-ink p-6 shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] flex flex-col justify-between ${stat.bgClass}`}>
+                        <div className="flex items-center space-x-2 mb-4">
+                            <div className={`h-2 w-2 rounded-none border border-ink ${stat.dotClass}`} />
+                            <span className={`text-[10px] font-mono font-bold uppercase tracking-widest ${stat.textClass}`}>{stat.label}</span>
                         </div>
-                        <h2 className="text-4xl font-black text-gray-900 dark:text-gray-100 relative z-10">{stat.value}</h2>
-                        <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 mt-1 uppercase tracking-wider relative z-10">Hari ini</p>
+                        <h2 className={`text-5xl font-mono font-black tracking-tighter ${stat.textClass}`}>{stat.value}</h2>
+                        <p className={`text-[9px] font-mono font-bold uppercase tracking-[0.2em] mt-4 pt-2 border-t-2 border-ink/20 ${stat.textClass}`}>Days Tally</p>
                     </div>
                 ))}
             </div>
@@ -148,60 +153,64 @@ export default function StudentAttendance() {
                 {/* Visual Section */}
                 <div className="lg:col-span-2 space-y-8">
                     {viewMode === 'calendar' ? (
-                        <div className="bg-white dark:bg-gray-900 p-8 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl relative overflow-hidden">
-                            <div className="flex items-center justify-between mb-8 relative z-10">
-                                <h3 className="text-xl font-black text-gray-900 dark:text-gray-100">Kalender Absensi</h3>
-                                <div className="flex items-center space-x-4">
-                                    <button onClick={prevMonth} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-colors">
-                                        <Clock size={18} className="rotate-180 dark:text-gray-400" />
+                        <div className="bg-white p-8 border-2 border-ink shadow-[8px_8px_0px_0px_rgba(17,17,17,1)] relative overflow-hidden newsprint-texture">
+                            <div className="flex items-center justify-between mb-8 border-b-2 border-ink pb-4">
+                                <h3 className="text-2xl font-serif font-black text-ink uppercase tracking-tight">Academic Calendar</h3>
+                                <div className="flex items-center space-x-4 border-2 border-ink p-1 bg-paper">
+                                    <button onClick={prevMonth} className="px-3 py-1 hover:bg-neutral-200 transition-colors">
+                                        <Clock size={16} strokeWidth={2} className="rotate-180 text-ink" />
                                     </button>
-                                    <span className="text-sm font-black uppercase tracking-widest text-blue-600 dark:text-blue-400">
-                                        {currentMonth.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}
+                                    <span className="text-xs font-mono font-bold uppercase tracking-widest text-ink">
+                                        {currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
                                     </span>
-                                    <button onClick={nextMonth} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-colors">
-                                        <Clock size={18} className="dark:text-gray-400" />
+                                    <button onClick={nextMonth} className="px-3 py-1 hover:bg-neutral-200 transition-colors">
+                                        <Clock size={16} strokeWidth={2} className="text-ink" />
                                     </button>
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-7 gap-2 mb-4">
-                                {['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'].map(day => (
-                                    <div key={day} className="text-center text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest py-2">
+                            <div className="grid grid-cols-7 gap-px bg-ink mb-1 border-2 border-ink">
+                                {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(day => (
+                                    <div key={day} className="text-center font-mono text-[10px] bg-paper font-black text-ink uppercase tracking-widest py-3">
                                         {day}
                                     </div>
                                 ))}
                             </div>
 
-                            <div className="grid grid-cols-7 gap-2">
+                            <div className="grid grid-cols-7 gap-px bg-ink border-2 border-ink">
                                 {getDaysInMonth(currentMonth).map((date, i) => {
                                     const att = getAttendanceStatus(date);
                                     const isToday = date && date.toDateString() === new Date().toDateString();
 
-                                    if (!date) return <div key={`empty-${i}`} className="h-16 rounded-2xl bg-gray-50/50 dark:bg-gray-800/50" />;
+                                    if (!date) return <div key={`empty-${i}`} className="h-20 bg-neutral-100" />;
+
+                                    let bgClass = 'bg-white';
+                                    let textClass = 'text-ink';
+                                    let markerClass = '';
+
+                                    if (att) {
+                                        if (att.status === 'Hadir') { bgClass = 'bg-green-50'; textClass = 'text-green-900'; markerClass = 'bg-green-600'; }
+                                        else if (att.status === 'Sakit') { bgClass = 'bg-amber-50'; textClass = 'text-amber-900'; markerClass = 'bg-amber-600'; }
+                                        else if (att.status === 'Izin') { bgClass = 'bg-blue-50'; textClass = 'text-blue-900'; markerClass = 'bg-blue-600'; }
+                                        else { bgClass = 'bg-newsprint-red/10'; textClass = 'text-newsprint-red'; markerClass = 'bg-newsprint-red'; }
+                                    }
 
                                     return (
                                         <div
                                             key={date.toISOString()}
-                                            className={`h-16 rounded-2xl relative flex items-center justify-center group transition-all border-2 ${att ? (
-                                                att.status === 'Hadir' ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-100 dark:border-emerald-900/30 text-emerald-700 dark:text-emerald-400' :
-                                                    att.status === 'Sakit' ? 'bg-orange-50 dark:bg-orange-900/20 border-orange-100 dark:border-orange-900/30 text-orange-700 dark:text-orange-400' :
-                                                        'bg-red-50 dark:bg-red-900/20 border-red-100 dark:border-red-900/30 text-red-700 dark:text-red-400'
-                                            ) : 'bg-gray-50 dark:bg-gray-800/50 border-transparent text-gray-400 dark:text-gray-600'
-                                                } ${isToday ? 'ring-2 ring-blue-500 ring-offset-2 dark:ring-offset-gray-900 scale-105 z-10' : ''}`}
+                                            className={`h-20 relative p-2 ${bgClass} ${isToday ? 'ring-inset ring-4 ring-ink z-10' : ''} group`}
                                         >
-                                            <span className="text-sm font-black">{date.getDate()}</span>
+                                            <span className={`font-mono text-sm font-bold ${textClass}`}>{date.getDate()}</span>
                                             {att && (
-                                                <div className="absolute top-1 right-1">
-                                                    <div className={`w-1.5 h-1.5 rounded-full ${att.status === 'Hadir' ? 'bg-emerald-500' :
-                                                        att.status === 'Sakit' ? 'bg-orange-500' : 'bg-red-500'
-                                                        }`} />
+                                                <div className="absolute top-2 right-2">
+                                                    <div className={`w-2 h-2 border border-ink ${markerClass}`} />
                                                 </div>
                                             )}
                                             {/* Tooltip-like Info */}
                                             {att?.notes && (
-                                                <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity z-20 pointer-events-none">
-                                                    <div className="bg-gray-900 dark:bg-gray-800 text-white dark:text-gray-100 text-[10px] font-bold px-3 py-1.5 rounded-lg whitespace-nowrap shadow-xl border border-transparent dark:border-gray-700">
-                                                        {att.notes}
+                                                <div className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity z-20 pointer-events-none w-max max-w-xs">
+                                                    <div className="bg-ink text-paper font-mono text-[9px] font-bold px-2 py-1 border border-ink shadow-[2px_2px_0px_0px_rgba(204,0,0,1)] whitespace-normal text-left uppercase tracking-wider">
+                                                        Note: {att.notes}
                                                     </div>
                                                 </div>
                                             )}
@@ -210,55 +219,58 @@ export default function StudentAttendance() {
                                 })}
                             </div>
 
-                            <div className="mt-10 flex items-center justify-center space-x-6">
+                            <div className="mt-8 flex items-center justify-center space-x-6 border-t-2 border-ink pt-6">
                                 <div className="flex items-center space-x-2">
-                                    <div className="w-3 h-3 rounded-full bg-emerald-500" />
-                                    <span className="text-[10px] font-black uppercase tracking-widest text-gray-500 dark:text-gray-400">Hadir</span>
+                                    <div className="w-2 h-2 border border-ink bg-green-600" />
+                                    <span className="text-[9px] font-mono font-black uppercase tracking-widest text-ink">Present</span>
                                 </div>
                                 <div className="flex items-center space-x-2">
-                                    <div className="w-3 h-3 rounded-full bg-orange-500" />
-                                    <span className="text-[10px] font-black uppercase tracking-widest text-gray-500 dark:text-gray-400">Izin/Sakit</span>
+                                    <div className="w-2 h-2 border border-ink bg-amber-600" />
+                                    <span className="text-[9px] font-mono font-black uppercase tracking-widest text-ink">Excused/Sick</span>
                                 </div>
                                 <div className="flex items-center space-x-2">
-                                    <div className="w-3 h-3 rounded-full bg-red-500" />
-                                    <span className="text-[10px] font-black uppercase tracking-widest text-gray-500 dark:text-gray-400">Alpa</span>
+                                    <div className="w-2 h-2 border border-ink bg-newsprint-red" />
+                                    <span className="text-[9px] font-mono font-black uppercase tracking-widest text-ink">Absent</span>
                                 </div>
                             </div>
                         </div>
                     ) : (
-                        <div className="bg-white dark:bg-gray-900 p-8 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl overflow-hidden relative">
-                            <div className="flex items-center justify-between mb-8 relative z-10">
-                                <h3 className="text-xl font-black text-gray-900 dark:text-gray-100">Daftar Kehadiran</h3>
-                                <BarChart3 size={20} className="text-blue-500 dark:text-blue-400" />
+                        <div className="bg-white p-8 border-2 border-ink shadow-[8px_8px_0px_0px_rgba(17,17,17,1)] overflow-hidden relative newsprint-texture">
+                            <div className="flex items-center justify-between mb-8 border-b-2 border-ink pb-4">
+                                <h3 className="text-2xl font-serif font-black text-ink uppercase tracking-tight">Attendance Log</h3>
+                                <div className="p-2 border-2 border-ink bg-neutral-100">
+                                    <BarChart3 size={16} strokeWidth={2} className="text-ink" />
+                                </div>
                             </div>
-                            <div className="space-y-3">
+                            <div className="space-y-4">
                                 {attendance.length === 0 ? (
                                     <div className="py-20 text-center">
-                                        <XCircle size={48} className="mx-auto text-gray-200 dark:text-gray-800 mb-4" />
-                                        <p className="text-gray-400 dark:text-gray-500 font-bold uppercase tracking-widest text-xs">Belum ada data</p>
+                                        <XCircle size={48} strokeWidth={1} className="mx-auto text-ink/20 border-newsprint-red mb-4" />
+                                        <p className="font-mono text-ink/60 font-bold uppercase tracking-widest text-xs">No records found</p>
                                     </div>
                                 ) : (
                                     attendance.map((item) => (
-                                        <div key={item.id} className="flex items-center justify-between p-5 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-transparent hover:border-blue-100 dark:hover:border-blue-900/30 transition-all group">
-                                            <div className="flex items-center space-x-4">
-                                                <div className={`h-12 w-12 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110 ${item.status === 'Hadir' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400' :
-                                                    item.status === 'Sakit' ? 'bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400' : 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400'
-                                                    }`}>
-                                                    {item.status === 'Hadir' ? <CheckCircle2 size={24} /> : <AlertCircle size={24} />}
+                                        <div key={item.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-paper border-2 border-ink hover:bg-neutral-50 transition-colors group shadow-[4px_4px_0px_0px_rgba(17,17,17,0.1)] hover:shadow-[4px_4px_0px_0px_rgba(17,17,17,1)]">
+                                            <div className="flex items-center space-x-4 mb-4 sm:mb-0">
+                                                <div className="h-10 w-10 border-2 border-ink flex items-center justify-center bg-white group-hover:bg-ink group-hover:text-paper transition-colors">
+                                                    {item.status === 'Hadir' ? <CheckCircle2 size={20} strokeWidth={2} /> : <AlertCircle size={20} strokeWidth={2} />}
                                                 </div>
                                                 <div>
-                                                    <p className="text-base font-black text-gray-900 dark:text-gray-100">{new Date(item.date).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</p>
-                                                    <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mt-0.5">
-                                                        {item.notes ? `Catatan: ${item.notes}` : 'Laporan Kehadiran Harian'}
+                                                    <p className="font-serif text-lg font-black text-ink leading-tight">{new Date(item.date).toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' })}</p>
+                                                    <p className="font-mono text-[9px] font-bold text-ink/60 uppercase tracking-widest mt-1">
+                                                        {item.notes ? `Note: ${item.notes}` : 'Daily Log'}
                                                     </p>
                                                 </div>
                                             </div>
-                                            <span className={`px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-sm ${item.status === 'Hadir' ? 'bg-white dark:bg-gray-900 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/40' :
-                                                item.status === 'Sakit' ? 'bg-white dark:bg-gray-900 text-orange-600 dark:text-orange-400 border border-orange-100 dark:border-orange-900/40' :
-                                                    'bg-white dark:bg-gray-900 text-red-600 dark:text-red-400 border border-red-100 dark:border-red-900/40'
-                                                }`}>
-                                                {item.status}
-                                            </span>
+                                            <div className="flex items-center justify-end">
+                                                <span className={`px-4 py-1.5 text-[10px] font-mono font-black uppercase tracking-widest border-2 border-ink shadow-[2px_2px_0px_0px_rgba(17,17,17,1)] ${item.status === 'Hadir' ? 'bg-green-100 text-green-800' :
+                                                        item.status === 'Sakit' ? 'bg-amber-100 text-amber-800' :
+                                                            item.status === 'Izin' ? 'bg-blue-100 text-blue-800' :
+                                                                'bg-newsprint-red text-white border-transparent shadow-[2px_2px_0px_0px_rgba(17,17,17,0.5)]'
+                                                    }`}>
+                                                    {item.status}
+                                                </span>
+                                            </div>
                                         </div>
                                     ))
                                 )}
@@ -270,69 +282,62 @@ export default function StudentAttendance() {
                 {/* Ringkasan & Grafik */}
                 <div className="space-y-8">
                     {/* Attendance Percentage Card */}
-                    <div className="bg-white dark:bg-gray-900 p-8 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl flex flex-col items-center justify-center space-y-8 relative overflow-hidden group">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-blue-50 dark:bg-blue-900 rounded-full -mr-16 -mt-16 opacity-50 dark:opacity-10 group-hover:scale-150 transition-transform duration-700" />
-
-                        <div className="relative h-48 w-48">
-                            <svg className="h-full w-full rotate-[-90deg]" viewBox="0 0 36 36">
-                                <circle
-                                    cx="18" cy="18" r="15.9155"
-                                    className="stroke-gray-100 dark:stroke-gray-800 fill-none"
-                                    strokeWidth="3.5"
-                                />
-                                <circle
-                                    cx="18" cy="18" r="15.9155"
-                                    className="stroke-blue-600 dark:stroke-blue-500 fill-none transition-all duration-1000"
-                                    strokeWidth="3.5"
-                                    strokeDasharray={`${stats.totalRate}, 100`}
-                                    strokeLinecap="round"
-                                />
-                            </svg>
-                            <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                <span className="text-5xl font-black text-gray-900 dark:text-gray-100 tracking-tighter">{stats.totalRate}%</span>
-                                <span className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] mt-1">Hadir</span>
-                            </div>
-                        </div>
-
-                        <div className="text-center relative z-10">
-                            <h3 className="text-xl font-black text-gray-900 dark:text-gray-100 tracking-tight">
-                                {stats.totalRate >= 90 ? '🔥 Sangat Disiplin!' :
-                                    stats.totalRate >= 75 ? '👍 Tetap Semangat' : '⚠️ Tingkatkan Lagi'}
+                    <div className="bg-white p-8 border-2 border-ink shadow-[8px_8px_0px_0px_rgba(17,17,17,1)] flex flex-col items-center justify-center relative overflow-hidden group">
+                        <div className="text-center relative z-10 w-full mb-6">
+                            <h3 className="text-3xl font-serif font-black text-ink tracking-tight uppercase">
+                                Metric Details
                             </h3>
-                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-2 px-6 leading-relaxed">
-                                {stats.totalRate >= 90 ? 'Pertahankan kedisiplinan luar biasa Anda di sekolah.' :
-                                    'Ayo datang lebih rajin lagi untuk hasil belajar maksimal!'}
+                            <p className="font-mono text-[9px] font-bold text-ink/60 mt-1 uppercase tracking-widest border-b-2 border-ink pb-4">
+                                Cumulative Record
                             </p>
                         </div>
 
-                        <div className="w-full pt-6 border-t border-gray-50 dark:border-gray-800 grid grid-cols-2 gap-4">
-                            <div className="text-center">
-                                <span className="text-xs font-black text-gray-900 dark:text-gray-100">{attendance.length}</span>
-                                <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mt-1">Total Hari</p>
+                        <div className="relative h-40 w-40 my-4">
+                            <svg className="h-full w-full rotate-[-90deg]" viewBox="0 0 36 36">
+                                <circle
+                                    cx="18" cy="18" r="15.9155"
+                                    className="stroke-neutral-200 fill-none"
+                                    strokeWidth="2"
+                                />
+                                <circle
+                                    cx="18" cy="18" r="15.9155"
+                                    className="stroke-ink fill-none transition-all duration-1000"
+                                    strokeWidth="4"
+                                    strokeDasharray={`${stats.totalRate}, 100`}
+                                />
+                            </svg>
+                            <div className="absolute inset-0 flex flex-col items-center justify-center bg-white m-3 rounded-full border-2 border-ink">
+                                <span className="text-4xl font-serif font-black text-ink tracking-tighter leading-none">{stats.totalRate}<span className="text-xl">%</span></span>
+                                <span className="font-mono text-[8px] font-black text-ink/60 uppercase tracking-[0.2em] mt-1">Active</span>
                             </div>
-                            <div className="text-center border-l border-gray-50 dark:border-gray-800">
-                                <span className="text-xs font-black text-gray-900 dark:text-gray-100">{stats.hadir}</span>
-                                <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mt-1">Aktif</p>
+                        </div>
+
+                        <div className="w-full pt-6 border-t-2 border-ink grid grid-cols-2 mt-4 relative">
+                            <div className="text-center border-r-2 border-ink">
+                                <span className="text-3xl font-mono font-black text-ink">{attendance.length}</span>
+                                <p className="font-mono text-[9px] font-bold text-ink/60 uppercase tracking-widest mt-1">Logged Days</p>
+                            </div>
+                            <div className="text-center bg-ink text-paper -m-8 ml-0 -mt-0 py-6 pr-6 pl-4 flex flex-col justify-center items-center">
+                                <span className="text-3xl font-mono font-black">{stats.hadir}</span>
+                                <p className="font-mono text-[9px] font-bold uppercase tracking-widest mt-1 opacity-80">Present</p>
                             </div>
                         </div>
                     </div>
 
                     {/* Info Card */}
-                    <div className="bg-gradient-to-br from-indigo-600 to-blue-700 p-8 rounded-[2.5rem] shadow-xl shadow-blue-200 dark:shadow-black/20 text-white relative overflow-hidden group">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-700" />
+                    <div className="bg-newsprint-red p-8 border-2 border-ink shadow-[8px_8px_0px_0px_rgba(17,17,17,1)] text-white relative">
                         <div className="relative z-10">
-                            <div className="flex items-center space-x-3 mb-6">
-                                <div className="bg-white/20 p-2 rounded-xl backdrop-blur-md">
-                                    <Clock size={20} />
+                            <div className="flex items-center justify-between border-b-2 border-ink/30 pb-4 mb-6">
+                                <h4 className="font-serif text-2xl font-black uppercase tracking-tight">Report Absence</h4>
+                                <div className="border-2 border-ink bg-white p-2">
+                                    <Clock size={16} strokeWidth={2} className="text-ink" />
                                 </div>
-                                <span className="text-[10px] font-black uppercase tracking-widest">E-Presensi</span>
                             </div>
-                            <h4 className="text-2xl font-black leading-tight mb-4">Ingin Izin atau Sakit?</h4>
-                            <p className="text-blue-100 text-sm font-medium leading-relaxed mb-6 opacity-80">
-                                Pastikan Anda menginformasikan kepada wali kelas jika berhalangan hadir tepat waktu.
+                            <p className="font-mono text-xs font-bold leading-relaxed mb-8 opacity-90 border-l-2 border-white pl-4 uppercase tracking-widest">
+                                Must notify coordinator prior to 8:00 AM for valid excuse status.
                             </p>
-                            <button className="w-full bg-white dark:bg-gray-100 text-blue-600 font-black py-4 rounded-2xl shadow-lg transition-transform active:scale-95 uppercase tracking-widest text-xs">
-                                Hubungi Wali Kelas
+                            <button className="w-full border-2 border-ink bg-white text-ink hover:bg-ink hover:text-white font-mono font-black py-4 shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] hover:shadow-none active:translate-y-[4px] active:translate-x-[4px] transition-all uppercase tracking-widest text-[10px]">
+                                Contact Coordinator
                             </button>
                         </div>
                     </div>

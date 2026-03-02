@@ -80,32 +80,34 @@ export default function StudentGrades() {
     }
 
     return (
-        <div className="space-y-8 animate-in fade-in duration-500">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="space-y-8">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b-4 border-ink pb-6">
                 <div>
-                    <h1 className="text-3xl font-black text-gray-900 dark:text-gray-100 tracking-tight transition-all">Rapor Digital</h1>
-                    <div className="flex items-center space-x-2 mt-1">
-                        <p className="text-gray-500 dark:text-gray-400 font-medium">Tahun Akademik 2023/2024</p>
-                        <span className="text-gray-300 dark:text-gray-700">•</span>
-                        <select
-                            className="bg-transparent text-blue-600 dark:text-blue-400 font-bold outline-none cursor-pointer hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
-                            value={selectedSemester}
-                            onChange={(e) => setSelectedSemester(parseInt(e.target.value))}
-                        >
-                            <option value={1} className="dark:bg-gray-900">Semester Ganjil</option>
-                            <option value={2} className="dark:bg-gray-900">Semester Genap</option>
-                        </select>
+                    <h1 className="text-4xl font-serif font-black text-ink uppercase tracking-tighter leading-none mb-1">Academic Record</h1>
+                    <div className="flex items-center space-x-4 mt-4">
+                        <p className="font-mono text-[10px] uppercase tracking-widest opacity-60">Academic Year 2023/2024</p>
+                        <div className="border-2 border-ink p-1 bg-white relative">
+                            <span className="absolute -top-2 left-2 bg-paper px-1 text-[8px] font-mono font-bold uppercase tracking-widest text-ink">Term</span>
+                            <select
+                                className="appearance-none bg-transparent px-2 text-xs font-bold font-mono uppercase tracking-widest text-ink focus:outline-none cursor-pointer"
+                                value={selectedSemester}
+                                onChange={(e) => setSelectedSemester(parseInt(e.target.value))}
+                            >
+                                <option value={1}>TERM I (Odd)</option>
+                                <option value={2}>TERM II (Even)</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
                 {canPrint && (
                     <div className="flex space-x-3">
-                        <button className="flex items-center space-x-2 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 px-5 py-3 rounded-2xl font-bold border border-gray-100 dark:border-gray-700 shadow-sm transition-all active:scale-95">
-                            <Download size={18} className="text-blue-500 dark:text-blue-400" />
+                        <button className="flex items-center space-x-2 border-2 border-ink bg-white hover:bg-ink hover:text-paper px-4 py-2 font-mono text-[10px] font-bold uppercase tracking-widest transition-colors shadow-[2px_2px_0px_0px_rgba(17,17,17,1)] active:shadow-none active:translate-y-[2px] active:translate-x-[2px]">
+                            <Download size={14} strokeWidth={2} />
                             <span>PDF</span>
                         </button>
-                        <button className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-2xl font-bold shadow-lg shadow-blue-200 dark:shadow-black/20 transition-all active:scale-95">
-                            <Printer size={18} />
-                            <span>Cetak Rapor</span>
+                        <button className="flex items-center space-x-2 border-2 border-ink bg-newsprint-red text-white hover:bg-ink hover:text-paper px-6 py-2 font-mono text-[10px] font-bold uppercase tracking-widest transition-colors shadow-[2px_2px_0px_0px_rgba(17,17,17,1)] active:shadow-none active:translate-y-[2px] active:translate-x-[2px]">
+                            <Printer size={14} strokeWidth={2} />
+                            <span>Print Record</span>
                         </button>
                     </div>
                 )}
@@ -113,86 +115,93 @@ export default function StudentGrades() {
 
             {/* Summary Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-gradient-to-br from-indigo-600 to-blue-700 p-6 rounded-3xl text-white shadow-xl shadow-blue-100 dark:shadow-black/20 relative overflow-hidden">
+                <div className="border-2 border-ink bg-ink p-6 text-paper shadow-[4px_4px_0px_0px_rgba(204,0,0,1)] relative overflow-hidden group">
                     <div className="relative z-10">
-                        <p className="text-indigo-100 text-xs font-black uppercase tracking-widest opacity-80">Rata-rata Semester</p>
-                        <h2 className="text-5xl font-black mt-2">{average}</h2>
-                        <div className="mt-4 flex items-center text-xs font-bold bg-white/20 backdrop-blur-md w-fit px-3 py-1.5 rounded-full border border-white/30">
-                            <TrendingUp size={12} className="mr-1" />
-                            Nilai Akademik
+                        <p className="text-paper/60 font-mono text-[10px] font-black uppercase tracking-widest">Aggregate Average</p>
+                        <h2 className="text-6xl font-serif font-black mt-2 tracking-tighter">{average}</h2>
+                        <div className="mt-6 flex items-center font-mono text-[10px] font-bold border border-paper/20 w-fit px-3 py-1 uppercase tracking-widest">
+                            <TrendingUp size={12} className="mr-2" />
+                            Overall Performance
                         </div>
                     </div>
-                    <Award className="absolute -right-4 -bottom-4 text-white/10" size={140} />
+                    <div className="absolute -right-4 -bottom-4 text-paper/5 transition-transform group-hover:scale-110 duration-500">
+                        <svg width="180" height="180" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+                        </svg>
+                    </div>
                 </div>
 
-                <div className="bg-white dark:bg-gray-900 p-6 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm flex flex-col justify-between">
+                <div className="border-2 border-ink bg-white p-6 shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] flex flex-col justify-between newsprint-texture">
                     <div>
-                        <p className="text-gray-400 dark:text-gray-500 text-xs font-black uppercase tracking-widest">Matapel Tuntas</p>
-                        <h2 className="text-3xl font-black text-gray-900 dark:text-gray-100 mt-2">{passedCount} / {grades.length}</h2>
+                        <p className="text-ink/60 font-mono text-[10px] font-black uppercase tracking-widest">Subjects Cleared</p>
+                        <h2 className="text-5xl font-mono font-black text-ink mt-2 tracking-tighter">{passedCount}<span className="text-2xl text-ink/40">/{grades.length}</span></h2>
                     </div>
-                    <div className="w-full bg-gray-100 dark:bg-gray-800 h-2 rounded-full mt-4 overflow-hidden">
+                    <div className="w-full border-2 border-ink h-4 mt-6 p-0.5 bg-paper">
                         <div
-                            className="bg-emerald-500 h-full rounded-full shadow-lg shadow-emerald-100 dark:shadow-black/20"
+                            className="bg-ink h-full transition-all duration-1000 ease-out"
                             style={{ width: grades.length > 0 ? `${(passedCount / grades.length) * 100}%` : '0%' }}
                         />
                     </div>
                 </div>
 
-                <div className="bg-white dark:bg-gray-900 p-6 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm flex flex-col justify-between">
+                <div className="border-2 border-ink bg-paper p-6 shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] flex flex-col justify-between">
                     <div>
-                        <p className="text-gray-400 dark:text-gray-500 text-xs font-black uppercase tracking-widest">Predikat Umum</p>
-                        <h2 className="text-3xl font-black text-blue-600 dark:text-blue-400 mt-2 tracking-tight">
-                            {average >= 90 ? 'Sangat Baik (A)' :
-                                average >= 80 ? 'Baik (B)' :
-                                    average >= 75 ? 'Cukup (C)' : 'Kurang (D)'}
+                        <p className="text-ink/60 font-mono text-[10px] font-black uppercase tracking-widest">Academic Standing</p>
+                        <h2 className="text-4xl font-serif font-black text-ink mt-4 uppercase leading-none">
+                            {average >= 90 ? 'Excellent' :
+                                average >= 80 ? 'Good' :
+                                    average >= 75 ? 'Satisfactory' : 'Probation'}
                         </h2>
                     </div>
-                    <p className="text-gray-400 dark:text-gray-500 text-[10px] font-bold mt-4 uppercase tracking-[0.2em]">Berdasarkan Rata-rata</p>
+                    <p className="font-mono text-[9px] font-bold mt-6 uppercase tracking-[0.2em] border-t-2 border-ink pt-2">Based on aggregate score</p>
                 </div>
             </div>
 
             {/* Grades Table */}
-            <div className="bg-white dark:bg-gray-900 rounded-[2rem] border border-gray-100 dark:border-gray-800 shadow-xl overflow-hidden">
+            <div className="border-2 border-ink bg-white shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                         <thead>
-                            <tr className="bg-gray-50 dark:bg-gray-800/50 border-b border-gray-100 dark:border-gray-800">
-                                <th className="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 dark:text-gray-500">Mata Pelajaran</th>
-                                <th className="px-6 py-6 text-center text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 dark:text-gray-500">KKM</th>
-                                <th className="px-6 py-6 text-center text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 dark:text-gray-500">Tugas</th>
-                                <th className="px-6 py-6 text-center text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 dark:text-gray-500">UTS</th>
-                                <th className="px-6 py-6 text-center text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 dark:text-gray-500">UAS</th>
-                                <th className="px-8 py-6 text-center text-[10px] font-black uppercase tracking-[0.2em] text-blue-600 dark:text-blue-400 bg-blue-50/50 dark:bg-blue-900/20">Nilai Akhir</th>
+                            <tr className="bg-ink text-paper font-mono text-[10px] uppercase tracking-widest border-b-2 border-ink">
+                                <th className="p-4 border-r border-paper/20">Course Descriptor</th>
+                                <th className="p-4 border-r border-paper/20 text-center">Threshold</th>
+                                <th className="p-4 border-r border-paper/20 text-center">Assign</th>
+                                <th className="p-4 border-r border-paper/20 text-center">Mid</th>
+                                <th className="p-4 border-r border-paper/20 text-center">Final</th>
+                                <th className="p-4 text-center bg-paper text-ink border-l border-ink">Term Grade</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-50 dark:divide-gray-800">
+                        <tbody className="divide-y-2 divide-ink">
                             {grades.length === 0 ? (
                                 <tr>
-                                    <td colSpan="6" className="px-8 py-10 text-center text-gray-500 dark:text-gray-400 font-bold">
-                                        Belum ada data nilai yang tersedia.
+                                    <td colSpan="6" className="p-12 text-center text-ink/60 font-serif italic text-lg">
+                                        No academic records available for this term.
                                     </td>
                                 </tr>
                             ) : (
                                 grades.map((sub) => (
-                                    <tr key={sub.id} className="group hover:bg-gray-50/50 dark:hover:bg-gray-800/50 transition-colors">
-                                        <td className="px-8 py-6">
+                                    <tr key={sub.id} className="hover:bg-neutral-50 transition-colors">
+                                        <td className="p-4 border-r border-ink">
                                             <div className="flex items-center space-x-4">
-                                                <div className={`p-3 rounded-2xl bg-gray-50 dark:bg-gray-800 group-hover:bg-white dark:group-hover:bg-gray-700 transition-colors border border-transparent group-hover:border-gray-100 dark:group-hover:border-gray-600`}>
-                                                    <BookOpen size={20} className="text-blue-500 dark:text-blue-400" />
+                                                <div className="p-2 border-2 border-ink bg-white">
+                                                    <BookOpen size={16} strokeWidth={2} />
                                                 </div>
-                                                <span className="text-sm font-black text-gray-900 dark:text-gray-100 leading-tight">{sub.name}</span>
+                                                <span className="font-serif font-black text-lg text-ink leading-tight">{sub.name}</span>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-6 text-center">
-                                            <span className="text-sm font-bold text-gray-400 dark:text-gray-500">{sub.kkm}</span>
+                                        <td className="p-4 border-r border-ink text-center">
+                                            <span className="font-mono text-sm text-ink/60">{sub.kkm}</span>
                                         </td>
-                                        <td className="px-6 py-6 text-center text-sm font-bold text-gray-600 dark:text-gray-400">{sub.tugas}</td>
-                                        <td className="px-6 py-6 text-center text-sm font-bold text-gray-600 dark:text-gray-400">{sub.uts}</td>
-                                        <td className="px-6 py-6 text-center text-sm font-bold text-gray-600 dark:text-gray-400">{sub.uas}</td>
-                                        <td className="px-8 py-6 text-center bg-blue-50/20 dark:bg-blue-900/10">
-                                            <span className={`text-xl font-black ${sub.final < sub.kkm ? 'text-red-600 dark:text-red-400' : 'text-blue-600 dark:text-blue-400'}`}>
+                                        <td className="p-4 border-r border-ink text-center font-mono font-bold text-lg">{sub.tugas}</td>
+                                        <td className="p-4 border-r border-ink text-center font-mono font-bold text-lg">{sub.uts}</td>
+                                        <td className="p-4 border-r border-ink text-center font-mono font-bold text-lg">{sub.uas}</td>
+                                        <td className="p-4 text-center bg-neutral-100">
+                                            <span className={`font-mono text-3xl font-black ${sub.final < sub.kkm ? 'text-newsprint-red' : 'text-ink'}`}>
                                                 {sub.final}
                                             </span>
+                                            {sub.final < sub.kkm && (
+                                                <p className="text-[8px] font-mono font-black text-newsprint-red uppercase tracking-widest mt-1">FAIL</p>
+                                            )}
                                         </td>
                                     </tr>
                                 ))

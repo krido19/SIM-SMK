@@ -4,33 +4,33 @@ import { ArrowUpRight, ChevronRight } from 'lucide-react';
 
 const StatCard = ({ title, value, icon: Icon, trend, color, to }) => {
     const Content = () => (
-        <>
-            <div className={`absolute -right-4 -top-4 w-24 h-24 rounded-full opacity-5 group-hover:scale-150 transition-transform ${color}`} />
-            <div className="flex items-start justify-between relative z-10">
-                <div className={`p-4 rounded-2xl ${color.replace('bg-', 'bg-').replace('600', '50')} dark:bg-gray-800 dark:bg-opacity-50 ${color.replace('bg-', 'text-')} dark:text-blue-400`}>
-                    <Icon size={24} />
+        <div className="relative h-full flex flex-col">
+            <div className="flex items-start justify-between relative z-10 border-b border-ink/10 pb-4 mb-4">
+                <div className="p-3 border-2 border-ink bg-white shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">
+                    <Icon size={20} className="text-ink" strokeWidth={1.5} />
                 </div>
                 {trend && (
-                    <div className={`flex items-center space-x-1 text-xs font-black ${trend.startsWith('+') ? 'text-emerald-500' : 'text-red-500'}`}>
-                        <span>{trend}</span>
-                        <ArrowUpRight size={14} className={trend.startsWith('-') ? 'rotate-90' : ''} />
+                    <div className={`p-1.5 border border-ink text-[10px] font-mono font-bold uppercase tracking-widest ${trend.startsWith('+') ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
+                        {trend}
                     </div>
                 )}
             </div>
-            <div className="mt-6 relative z-10">
-                <h3 className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em]">{title}</h3>
-                <p className="text-4xl font-black text-gray-900 dark:text-gray-100 mt-1">{value}</p>
+
+            <div className="mt-auto">
+                <h3 className="text-[10px] font-mono font-bold text-ink/40 uppercase tracking-[0.2em] mb-1">{title}</h3>
+                <p className="text-5xl font-serif font-black text-ink tracking-tighter leading-none">{value}</p>
             </div>
+
             {to && (
-                <div className="mt-4 flex items-center text-[10px] font-black uppercase tracking-widest text-blue-600 dark:text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <span>Lihat Detail</span>
+                <div className="mt-6 flex items-center border-t border-ink/10 pt-4 text-[10px] font-mono font-bold uppercase tracking-widest text-ink group-hover:text-newsprint-red transition-colors">
+                    <span>Access Detailed Log</span>
                     <ChevronRight size={12} className="ml-1" />
                 </div>
             )}
-        </>
+        </div>
     );
 
-    const classes = "bg-white dark:bg-gray-900 p-6 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-xl dark:shadow-black/20 transition-all group overflow-hidden relative text-left w-full";
+    const classes = "bg-paper p-6 border-2 border-ink shadow-[6px_6px_0px_0px_rgba(17,17,17,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all group relative text-left w-full h-full min-h-[180px]";
 
     if (to) {
         return (
