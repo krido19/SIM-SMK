@@ -75,6 +75,7 @@ function App() {
                   <Route path="/teacher/grades" element={<GradeEntry />} />
                   <Route path="/teacher/attendance" element={<AttendanceEntry />} />
                   <Route path="/teacher/assignments" element={<Assignments />} />
+                  <Route path="/teacher/announcements" element={<Announcements />} />
 
                   {/* Student/Parent Routes */}
                   <Route path="/student/grades" element={<StudentGrades />} />

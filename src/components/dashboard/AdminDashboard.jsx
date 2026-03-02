@@ -31,7 +31,7 @@ const AdminDashboard = () => {
                 totalStudents: std.count || 0,
                 totalTeachers: tea.count || 0,
                 totalSubjects: sub.count || 0,
-                avgGrade: 84.2
+                avgGrade: 84.2 // Placeholder as calculating true average across all grades requires a complex query
             });
         } catch (error) {
             console.error('Error fetching admin dashboard data:', error);
@@ -75,22 +75,22 @@ const AdminDashboard = () => {
         }
     };
 
-    if (isLoading) return <div className="animate-pulse font-mono text-[10px] uppercase">Compiling Statistics...</div>;
+    if (isLoading) return <div className="animate-pulse font-mono text-[10px] uppercase">Memuat Statistik...</div>;
 
     return (
         <div className="space-y-12">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                <StatCard title="Total Enrollment" value={stats.totalStudents.toLocaleString()} icon={Users} trend="+12%" />
-                <StatCard title="Active Faculty" value={stats.totalTeachers.toString()} icon={UserCircle} />
-                <StatCard title="Course Catalog" value={stats.totalSubjects.toString()} icon={BookOpen} />
-                <StatCard title="District Avg" value={stats.avgGrade.toString()} icon={TrendingUp} trend="+2.4%" />
+                <StatCard title="Total Siswa" value={stats.totalStudents.toLocaleString()} icon={Users} trend="+12%" />
+                <StatCard title="Guru Aktif" value={stats.totalTeachers.toString()} icon={UserCircle} />
+                <StatCard title="Mata Pelajaran" value={stats.totalSubjects.toString()} icon={BookOpen} />
+                <StatCard title="Rata-Rata Nilai" value={stats.avgGrade.toString()} icon={TrendingUp} trend="+2.4%" />
             </div>
 
             <AnalyticsChart
-                title="System-Wide Attendance"
-                subtitle="Percentage of active daily attendance across all sections"
+                title="Kehadiran Seluruh Sistem"
+                subtitle="Persentase kehadiran harian aktif dari semua kelas"
                 data={attendanceData}
-                labels={['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']}
+                labels={['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab']}
             />
         </div>
     );

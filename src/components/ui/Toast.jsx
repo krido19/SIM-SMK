@@ -12,10 +12,10 @@ const Toast = ({ show, message, type, onClose }) => {
     };
 
     const headerText = {
-        success: 'OFFICIAL RECORD',
-        error: 'URGENT NOTICE',
-        warning: 'ADVISORY ALERT',
-        info: 'SYSTEM DISPATCH'
+        success: 'BERHASIL',
+        error: 'PEMBERITAHUAN PENTING',
+        warning: 'PERINGATAN',
+        info: 'INFORMASI SISTEM'
     };
 
     return (
@@ -52,7 +52,7 @@ const Toast = ({ show, message, type, onClose }) => {
                     <div className="flex flex-col flex-1 pr-2 relative z-10">
                         <span className="font-serif font-black text-lg leading-tight uppercase tracking-tight">{message}</span>
                         <span className="font-mono text-[8px] font-bold uppercase tracking-widest mt-2 pt-2 border-t border-current opacity-60">
-                            ID: {Math.random().toString(36).substring(2, 8).toUpperCase()} - {new Date().toLocaleTimeString('en-US', { hour12: false })}
+                            ID: {Math.random().toString(36).substring(2, 8).toUpperCase()} - {new Date().toLocaleTimeString('id-ID', { hour12: false })}
                         </span>
                     </div>
                 </div>

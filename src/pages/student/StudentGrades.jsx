@@ -76,25 +76,25 @@ export default function StudentGrades() {
     };
 
     if (loading) {
-        return <div className="p-8 text-center text-gray-500 dark:text-gray-400 font-bold">Loading data nilai...</div>;
+        return <div className="p-8 text-center font-mono text-[10px] uppercase tracking-widest bg-paper border-2 border-ink shadow-[4px_4px_0px_0px_#111111] animate-pulse font-bold text-ink">Memuat data nilai...</div>;
     }
 
     return (
         <div className="space-y-8">
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b-4 border-ink pb-6">
                 <div>
-                    <h1 className="text-4xl font-serif font-black text-ink uppercase tracking-tighter leading-none mb-1">Academic Record</h1>
+                    <h1 className="text-4xl font-serif font-black text-ink uppercase tracking-tighter leading-none mb-1">Rapor Nilai</h1>
                     <div className="flex items-center space-x-4 mt-4">
-                        <p className="font-mono text-[10px] uppercase tracking-widest opacity-60">Academic Year 2023/2024</p>
+                        <p className="font-mono text-[10px] uppercase tracking-widest opacity-60">Tahun Ajaran 2023/2024</p>
                         <div className="border-2 border-ink p-1 bg-white relative">
-                            <span className="absolute -top-2 left-2 bg-paper px-1 text-[8px] font-mono font-bold uppercase tracking-widest text-ink">Term</span>
+                            <span className="absolute -top-2 left-2 bg-paper px-1 text-[8px] font-mono font-bold uppercase tracking-widest text-ink">Semester</span>
                             <select
                                 className="appearance-none bg-transparent px-2 text-xs font-bold font-mono uppercase tracking-widest text-ink focus:outline-none cursor-pointer"
                                 value={selectedSemester}
                                 onChange={(e) => setSelectedSemester(parseInt(e.target.value))}
                             >
-                                <option value={1}>TERM I (Odd)</option>
-                                <option value={2}>TERM II (Even)</option>
+                                <option value={1}>SEMESTER I (Ganjil)</option>
+                                <option value={2}>SEMESTER II (Genap)</option>
                             </select>
                         </div>
                     </div>
@@ -107,7 +107,7 @@ export default function StudentGrades() {
                         </button>
                         <button className="flex items-center space-x-2 border-2 border-ink bg-newsprint-red text-white hover:bg-ink hover:text-paper px-6 py-2 font-mono text-[10px] font-bold uppercase tracking-widest transition-colors shadow-[2px_2px_0px_0px_rgba(17,17,17,1)] active:shadow-none active:translate-y-[2px] active:translate-x-[2px]">
                             <Printer size={14} strokeWidth={2} />
-                            <span>Print Record</span>
+                            <span>Cetak Rapor</span>
                         </button>
                     </div>
                 )}
@@ -117,11 +117,11 @@ export default function StudentGrades() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="border-2 border-ink bg-ink p-6 text-paper shadow-[4px_4px_0px_0px_rgba(204,0,0,1)] relative overflow-hidden group">
                     <div className="relative z-10">
-                        <p className="text-paper/60 font-mono text-[10px] font-black uppercase tracking-widest">Aggregate Average</p>
+                        <p className="text-paper/60 font-mono text-[10px] font-black uppercase tracking-widest">Rata-Rata Nilai</p>
                         <h2 className="text-6xl font-serif font-black mt-2 tracking-tighter">{average}</h2>
                         <div className="mt-6 flex items-center font-mono text-[10px] font-bold border border-paper/20 w-fit px-3 py-1 uppercase tracking-widest">
                             <TrendingUp size={12} className="mr-2" />
-                            Overall Performance
+                            Performa Keseluruhan
                         </div>
                     </div>
                     <div className="absolute -right-4 -bottom-4 text-paper/5 transition-transform group-hover:scale-110 duration-500">
@@ -133,7 +133,7 @@ export default function StudentGrades() {
 
                 <div className="border-2 border-ink bg-white p-6 shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] flex flex-col justify-between newsprint-texture">
                     <div>
-                        <p className="text-ink/60 font-mono text-[10px] font-black uppercase tracking-widest">Subjects Cleared</p>
+                        <p className="text-ink/60 font-mono text-[10px] font-black uppercase tracking-widest">Mapel Tuntas</p>
                         <h2 className="text-5xl font-mono font-black text-ink mt-2 tracking-tighter">{passedCount}<span className="text-2xl text-ink/40">/{grades.length}</span></h2>
                     </div>
                     <div className="w-full border-2 border-ink h-4 mt-6 p-0.5 bg-paper">
@@ -146,14 +146,14 @@ export default function StudentGrades() {
 
                 <div className="border-2 border-ink bg-paper p-6 shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] flex flex-col justify-between">
                     <div>
-                        <p className="text-ink/60 font-mono text-[10px] font-black uppercase tracking-widest">Academic Standing</p>
+                        <p className="text-ink/60 font-mono text-[10px] font-black uppercase tracking-widest">Status Akademik</p>
                         <h2 className="text-4xl font-serif font-black text-ink mt-4 uppercase leading-none">
-                            {average >= 90 ? 'Excellent' :
-                                average >= 80 ? 'Good' :
-                                    average >= 75 ? 'Satisfactory' : 'Probation'}
+                            {average >= 90 ? 'Sangat Baik' :
+                                average >= 80 ? 'Baik' :
+                                    average >= 75 ? 'Cukup' : 'Perlu Perbaikan'}
                         </h2>
                     </div>
-                    <p className="font-mono text-[9px] font-bold mt-6 uppercase tracking-[0.2em] border-t-2 border-ink pt-2">Based on aggregate score</p>
+                    <p className="font-mono text-[9px] font-bold mt-6 uppercase tracking-[0.2em] border-t-2 border-ink pt-2">Berdasarkan nilai keseluruhan</p>
                 </div>
             </div>
 
@@ -163,19 +163,19 @@ export default function StudentGrades() {
                     <table className="w-full text-left border-collapse">
                         <thead>
                             <tr className="bg-ink text-paper font-mono text-[10px] uppercase tracking-widest border-b-2 border-ink">
-                                <th className="p-4 border-r border-paper/20">Course Descriptor</th>
-                                <th className="p-4 border-r border-paper/20 text-center">Threshold</th>
-                                <th className="p-4 border-r border-paper/20 text-center">Assign</th>
-                                <th className="p-4 border-r border-paper/20 text-center">Mid</th>
-                                <th className="p-4 border-r border-paper/20 text-center">Final</th>
-                                <th className="p-4 text-center bg-paper text-ink border-l border-ink">Term Grade</th>
+                                <th className="p-4 border-r border-paper/20">Mata Pelajaran</th>
+                                <th className="p-4 border-r border-paper/20 text-center">KKM</th>
+                                <th className="p-4 border-r border-paper/20 text-center">Tugas</th>
+                                <th className="p-4 border-r border-paper/20 text-center">UTS</th>
+                                <th className="p-4 border-r border-paper/20 text-center">UAS</th>
+                                <th className="p-4 text-center bg-paper text-ink border-l border-ink">Nilai Akhir</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y-2 divide-ink">
                             {grades.length === 0 ? (
                                 <tr>
                                     <td colSpan="6" className="p-12 text-center text-ink/60 font-serif italic text-lg">
-                                        No academic records available for this term.
+                                        Belum ada data nilai untuk semester ini.
                                     </td>
                                 </tr>
                             ) : (
@@ -200,7 +200,7 @@ export default function StudentGrades() {
                                                 {sub.final}
                                             </span>
                                             {sub.final < sub.kkm && (
-                                                <p className="text-[8px] font-mono font-black text-newsprint-red uppercase tracking-widest mt-1">FAIL</p>
+                                                <p className="text-[8px] font-mono font-black text-newsprint-red uppercase tracking-widest mt-1">BELUM TUNTAS</p>
                                             )}
                                         </td>
                                     </tr>

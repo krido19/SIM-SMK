@@ -94,58 +94,58 @@ export default function GeneralSettings() {
     if (isLoading) {
         return (
             <div className="h-96 flex items-center justify-center">
-                <Loader2 className="animate-spin text-blue-600" size={48} />
+                <Loader2 className="animate-spin text-ink" size={48} />
             </div>
         );
     }
 
     return (
         <div className="max-w-2xl mx-auto space-y-6 animate-in fade-in duration-500">
-            <div className="flex items-center space-x-4">
-                <div className="h-14 w-14 rounded-2xl bg-blue-50 dark:bg-gray-800 flex items-center justify-center text-blue-600 dark:text-blue-400 border-2 border-white dark:border-gray-700 shadow-sm transition-transform hover:scale-110">
+            <div className="flex items-center space-x-4 border-b-2 border-ink pb-6">
+                <div className="h-16 w-16 bg-paper border-2 border-ink flex items-center justify-center text-ink shadow-[4px_4px_0px_0px_#111111] transition-transform hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none">
                     <Settings size={28} />
                 </div>
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Pengaturan Umum</h1>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">Konfigurasi identitas aplikasi.</p>
+                    <h1 className="text-4xl font-black text-ink font-serif uppercase tracking-tight">PENGATURAN UMUM</h1>
+                    <p className="text-sm text-gray-600 font-mono uppercase tracking-widest mt-2 block">Konfigurasi Identitas Aplikasi.</p>
                 </div>
             </div>
 
-            <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 shadow-xl overflow-hidden">
+            <div className="bg-paper border-2 border-ink shadow-[8px_8px_0px_0px_#111111]">
                 <div className="p-8">
-                    <div className="bg-blue-50/50 dark:bg-blue-900/20 rounded-2xl p-4 flex items-start space-x-3 mb-8 border border-blue-100/50 dark:border-blue-900/40">
-                        <Info className="text-blue-600 dark:text-blue-400 mt-1 shrink-0" size={20} />
-                        <p className="text-sm text-blue-600 dark:text-blue-400 font-medium leading-relaxed">
-                            Nama dan Logo ini akan muncul di Sidebar Dashboard dan Halaman Login.
+                    <div className="bg-gray-50 border-2 border-ink p-4 flex items-start space-x-3 mb-8 shadow-[4px_4px_0px_0px_#111111]">
+                        <Info className="text-editorial mt-1 shrink-0" size={20} />
+                        <p className="text-sm text-ink font-mono font-bold leading-relaxed uppercase">
+                            NAMA DAN LOGO INI AKAN MUNCUL DI SIDEBAR DASHBOARD, HALAMAN CETAK, DAN HALAMAN LOGIN.
                         </p>
                     </div>
 
-                    <form onSubmit={handleSave} className="space-y-6">
+                    <form onSubmit={handleSave} className="space-y-8">
                         <div className="space-y-2">
-                            <label className="flex items-center space-x-2 text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] px-1">
-                                <GraduationCap size={12} />
-                                <span>Logo Sekolah</span>
+                            <label className="flex items-center space-x-2 text-[10px] font-mono font-bold text-ink uppercase tracking-widest px-1">
+                                <GraduationCap size={16} />
+                                <span>LOGO SEKOLAH</span>
                             </label>
                             <div className="relative group">
                                 {logoPreview ? (
-                                    <div className="relative h-32 w-32 rounded-3xl overflow-hidden border-4 border-white dark:border-gray-800 shadow-xl mx-auto">
-                                        <img src={logoPreview} className="w-full h-full object-cover" />
+                                    <div className="relative h-40 w-40 border-4 border-ink shadow-[8px_8px_0px_0px_#111111] mx-auto bg-gray-50 flex items-center justify-center p-4">
+                                        <img src={logoPreview} className="w-full h-full object-contain" />
                                         <button
                                             type="button"
                                             onClick={() => { setLogoPreview(null); setSchoolLogo('') }}
-                                            className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-lg hover:bg-red-600 shadow-lg transition-transform hover:scale-110 active:scale-95"
+                                            className="absolute -top-3 -right-3 p-2 bg-editorial text-paper border-2 border-ink shadow-[2px_2px_0px_0px_#111111] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all"
                                         >
-                                            <Settings size={14} />
+                                            <Settings size={16} />
                                         </button>
                                     </div>
                                 ) : (
-                                    <label className="flex flex-col items-center justify-center h-32 w-32 rounded-3xl border-2 border-dashed border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 hover:bg-white dark:hover:bg-gray-800 hover:border-blue-500 transition-all cursor-pointer group mx-auto">
+                                    <label className="flex flex-col items-center justify-center h-40 w-40 border-2 border-dashed border-ink bg-gray-50 hover:bg-paper hover:shadow-[4px_4px_0px_0px_#111111] transition-all cursor-pointer group mx-auto">
                                         <div className="flex flex-col items-center justify-center">
-                                            <div className="p-2 bg-white dark:bg-gray-900 rounded-xl shadow-sm mb-2 group-hover:scale-110 transition-transform">
-                                                {isUploading ? <Loader2 className="animate-spin text-blue-600" size={16} /> : <Settings className="text-gray-400 group-hover:text-blue-600" size={16} />}
+                                            <div className="p-3 bg-paper border-2 border-ink shadow-[2px_2px_0px_0px_#111111] mb-3 group-hover:scale-110 transition-transform">
+                                                {isUploading ? <Loader2 className="animate-spin text-ink" size={20} /> : <Settings className="text-ink" size={20} />}
                                             </div>
-                                            <p className="text-[8px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">
-                                                {isUploading ? '...' : 'Upload Logo'}
+                                            <p className="text-[10px] font-mono font-bold text-ink uppercase tracking-widest">
+                                                {isUploading ? 'PROSES...' : 'UNGGAH LOGO'}
                                             </p>
                                         </div>
                                         <input type="file" className="hidden" accept="image/*" onChange={handleLogoUpload} disabled={isUploading} />
@@ -155,15 +155,15 @@ export default function GeneralSettings() {
                         </div>
 
                         <div className="space-y-2">
-                            <label className="flex items-center space-x-2 text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] px-1">
-                                <GraduationCap size={12} />
-                                <span>Nama Sekolah / Aplikasi</span>
+                            <label className="flex items-center space-x-2 text-[10px] font-mono font-bold text-ink uppercase tracking-widest px-1">
+                                <GraduationCap size={16} />
+                                <span>NAMA SEKOLAH / APLIKASI</span>
                             </label>
                             <input
                                 required
                                 type="text"
-                                className="w-full bg-gray-50 dark:bg-gray-800 border-transparent focus:bg-white dark:focus:bg-gray-800 focus:border-blue-500 rounded-3xl px-6 py-5 font-bold text-gray-700 dark:text-gray-200 outline-none transition-all border-2"
-                                placeholder="Contoh: SIM SMKN 4"
+                                className="w-full bg-paper border-2 border-ink focus:bg-gray-50 focus:shadow-[4px_4px_0px_0px_#111111] px-6 py-5 font-mono font-bold text-ink text-lg uppercase outline-none transition-all"
+                                placeholder="CONTOH: SIM SMKN 4"
                                 value={schoolName}
                                 onChange={(e) => setSchoolName(e.target.value)}
                             />
@@ -172,10 +172,10 @@ export default function GeneralSettings() {
                         <button
                             type="submit"
                             disabled={isSaving}
-                            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-5 rounded-3xl shadow-xl shadow-blue-100 transition-all flex items-center justify-center space-x-2 active:scale-95 disabled:opacity-50"
+                            className="w-full bg-ink hover:bg-paper text-paper hover:text-ink font-mono font-bold py-5 border-2 border-ink shadow-[8px_8px_0px_0px_#111111] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[4px_4px_0px_0px_#111111] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none transition-all flex items-center justify-center space-x-3 disabled:opacity-50"
                         >
-                            {isSaving ? <Loader2 className="animate-spin" size={20} /> : <Save size={20} />}
-                            <span className="uppercase tracking-widest text-xs">Simpan Perubahan</span>
+                            {isSaving ? <Loader2 className="animate-spin" size={24} /> : <Save size={24} />}
+                            <span className="uppercase tracking-widest text-sm">SIMPAN PERUBAHAN</span>
                         </button>
                     </form>
                 </div>

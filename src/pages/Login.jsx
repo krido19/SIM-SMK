@@ -126,33 +126,33 @@ export default function Login() {
                 <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
 
                 <div className="relative z-10 flex justify-between items-start border-b-2 border-paper/30 pb-4">
-                    <span className="font-mono text-[10px] uppercase tracking-[0.3em]">Volume I - Issue No. {new Date().getDate()}</span>
-                    <span className="font-mono text-[10px] uppercase tracking-[0.3em] font-bold">{new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                    <span className="font-mono text-[10px] uppercase tracking-[0.3em]">Volume I - Edisi No. {new Date().getDate()}</span>
+                    <span className="font-mono text-[10px] uppercase tracking-[0.3em] font-bold">{new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
                 </div>
 
                 <div className="relative z-10 flex flex-col justify-center flex-1 my-12">
                     <h1 className="text-8xl xl:text-9xl font-serif font-black uppercase tracking-tighter leading-[0.85] mb-8">
-                        The<br />Daily<br />Ledger.
+                        Sistem<br />Informasi<br />Sekolah.
                     </h1>
                     <div className="border-l-4 border-newsprint-red pl-6 py-2">
                         <p className="font-mono text-sm uppercase tracking-widest leading-relaxed max-w-md text-paper/80 font-bold">
-                            Official Academic Information System for {schoolName}. Authenticated access required for entry.
+                            Sistem Informasi Akademik Resmi untuk {schoolName}. Diperlukan autentikasi untuk mengakses.
                         </p>
                     </div>
                 </div>
 
                 <div className="relative z-10 grid grid-cols-3 gap-8 py-6 border-t-2 border-paper/30 font-mono text-[10px] uppercase tracking-widest text-paper/60">
                     <div>
-                        <p className="font-bold text-paper mb-1">Students</p>
-                        <p>Academic Records & Schedules</p>
+                        <p className="font-bold text-paper mb-1">Siswa</p>
+                        <p>Data Akademik & Jadwal</p>
                     </div>
                     <div>
-                        <p className="font-bold text-paper mb-1">Faculty</p>
-                        <p>Grading & Attendance Management</p>
+                        <p className="font-bold text-paper mb-1">Guru</p>
+                        <p>Penilaian & Manajemen Absensi</p>
                     </div>
                     <div>
-                        <p className="font-bold text-paper mb-1">Administration</p>
-                        <p>System Oversight & Configurations</p>
+                        <p className="font-bold text-paper mb-1">Administrasi</p>
+                        <p>Pengawasan Sistem & Konfigurasi</p>
                     </div>
                 </div>
             </div>
@@ -172,16 +172,16 @@ export default function Login() {
                     {/* Mobile Header */}
                     <div className="lg:hidden text-center mb-12 border-b-4 border-ink pb-6">
                         <h1 className="text-5xl font-serif font-black uppercase tracking-tighter leading-none mb-4">
-                            The Ledger.
+                            SIM SMK.
                         </h1>
                         <p className="font-mono text-[10px] uppercase tracking-widest font-bold">
-                            {schoolName} • Information System
+                            {schoolName} • Sistem Informasi
                         </p>
                     </div>
 
                     <div className="bg-white border-2 border-ink shadow-[12px_12px_0px_0px_rgba(17,17,17,1)] relative">
                         <div className="bg-ink text-paper p-4 flex justify-between items-center border-b-2 border-ink">
-                            <h2 className="font-mono font-black uppercase tracking-widest text-sm">Authentication Portal</h2>
+                            <h2 className="font-mono font-black uppercase tracking-widest text-sm">Portal Masuk</h2>
                             <div className="w-2 h-2 bg-newsprint-red rounded-full animate-pulse" />
                         </div>
 
@@ -196,7 +196,7 @@ export default function Login() {
 
                                 <div className="space-y-2">
                                     <label htmlFor="email" className="block text-[10px] font-mono font-black text-ink uppercase tracking-[0.2em]">
-                                        Identification (Email/NIS/NIP)
+                                        Identitas (Email/NIS/NIP)
                                     </label>
                                     <input
                                         id="email"
@@ -205,13 +205,13 @@ export default function Login() {
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
                                         className="w-full px-4 py-3 bg-neutral-50 border-2 border-ink focus:bg-white focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2 transition-all font-mono font-bold text-ink placeholder:text-ink/30"
-                                        placeholder="Enter ID..."
+                                        placeholder="Masukkan ID..."
                                     />
                                 </div>
 
                                 <div className="space-y-2">
                                     <label htmlFor="password" className="block text-[10px] font-mono font-black text-ink uppercase tracking-[0.2em]">
-                                        Passcode
+                                        Kata Sandi
                                     </label>
                                     <div className="relative">
                                         <input
@@ -241,10 +241,10 @@ export default function Login() {
                                     {loading ? (
                                         <>
                                             <Loader2 className="animate-spin" size={18} strokeWidth={3} />
-                                            <span>Verifying...</span>
+                                            <span>Memverifikasi...</span>
                                         </>
                                     ) : (
-                                        <span>Authorize Access</span>
+                                        <span>Masuk</span>
                                     )}
                                 </button>
                             </form>
@@ -254,22 +254,22 @@ export default function Login() {
                     {/* Guidelines */}
                     <div className="mt-12">
                         <div className="flex items-center justify-between border-b-2 border-ink pb-2 mb-6">
-                            <h3 className="font-serif font-black text-ink uppercase text-sm tracking-tight">Access Guidelines</h3>
+                            <h3 className="font-serif font-black text-ink uppercase text-sm tracking-tight">Panduan Akses</h3>
                             <span className="font-mono text-[8px] uppercase tracking-widest text-ink/60">Ref: IDX-001</span>
                         </div>
 
                         <div className="grid grid-cols-1 gap-4 font-mono text-[10px] uppercase tracking-widest text-ink/80">
                             <div className="flex border-l-2 border-ink pl-4 py-1">
-                                <span className="w-16 font-black text-ink shrink-0">Faculty:</span>
-                                <span>Use Official NIP or valid email format.</span>
+                                <span className="w-16 font-black text-ink shrink-0">Guru:</span>
+                                <span>Gunakan NIP resmi atau format email valid.</span>
                             </div>
                             <div className="flex border-l-2 border-ink pl-4 py-1">
-                                <span className="w-16 font-black text-ink shrink-0">Student:</span>
-                                <span>Use officially assigned numeric NIS.</span>
+                                <span className="w-16 font-black text-ink shrink-0">Siswa:</span>
+                                <span>Gunakan NIS numerik yang telah ditetapkan.</span>
                             </div>
                             <div className="flex border-l-2 border-newsprint-red pl-4 py-1">
-                                <span className="w-16 font-black text-newsprint-red shrink-0">Parent:</span>
-                                <span>Prefix 'OT' to Student NIS (e.g. OT2023001).</span>
+                                <span className="w-16 font-black text-newsprint-red shrink-0">Ortu:</span>
+                                <span>Awali dengan 'OT' + NIS siswa (cth: OT2023001).</span>
                             </div>
                         </div>
                     </div>

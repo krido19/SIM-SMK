@@ -7,9 +7,9 @@ const Announcements = ({ announcements }) => {
             <div className="flex items-center justify-between mb-8 border-b-2 border-ink pb-4">
                 <div className="flex items-center gap-3">
                     <Newspaper size={20} className="text-ink" strokeWidth={1.5} />
-                    <h3 className="text-xl font-serif font-black text-ink uppercase tracking-tight">Public Notices</h3>
+                    <h3 className="text-xl font-serif font-black text-ink uppercase tracking-tight">Pengumuman Terbaru</h3>
                 </div>
-                <div className="text-[10px] font-mono font-bold uppercase opacity-30">Archive No. {announcements.length}</div>
+                <div className="text-[10px] font-mono font-bold uppercase opacity-30">Arsip No. {announcements.length}</div>
             </div>
 
             <div className="space-y-8 flex-1">
@@ -23,18 +23,18 @@ const Announcements = ({ announcements }) => {
                             {news.title}
                         </h4>
                         <p className="text-[11px] font-body text-ink/60 mt-2 line-clamp-2 leading-relaxed">
-                            {news.content || "Details available in the full publication record."}
+                            {news.content || "Detail tersedia di catatan publikasi lengkap."}
                         </p>
                     </div>
                 )) : (
                     <div className="py-12 text-center border-2 border-dashed border-ink/10">
-                        <p className="text-ink/30 font-serif italic text-sm">No recent dispatches found.</p>
+                        <p className="text-ink/30 font-serif italic text-sm">Belum ada pengumuman terbaru.</p>
                     </div>
                 )}
             </div>
 
             <button className="mt-8 w-full py-3 border-2 border-ink font-sans font-bold text-[10px] uppercase tracking-[0.2em] bg-white hover:bg-ink hover:text-paper transition-all flex items-center justify-center space-x-2 group shadow-[3px_3px_0px_0px_rgba(17,17,17,1)] active:shadow-none active:translate-x-[2px] active:translate-y-[2px]">
-                <span>Browse Full Gazette</span>
+                <span>Lihat Semua Pengumuman</span>
                 <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
             </button>
         </div>

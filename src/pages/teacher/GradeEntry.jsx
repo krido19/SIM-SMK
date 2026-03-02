@@ -122,8 +122,8 @@ export default function GradeEntry() {
         <div className="space-y-6">
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b-4 border-ink pb-6">
                 <div>
-                    <h1 className="text-4xl font-serif font-black text-ink uppercase tracking-tighter leading-none mb-1">Gradebook Ledger</h1>
-                    <p className="font-mono text-[10px] uppercase tracking-widest opacity-60">Official Academic Records Entry</p>
+                    <h1 className="text-4xl font-serif font-black text-ink uppercase tracking-tighter leading-none mb-1">Buku Nilai</h1>
+                    <p className="font-mono text-[10px] uppercase tracking-widest opacity-60">Entri Data Nilai Resmi</p>
 
                     <div className="flex flex-wrap gap-4 mt-6">
                         <div className="border-2 border-ink p-1 bg-white relative">
@@ -180,7 +180,7 @@ export default function GradeEntry() {
                         ) : (
                             <span className="flex items-center space-x-2">
                                 <Save size={14} strokeWidth={2} />
-                                <span>Commit Ledger</span>
+                                <span>Simpan Nilai</span>
                             </span>
                         )}
                     </button>
@@ -190,13 +190,13 @@ export default function GradeEntry() {
             {lastSaved && (
                 <div className="border-2 border-ink bg-white font-mono text-[10px] uppercase tracking-widest px-4 py-2 font-bold flex items-center shadow-[4px_4px_0px_0px_rgba(17,17,17,1)]">
                     <CheckCircle2 size={14} className="mr-2 text-newsprint-red" />
-                    Ledger committed to archives at {lastSaved}
+                    Nilai berhasil disimpan pada {lastSaved}
                 </div>
             )}
 
             {/* Ledger Table */}
             {isLoading ? (
-                <div className="py-20 text-center font-mono text-[10px] uppercase tracking-widest">Retrieving Ledger Rows...</div>
+                <div className="py-20 text-center font-mono text-[10px] uppercase tracking-widest">Memuat Data Nilai...</div>
             ) : (
                 <div className="border-2 border-ink bg-white overflow-hidden shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] relative newsprint-texture">
                     <div className="overflow-x-auto">

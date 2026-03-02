@@ -21,12 +21,12 @@ import {
 const Modal = ({ isOpen, onClose, title, children }) => {
     if (!isOpen) return null;
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-300">
-            <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-300 border border-gray-100 dark:border-gray-800">
-                <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between bg-gray-50/50 dark:bg-gray-800/50">
-                    <h3 className="text-xl font-black text-gray-900 dark:text-gray-100">{title}</h3>
-                    <button onClick={onClose} className="p-2 hover:bg-gray-200 dark:hover:bg-gray-800 rounded-xl transition-colors text-gray-400">
-                        <X size={20} />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-300">
+            <div className="bg-paper border-4 border-ink shadow-[12px_12px_0px_0px_#111111] w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-300">
+                <div className="px-6 py-4 border-b-4 border-ink flex items-center justify-between bg-gray-50">
+                    <h3 className="text-xl font-black text-ink uppercase tracking-widest font-serif">{title}</h3>
+                    <button onClick={onClose} className="p-2 border-2 border-transparent hover:border-ink text-ink transition-all">
+                        <X size={24} strokeWidth={3} />
                     </button>
                 </div>
                 <div className="p-6">
@@ -48,7 +48,7 @@ export default function Announcements() {
     const [imagePreview, setImagePreview] = useState(null);
     const { showToast, showConfirm } = useFeedback();
     const userRole = localStorage.getItem('userRole') || 'admin';
-    const canManage = userRole === 'admin';
+    const canManage = userRole === 'admin' || userRole === 'guru';
 
     useEffect(() => {
         fetchAnnouncements();
@@ -170,18 +170,18 @@ export default function Announcements() {
 
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b-2 border-ink pb-6">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Pengumuman</h1>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Kelola berita dan informasi penting untuk seluruh civitas sekolah.</p>
+                    <h1 className="text-4xl font-black text-ink font-serif uppercase tracking-tight">PENGUMUMAN</h1>
+                    <p className="text-ink font-mono font-bold uppercase tracking-widest mt-2">Kelola berita dan informasi penting untuk seluruh civitas sekolah.</p>
                 </div>
                 {canManage && (
                     <button
                         onClick={handleOpenAdd}
-                        className="flex items-center justify-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-2xl font-black transition-all shadow-xl shadow-blue-100 active:scale-95"
+                        className="flex items-center justify-center space-x-2 bg-ink text-paper px-6 py-3 font-mono font-bold uppercase tracking-widest transition-all border-2 border-ink shadow-[4px_4px_0px_0px_#111111] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none hover:bg-paper hover:text-ink"
                     >
-                        <Plus size={20} />
-                        <span className="uppercase tracking-widest text-xs tracking-tight">Buat Pengumuman</span>
+                        <Plus size={20} strokeWidth={3} />
+                        <span className="text-xs">BUAT PENGUMUMAN</span>
                     </button>
                 )}
             </div>
@@ -191,52 +191,41 @@ export default function Announcements() {
                     <div
                         key={ann.id}
                         onClick={() => setViewAnnouncement(ann)}
-                        className="bg-white dark:bg-gray-900 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-xl dark:shadow-black/20 transition-all group relative overflow-hidden flex flex-col cursor-pointer active:scale-[0.98]"
+                        className="bg-paper border-2 border-ink shadow-[4px_4px_0px_0px_#111111] hover:shadow-[8px_8px_0px_0px_#111111] hover:-translate-y-0.5 transition-all group relative overflow-hidden flex flex-col cursor-pointer"
                     >
                         {ann.image_url && (
-                            <div className="w-full h-48 overflow-hidden relative">
-                                <img src={ann.image_url} alt={ann.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+                            <div className="w-full h-48 overflow-hidden relative border-b-2 border-ink">
+                                <img src={ann.image_url} alt={ann.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                             </div>
                         )}
-                        <div className="p-8 flex-1">
-                            {!ann.image_url && (
-                                <div className={`absolute top-0 right-0 w-32 h-32 bg-rose-50 dark:bg-rose-900/10 rounded-full -mr-16 -mt-16 opacity-40 group-hover:scale-150 transition-transform duration-700`} />
-                            )}
-
-                            <div className="flex items-start justify-between mb-6 relative z-10">
-                                <div className="p-4 rounded-2xl bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 shadow-sm">
-                                    <Megaphone size={24} />
+                        <div className="p-6 flex-1">
+                            <div className="flex items-start justify-between mb-4">
+                                <div className="p-3 bg-ink text-paper border-2 border-ink">
+                                    <Megaphone size={20} strokeWidth={2.5} />
                                 </div>
                                 {canManage && (
                                     <div className="flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()}>
-                                        <button
-                                            onClick={() => handleOpenEdit(ann)}
-                                            className="p-2 text-gray-400 dark:text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-xl transition-all"
-                                        >
-                                            <Edit2 size={18} />
+                                        <button onClick={() => handleOpenEdit(ann)} className="p-2 text-ink border-2 border-ink hover:bg-ink hover:text-paper transition-all shadow-[2px_2px_0px_0px_#111111]">
+                                            <Edit2 size={16} strokeWidth={2.5} />
                                         </button>
-                                        <button
-                                            onClick={() => handleDelete(ann.id)}
-                                            className="p-2 text-gray-400 dark:text-gray-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-xl transition-all"
-                                        >
-                                            <Trash2 size={18} />
+                                        <button onClick={() => handleDelete(ann.id)} className="p-2 text-editorial border-2 border-editorial hover:bg-editorial hover:text-paper transition-all shadow-[2px_2px_0px_0px_#CC0000]">
+                                            <Trash2 size={16} strokeWidth={2.5} />
                                         </button>
                                     </div>
                                 )}
                             </div>
 
-                            <div className="relative z-10 space-y-4">
+                            <div className="space-y-3">
                                 <div>
-                                    <span className="px-3 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 text-[10px] font-black uppercase tracking-[0.2em] rounded-full border border-gray-100 dark:border-gray-700">
+                                    <span className="px-2 py-1 bg-ink text-paper text-[9px] font-mono font-bold uppercase tracking-widest border border-ink">
                                         {ann.category}
                                     </span>
-                                    <h3 className="text-2xl font-black text-gray-900 dark:text-gray-100 mt-3 tracking-tight">{ann.title}</h3>
+                                    <h3 className="text-xl font-black text-ink mt-2 tracking-tight font-serif uppercase">{ann.title}</h3>
                                 </div>
-                                <p className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed line-clamp-3">{ann.content}</p>
-                                <div className="pt-4 border-t border-gray-50 dark:border-gray-800 flex items-center text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">
-                                    <Calendar size={14} className="mr-2" />
-                                    Diposting: {ann.date}
+                                <p className="text-gray-600 text-sm font-mono leading-relaxed line-clamp-3">{ann.content}</p>
+                                <div className="pt-3 border-t-2 border-ink flex items-center text-[9px] font-mono font-bold text-gray-500 uppercase tracking-widest">
+                                    <Calendar size={12} className="mr-2" strokeWidth={2.5} />
+                                    DIPOSTING: {ann.date}
                                 </div>
                             </div>
                         </div>
@@ -248,65 +237,65 @@ export default function Announcements() {
             <Modal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
-                title={currentAnnouncement ? 'Edit Pengumuman' : 'Buat Pengumuman Baru'}
+                title={currentAnnouncement ? 'EDIT PENGUMUMAN' : 'BUAT PENGUMUMAN BARU'}
             >
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="space-y-1">
-                        <label className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest px-1">Judul Pengumuman</label>
+                        <label className="text-[10px] font-mono font-bold text-ink uppercase tracking-widest px-1">JUDUL PENGUMUMAN</label>
                         <input
                             required
                             type="text"
-                            className="w-full bg-gray-50 dark:bg-gray-800 border-transparent rounded-xl px-4 py-3 font-bold text-gray-700 dark:text-gray-200 outline-none transition-all focus:bg-white dark:focus:bg-gray-700 focus:border-rose-500 border-2"
+                            className="w-full bg-paper border-2 border-ink px-4 py-3 font-mono font-bold text-ink uppercase outline-none focus:shadow-[4px_4px_0px_0px_#111111] transition-all"
                             value={formData.title}
                             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                         />
                     </div>
                     <div className="space-y-1">
-                        <label className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest px-1">Kategori</label>
+                        <label className="text-[10px] font-mono font-bold text-ink uppercase tracking-widest px-1">KATEGORI</label>
                         <select
-                            className="w-full bg-gray-50 dark:bg-gray-800 border-transparent rounded-xl px-4 py-3 font-bold text-gray-700 dark:text-gray-200 outline-none transition-all focus:bg-white dark:focus:bg-gray-700 focus:border-rose-500 border-2 appearance-none"
+                            className="w-full bg-paper border-2 border-ink px-4 py-3 font-mono font-bold text-ink uppercase outline-none focus:shadow-[4px_4px_0px_0px_#111111] transition-all appearance-none"
                             value={formData.category}
                             onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                         >
-                            <option value="Umum">Umum</option>
-                            <option value="Akademik">Akademik</option>
-                            <option value="Event">Event / Acara</option>
-                            <option value="Penting">Sangat Penting</option>
+                            <option value="Umum">UMUM</option>
+                            <option value="Akademik">AKADEMIK</option>
+                            <option value="Event">EVENT / ACARA</option>
+                            <option value="Penting">SANGAT PENTING</option>
                         </select>
                     </div>
                     <div className="space-y-1">
-                        <label className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest px-1">Isi Pengumuman</label>
+                        <label className="text-[10px] font-mono font-bold text-ink uppercase tracking-widest px-1">ISI PENGUMUMAN</label>
                         <textarea
                             required
                             rows="4"
-                            className="w-full bg-gray-50 dark:bg-gray-800 border-transparent rounded-xl px-4 py-3 font-bold text-gray-700 dark:text-gray-200 outline-none transition-all focus:bg-white dark:focus:bg-gray-700 focus:border-rose-500 border-2 resize-none"
+                            className="w-full bg-paper border-2 border-ink px-4 py-3 font-mono font-bold text-ink outline-none focus:shadow-[4px_4px_0px_0px_#111111] transition-all resize-none"
                             value={formData.content}
                             onChange={(e) => setFormData({ ...formData, content: e.target.value })}
                         ></textarea>
                     </div>
 
                     <div className="space-y-2">
-                        <label className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest px-1">Foto Pengumuman (Opsional)</label>
+                        <label className="text-[10px] font-mono font-bold text-ink uppercase tracking-widest px-1">FOTO PENGUMUMAN (OPSIONAL)</label>
                         <div className="relative group">
                             {imagePreview ? (
-                                <div className="relative w-full h-40 rounded-2xl overflow-hidden border-2 border-dashed border-rose-200 dark:border-rose-900/40">
+                                <div className="relative w-full h-40 overflow-hidden border-2 border-ink">
                                     <img src={imagePreview} className="w-full h-full object-cover" />
                                     <button
                                         type="button"
                                         onClick={() => { setImagePreview(null); setFormData({ ...formData, image_url: '' }) }}
-                                        className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-lg hover:bg-red-600 shadow-lg"
+                                        className="absolute top-2 right-2 p-1.5 bg-editorial text-paper border border-editorial hover:bg-paper hover:text-editorial"
                                     >
-                                        <X size={14} />
+                                        <X size={14} strokeWidth={3} />
                                     </button>
                                 </div>
                             ) : (
-                                <label className="flex flex-col items-center justify-center w-full h-40 rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50 hover:bg-white dark:hover:bg-gray-800 hover:border-rose-500 transition-all cursor-pointer group">
+                                <label className="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-gray-400 bg-gray-50 hover:bg-paper hover:border-ink transition-all cursor-pointer">
                                     <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                                        <div className="p-3 bg-white dark:bg-gray-800 rounded-xl shadow-sm mb-3 group-hover:scale-110 transition-transform">
-                                            {isUploading ? <Loader2 className="animate-spin text-rose-600" size={20} /> : <ImageIcon className="text-gray-400 group-hover:text-rose-600" size={20} />}
+                                        <div className="p-3 border-2 border-ink mb-3">
+                                            {isUploading ? <Loader2 className="animate-spin text-ink" size={20} /> : <ImageIcon className="text-ink" size={20} />}
                                         </div>
-                                        <p className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">
-                                            {isUploading ? 'Sedang Mengunggah...' : 'Klik untuk Unggah Foto'}
+                                        <p className="text-[10px] font-mono font-bold text-ink uppercase tracking-widest">
+                                            {isUploading ? 'MENGUNGGAH...' : 'KLIK UNTUK UNGGAH FOTO'}
                                         </p>
                                     </div>
                                     <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} disabled={isUploading} />
@@ -316,58 +305,58 @@ export default function Announcements() {
                     </div>
                     <button
                         type="submit"
-                        className="w-full bg-rose-600 hover:bg-rose-700 text-white font-black py-4 rounded-2xl shadow-xl shadow-rose-100 transition-all flex items-center justify-center space-x-2 active:scale-95 mt-4"
+                        className="w-full bg-ink hover:bg-paper text-paper hover:text-ink font-mono font-bold py-4 border-2 border-ink shadow-[4px_4px_0px_0px_#111111] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all flex items-center justify-center space-x-2 mt-4"
                     >
-                        <Save size={20} />
-                        <span className="uppercase tracking-widest text-xs">Publikasikan</span>
+                        <Save size={20} strokeWidth={3} />
+                        <span className="uppercase tracking-widest text-xs">PUBLIKASIKAN</span>
                     </button>
                 </form>
             </Modal>
 
             {/* View Detail Modal */}
             {viewAnnouncement && (
-                <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-in fade-in duration-300">
-                    <div className="bg-white dark:bg-gray-900 rounded-[3rem] shadow-2xl w-full max-w-2xl overflow-hidden animate-in zoom-in-95 duration-300 max-h-[90vh] flex flex-col border border-gray-100 dark:border-gray-800">
+                <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-300">
+                    <div className="bg-paper border-4 border-ink shadow-[16px_16px_0px_0px_#111111] w-full max-w-2xl overflow-hidden animate-in zoom-in-95 duration-300 max-h-[90vh] flex flex-col">
                         <div className="relative">
                             {viewAnnouncement.image_url ? (
-                                <img src={viewAnnouncement.image_url} className="w-full h-64 object-cover" />
+                                <img src={viewAnnouncement.image_url} className="w-full h-64 object-cover border-b-4 border-ink" />
                             ) : (
-                                <div className="w-full h-32 bg-gradient-to-br from-rose-50 to-rose-100 dark:from-rose-900/20 dark:to-rose-800/20" />
+                                <div className="w-full h-20 bg-ink" />
                             )}
                             <button
                                 onClick={() => setViewAnnouncement(null)}
-                                className="absolute top-6 right-6 p-3 bg-white/20 backdrop-blur-md hover:bg-white/40 text-white rounded-2xl transition-all"
+                                className="absolute top-4 right-4 p-2 bg-paper border-2 border-ink text-ink hover:bg-ink hover:text-paper transition-all"
                             >
-                                <X size={24} />
+                                <X size={20} strokeWidth={3} />
                             </button>
-                            <div className="absolute bottom-6 left-8">
-                                <span className="px-4 py-1.5 bg-rose-600 text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-full shadow-lg">
+                            <div className="absolute bottom-4 left-6">
+                                <span className="px-3 py-1 bg-ink text-paper text-[9px] font-mono font-bold uppercase tracking-widest border border-paper">
                                     {viewAnnouncement.category}
                                 </span>
                             </div>
                         </div>
 
-                        <div className="p-10 overflow-y-auto space-y-6">
-                            <div className="flex items-center space-x-3 text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">
-                                <Calendar size={14} className="text-rose-500 dark:text-rose-600" />
-                                <span>Dipublikasikan pada {viewAnnouncement.date}</span>
+                        <div className="p-8 overflow-y-auto space-y-4">
+                            <div className="flex items-center space-x-2 text-[9px] font-mono font-bold text-gray-500 uppercase tracking-widest">
+                                <Calendar size={12} strokeWidth={2.5} />
+                                <span>DIPUBLIKASIKAN: {viewAnnouncement.date}</span>
                             </div>
 
-                            <h2 className="text-4xl font-black text-gray-900 dark:text-gray-100 tracking-tight leading-tight">
+                            <h2 className="text-3xl font-black text-ink tracking-tight leading-tight font-serif uppercase">
                                 {viewAnnouncement.title}
                             </h2>
 
-                            <div className="prose prose-rose dark:prose-invert max-w-none">
-                                <p className="text-gray-600 dark:text-gray-400 text-lg leading-relaxed whitespace-pre-wrap">
+                            <div className="border-t-2 border-ink pt-4">
+                                <p className="text-gray-700 text-base font-mono leading-relaxed whitespace-pre-wrap">
                                     {viewAnnouncement.content}
                                 </p>
                             </div>
 
                             <button
                                 onClick={() => setViewAnnouncement(null)}
-                                className="w-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-100 font-black py-5 rounded-[1.5rem] transition-all flex items-center justify-center space-x-2 active:scale-95 text-xs uppercase tracking-widest mt-8 border border-gray-200 dark:border-gray-700"
+                                className="w-full bg-paper border-2 border-ink hover:bg-ink hover:text-paper text-ink font-mono font-bold py-4 transition-all flex items-center justify-center space-x-2 text-xs uppercase tracking-widest mt-4 shadow-[4px_4px_0px_0px_#111111] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px]"
                             >
-                                Tutup Pengumuman
+                                TUTUP PENGUMUMAN
                             </button>
                         </div>
                     </div>

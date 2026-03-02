@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import {
-    Calendar,
     FileText,
     Clock,
     BookOpen,
@@ -22,9 +21,8 @@ export default function StudentAssignments() {
 
     const fetchStudentData = async () => {
         setIsLoading(true);
-        const userId = localStorage.getItem('userId'); // Assuming userId is student ID
+        const userId = localStorage.getItem('userId');
 
-        // 1. Get Student Class info
         if (userId) {
             const { data: student } = await supabase
                 .from('students')
@@ -48,52 +46,51 @@ export default function StudentAssignments() {
                 teachers (name)
             `)
             .eq('class_id', classId)
-            // Show future due dates first
             .order('due_date', { ascending: true });
 
         setAssignments(asgs || []);
     };
 
     return (
-        <div className="space-y-8 animate-in fade-in duration-500 max-w-7xl mx-auto">
-            <div>
-                <h1 className="text-3xl font-black text-gray-900 dark:text-gray-100 tracking-tight">Tugas Saya</h1>
-                <p className="text-sm text-gray-500 dark:text-gray-400 font-medium mt-1">Daftar tugas yang harus dikerjakan.</p>
+        <div className="space-y-6 animate-in fade-in duration-500">
+            <div className="border-b-4 border-ink pb-6">
+                <h1 className="text-4xl font-serif font-black text-ink uppercase tracking-tighter leading-none mb-1">TUGAS SAYA</h1>
+                <p className="font-mono text-[10px] uppercase tracking-widest opacity-60 mt-2">Daftar tugas yang harus dikerjakan.</p>
             </div>
 
             {isLoading ? (
-                <div className="text-center py-20 text-gray-400 dark:text-gray-500 font-bold animate-pulse">Memuat Tugas...</div>
+                <div className="py-20 text-center font-mono text-[10px] uppercase tracking-widest">Memuat Tugas...</div>
             ) : (
-                <div className="grid grid-cols-1 gap-4">
+                <div className="space-y-4">
                     {assignments.length > 0 ? assignments.map((asg) => {
                         const isOverdue = new Date(asg.due_date) < new Date();
                         return (
-                            <div key={asg.id} className="bg-white dark:bg-gray-900 p-6 rounded-[2rem] border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-lg transition-all flex flex-col md:flex-row gap-6 relative overflow-hidden group">
-                                {/* Decor */}
-                                <div className={`absolute left-0 top-0 bottom-0 w-2 ${isOverdue ? 'bg-red-500' : 'bg-blue-500'}`} />
+                            <div key={asg.id} className="bg-paper border-2 border-ink shadow-[4px_4px_0px_0px_#111111] hover:shadow-[8px_8px_0px_0px_#111111] transition-all flex flex-col md:flex-row relative overflow-hidden group">
+                                {/* Left accent bar */}
+                                <div className={`w-full md:w-2 h-2 md:h-auto shrink-0 ${isOverdue ? 'bg-newsprint-red' : 'bg-ink'}`} />
 
-                                <div className="flex-1 space-y-2">
+                                <div className="flex-1 p-6 space-y-3">
                                     <div className="flex items-center space-x-3">
-                                        <span className="px-3 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-lg text-[10px] font-black uppercase tracking-widest flex items-center">
+                                        <span className="px-2 py-1 bg-paper border-2 border-ink text-ink text-[10px] font-mono font-black uppercase tracking-widest flex items-center">
                                             <BookOpen size={12} className="mr-2" />
                                             {asg.subject_name}
                                         </span>
                                         {isOverdue && (
-                                            <span className="px-3 py-1 bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-lg text-[10px] font-black uppercase tracking-widest flex items-center">
+                                            <span className="px-2 py-1 bg-newsprint-red text-paper text-[10px] font-mono font-black uppercase tracking-widest flex items-center border-2 border-ink">
                                                 <AlertCircle size={12} className="mr-2" />
                                                 Terlewat
                                             </span>
                                         )}
                                     </div>
-                                    <h3 className="text-xl font-black text-gray-900 dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                                    <h3 className="text-xl font-serif font-black text-ink uppercase tracking-tight leading-tight group-hover:text-newsprint-red transition-colors">
                                         {asg.title}
                                     </h3>
-                                    <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed max-w-2xl">
+                                    <p className="text-sm text-ink/70 font-body leading-relaxed max-w-2xl border-l-2 border-ink/20 pl-4">
                                         {asg.description}
                                     </p>
-                                    <div className="flex items-center text-xs font-bold text-gray-400 dark:text-gray-500 pt-2">
+                                    <div className="flex items-center text-[10px] font-mono font-bold text-ink/60 uppercase tracking-widest pt-2">
                                         <span className="mr-1">Guru:</span>
-                                        <span className="text-gray-600 dark:text-gray-300">{asg.teachers?.name}</span>
+                                        <span className="text-ink font-black">{asg.teachers?.name}</span>
                                     </div>
                                     {asg.file_url && (
                                         <div className="pt-4">
@@ -101,31 +98,29 @@ export default function StudentAssignments() {
                                                 href={asg.file_url}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                className="inline-flex items-center space-x-2 text-xs font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 bg-blue-50 dark:bg-blue-900/30 px-4 py-2.5 rounded-xl transition-colors border border-blue-100 dark:border-blue-900/40"
+                                                className="inline-flex items-center space-x-2 text-[10px] font-mono font-bold text-ink uppercase tracking-widest border-2 border-ink px-3 py-2 hover:bg-ink hover:text-paper transition-colors"
                                             >
                                                 <Download size={14} />
-                                                <span>Download Materi/Tugas</span>
+                                                <span>Unduh Materi/Tugas</span>
                                             </a>
                                         </div>
                                     )}
                                 </div>
 
-                                <div className="flex flex-col items-end justify-center min-w-[200px] text-right border-l border-gray-50 dark:border-gray-800 pl-6 border-dashed">
-                                    <div className="mb-2">
-                                        <p className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1">Batas Waktu</p>
-                                        <div className={`flex items-center justify-end space-x-2 font-black text-lg ${isOverdue ? 'text-red-500 dark:text-red-400' : 'text-gray-800 dark:text-gray-200'}`}>
-                                            <Clock size={16} />
-                                            <span>{new Date(asg.due_date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</span>
-                                        </div>
+                                <div className="flex flex-col items-end justify-center min-w-[200px] text-right border-l-2 border-ink p-6">
+                                    <p className="text-[10px] font-mono font-black text-ink/40 uppercase tracking-widest mb-1">Batas Waktu</p>
+                                    <div className={`flex items-center justify-end space-x-2 font-mono font-black text-lg ${isOverdue ? 'text-newsprint-red' : 'text-ink'}`}>
+                                        <Clock size={16} />
+                                        <span>{new Date(asg.due_date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</span>
                                     </div>
                                 </div>
                             </div>
                         );
                     }) : (
-                        <div className="py-20 text-center bg-gray-50 rounded-[3rem] border-2 border-dashed border-gray-200">
-                            <CheckCircle2 size={48} className="mx-auto text-green-500 mb-4" />
-                            <h3 className="text-lg font-black text-gray-400">Tidak Ada Tugas</h3>
-                            <p className="text-sm text-gray-400">Anda sudah menyelesaikan semua tugas!</p>
+                        <div className="py-20 text-center border-2 border-dashed border-ink/20 bg-paper">
+                            <CheckCircle2 size={48} className="mx-auto text-ink/20 mb-4" strokeWidth={1} />
+                            <h3 className="text-lg font-serif font-black text-ink/40 uppercase">Tidak Ada Tugas</h3>
+                            <p className="text-sm font-mono text-ink/30 uppercase tracking-widest mt-2">Anda sudah menyelesaikan semua tugas!</p>
                         </div>
                     )}
                 </div>

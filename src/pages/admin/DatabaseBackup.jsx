@@ -114,19 +114,17 @@ export default function DatabaseBackup() {
     };
 
     return (
-        <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in duration-500">
             {/* Header Section */}
-            <div className="bg-white dark:bg-gray-900 p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-sm relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-blue-50 dark:bg-blue-900/10 rounded-full -mr-32 -mt-32 opacity-40" />
-
+            <div className="bg-paper p-10 border-2 border-ink shadow-[8px_8px_0px_0px_#111111] relative overflow-hidden">
                 <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
                     <div className="space-y-4">
-                        <div className="inline-flex p-4 rounded-3xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 shadow-inner">
+                        <div className="inline-flex p-4 bg-paper border-2 border-ink text-ink shadow-[4px_4px_0px_0px_#111111] transition-transform hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_#111111]">
                             <Database size={32} />
                         </div>
                         <div>
-                            <h1 className="text-4xl font-black text-gray-900 dark:text-gray-100 tracking-tight">Database Backup</h1>
-                            <p className="text-gray-500 dark:text-gray-400 font-medium mt-2">Export seluruh data sistem ke dalam format SQL (.sql)</p>
+                            <h1 className="text-4xl font-black text-ink font-serif tracking-tight uppercase">DATABASE BACKUP</h1>
+                            <p className="text-ink font-mono font-bold uppercase tracking-widest mt-2 block">EXPORT SELURUH DATA SISTEM KE DALAM FORMAT SQL (.SQL)</p>
                         </div>
                     </div>
 
@@ -134,10 +132,10 @@ export default function DatabaseBackup() {
                         onClick={generateSQL}
                         disabled={isExporting}
                         className={`
-                            group relative flex items-center justify-center space-x-3 px-8 py-5 rounded-2xl font-black transition-all shadow-xl active:scale-95
+                            group relative flex items-center justify-center space-x-3 px-8 py-5 font-mono font-bold uppercase tracking-widest transition-all border-2 border-ink shadow-[8px_8px_0px_0px_#111111] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[4px_4px_0px_0px_#111111] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none
                             ${isExporting
-                                ? 'bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 cursor-not-allowed'
-                                : 'bg-blue-600 hover:bg-blue-700 text-white shadow-blue-100 dark:shadow-black/20 hover:shadow-blue-200'}
+                                ? 'bg-gray-100 text-gray-400 cursor-not-allowed border-dashed'
+                                : 'bg-ink hover:bg-paper text-paper hover:text-ink'}
                         `}
                     >
                         {isExporting ? (
@@ -145,8 +143,8 @@ export default function DatabaseBackup() {
                         ) : (
                             <Download size={24} className="group-hover:-translate-y-1 transition-transform" />
                         )}
-                        <span className="uppercase tracking-widest text-sm">
-                            {isExporting ? 'Proses Export...' : 'Mulai Backup (SQL)'}
+                        <span>
+                            {isExporting ? 'PROSES EXPORT...' : 'MULAI BACKUP (SQL)'}
                         </span>
                     </button>
                 </div>
@@ -155,26 +153,26 @@ export default function DatabaseBackup() {
             {/* Info and Status Section */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Warning Card */}
-                <div className="bg-amber-50 dark:bg-amber-900/20 p-8 rounded-[2.5rem] border border-amber-100 dark:border-amber-900/30 space-y-4">
-                    <div className="flex items-center space-x-3 text-amber-700 dark:text-amber-400">
+                <div className="bg-editorial text-paper p-8 border-2 border-ink shadow-[4px_4px_0px_0px_#111111] space-y-4">
+                    <div className="flex items-center space-x-3 text-paper">
                         <AlertTriangle size={24} />
-                        <h3 className="font-black uppercase tracking-widest text-xs">Peringatan Penting</h3>
+                        <h3 className="font-mono font-black uppercase tracking-widest text-sm">PERINGATAN PENTING</h3>
                     </div>
-                    <p className="text-amber-800/70 dark:text-amber-400/70 text-sm leading-relaxed font-medium">
-                        Fitur ini akan mengambil seluruh baris data dari semua tabel.
-                        Pastikan koneksi internet Anda stabil. Simpan file hasil backup di tempat yang aman.
+                    <p className="text-paper/90 font-mono font-bold text-xs uppercase leading-relaxed">
+                        FITUR INI AKAN MENGAMBIL SELURUH BARIS DATA DARI SEMUA TABEL.
+                        PASTIKAN KONEKSI INTERNET ANDA STABIL. SIMPAN FILE HASIL BACKUP DI TEMPAT YANG AMAN.
                     </p>
                 </div>
 
                 {/* Scope Card */}
-                <div className="bg-indigo-50 dark:bg-indigo-900/20 p-8 rounded-[2.5rem] border border-indigo-100 dark:border-indigo-900/30 space-y-4">
-                    <div className="flex items-center space-x-3 text-indigo-700 dark:text-indigo-400">
+                <div className="bg-paper p-8 border-2 border-ink shadow-[4px_4px_0px_0px_#111111] space-y-4">
+                    <div className="flex items-center space-x-3 text-ink">
                         <ShieldCheck size={24} />
-                        <h3 className="font-black uppercase tracking-widest text-xs">Cakupan Backup</h3>
+                        <h3 className="font-mono font-black uppercase tracking-widest text-sm">CAKUPAN BACKUP</h3>
                     </div>
                     <div className="flex flex-wrap gap-2">
                         {tables.map(t => (
-                            <span key={t} className="px-3 py-1 bg-white/50 dark:bg-gray-800/50 text-indigo-700 dark:text-indigo-400 text-[10px] font-bold rounded-lg border border-indigo-100/50 dark:border-indigo-900/40 capitalize">
+                            <span key={t} className="px-3 py-1 bg-gray-50 text-ink text-[10px] font-mono font-bold uppercase tracking-widest border-2 border-ink">
                                 {t}
                             </span>
                         ))}
@@ -184,38 +182,38 @@ export default function DatabaseBackup() {
 
             {/* Status Messages */}
             {status === 'success' && (
-                <div className="bg-emerald-50 dark:bg-emerald-900/20 p-6 rounded-3xl border border-emerald-100 dark:border-emerald-900/30 flex items-center space-x-4 animate-in zoom-in-95 duration-300">
-                    <div className="p-2 bg-emerald-500 dark:bg-emerald-600 text-white rounded-full">
-                        <CheckCircle2 size={20} />
+                <div className="bg-paper p-6 border-2 border-ink shadow-[4px_4px_0px_0px_#111111] flex items-center space-x-4 animate-in fade-in duration-300">
+                    <div className="p-2 bg-ink text-paper border-2 border-ink">
+                        <CheckCircle2 size={24} />
                     </div>
                     <div>
-                        <h4 className="text-emerald-900 dark:text-emerald-100 font-bold">Backup Selesai!</h4>
-                        <p className="text-emerald-700 dark:text-emerald-400 text-sm">File SQL telah diunduh ke komputer Anda.</p>
+                        <h4 className="text-ink font-serif font-black uppercase text-lg tracking-tight">BACKUP SELESAI!</h4>
+                        <p className="text-ink font-mono font-bold uppercase tracking-widest text-xs">FILE SQL TELAH DIUNDUH KE KOMPUTER ANDA.</p>
                     </div>
                 </div>
             )}
 
             {status === 'error' && (
-                <div className="bg-red-50 dark:bg-red-900/20 p-6 rounded-3xl border border-red-100 dark:border-red-900/30 flex items-center space-x-4 animate-in shake duration-500">
-                    <div className="p-2 bg-red-500 dark:bg-red-600 text-white rounded-full">
-                        <X size={20} />
+                <div className="bg-editorial p-6 border-2 border-ink shadow-[4px_4px_0px_0px_#111111] flex items-center space-x-4 animate-in fade-in duration-300">
+                    <div className="p-2 bg-paper text-editorial border-2 border-ink">
+                        <AlertTriangle size={24} />
                     </div>
                     <div>
-                        <h4 className="text-red-900 dark:text-red-100 font-bold">Backup Gagal</h4>
-                        <p className="text-red-700 dark:text-red-400 text-sm">{error}</p>
+                        <h4 className="text-paper font-serif font-black uppercase text-lg tracking-tight">BACKUP GAGAL</h4>
+                        <p className="text-paper font-mono font-bold uppercase tracking-widest text-xs">{error}</p>
                     </div>
                 </div>
             )}
 
             {/* Migration Tutorial Section */}
-            <div className="bg-white dark:bg-gray-900 p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-sm space-y-8">
-                <div className="flex items-center space-x-4 border-b border-gray-50 dark:border-gray-800 pb-6">
-                    <div className="p-3 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-2xl">
+            <div className="bg-paper p-10 border-2 border-ink shadow-[8px_8px_0px_0px_#111111] space-y-8">
+                <div className="flex items-center space-x-4 border-b-2 border-ink pb-6">
+                    <div className="p-3 bg-paper border-2 border-ink text-ink shadow-[4px_4px_0px_0px_#111111]">
                         <Terminal size={24} />
                     </div>
                     <div>
-                        <h2 className="text-xl font-black text-gray-900 dark:text-gray-100">Tutorial Migrasi Supabase</h2>
-                        <p className="text-sm text-gray-400 dark:text-gray-500 font-medium">Cara memindahkan data ke project Supabase baru</p>
+                        <h2 className="text-2xl font-black text-ink font-serif uppercase tracking-tight">TUTORIAL MIGRASI SUPABASE</h2>
+                        <p className="text-xs text-ink font-mono font-bold uppercase tracking-widest mt-1">CARA MEMINDAHKAN DATA KE PROJECT SUPABASE BARU</p>
                     </div>
                 </div>
 
@@ -223,53 +221,53 @@ export default function DatabaseBackup() {
                     {/* Step 1 */}
                     <div className="space-y-4">
                         <div className="flex items-center space-x-3">
-                            <span className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-600 dark:bg-blue-500 text-white text-xs font-black">1</span>
-                            <h3 className="font-bold text-gray-900 dark:text-gray-100">Export SQL</h3>
+                            <span className="flex items-center justify-center w-8 h-8 bg-ink border-2 border-ink text-paper text-xs font-mono font-black shadow-[2px_2px_0px_0px_#111111]">1</span>
+                            <h3 className="font-mono font-black uppercase tracking-widest text-ink">EXPORT SQL</h3>
                         </div>
-                        <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
-                            Klik tombol <b>"Mulai Backup"</b> di atas. Anda akan mendapatkan file berformat <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded">.sql</code> yang berisi seluruh data dan struktur web ini.
+                        <p className="text-xs text-ink font-mono font-bold leading-relaxed uppercase">
+                            KLIK TOMBOL <b>"MULAI BACKUP"</b> DI ATAS. ANDA AKAN MENDAPATKAN FILE BERFORMAT <code className="bg-gray-100 px-1 border border-ink">.SQL</code> YANG BERISI SELURUH DATA DAN STRUKTUR WEB INI.
                         </p>
                     </div>
 
                     {/* Step 2 */}
                     <div className="space-y-4">
                         <div className="flex items-center space-x-3">
-                            <span className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-600 dark:bg-blue-500 text-white text-xs font-black">2</span>
-                            <h3 className="font-bold text-gray-900 dark:text-gray-100">SQL Editor</h3>
+                            <span className="flex items-center justify-center w-8 h-8 bg-ink border-2 border-ink text-paper text-xs font-mono font-black shadow-[2px_2px_0px_0px_#111111]">2</span>
+                            <h3 className="font-mono font-black uppercase tracking-widest text-ink">SQL EDITOR</h3>
                         </div>
-                        <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
-                            Buka Dashboard Supabase baru Anda, pilih menu <b>"SQL Editor"</b>, lalu buat <b>"New Query"</b>. Paste seluruh isi file SQL tadi ke dalamnya.
+                        <p className="text-xs text-ink font-mono font-bold leading-relaxed uppercase">
+                            BUKA DASHBOARD SUPABASE BARU ANDA, PILIH MENU <b>"SQL EDITOR"</b>, LALU BUAT <b>"NEW QUERY"</b>. PASTE SELURUH ISI FILE SQL TADI KE DALAMNYA.
                         </p>
                     </div>
 
                     {/* Step 3 */}
                     <div className="space-y-4">
                         <div className="flex items-center space-x-3">
-                            <span className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-600 dark:bg-blue-500 text-white text-xs font-black">3</span>
-                            <h3 className="font-bold text-gray-900 dark:text-gray-100">Run & Refresh</h3>
+                            <span className="flex items-center justify-center w-8 h-8 bg-ink border-2 border-ink text-paper text-xs font-mono font-black shadow-[2px_2px_0px_0px_#111111]">3</span>
+                            <h3 className="font-mono font-black uppercase tracking-widest text-ink">RUN & REFRESH</h3>
                         </div>
-                        <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
-                            Klik tombol <b>"Run"</b>. Setelah sukses, seluruh tabel dan data Anda akan muncul secara ajaib di project Supabase baru.
+                        <p className="text-xs text-ink font-mono font-bold leading-relaxed uppercase">
+                            KLIK TOMBOL <b>"RUN"</b>. SETELAH SUKSES, SELURUH TABEL DAN DATA ANDA AKAN MUNCUL SECARA AJAIB DI PROJECT SUPABASE BARU.
                         </p>
                     </div>
                 </div>
 
-                <div className="bg-gray-50 dark:bg-gray-800/50 p-6 rounded-3xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="bg-gray-50 border-2 border-ink shadow-[4px_4px_0px_0px_#111111] p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div className="flex items-center space-x-4">
-                        <div className="p-2 bg-white dark:bg-gray-800 rounded-xl shadow-sm text-gray-400 dark:text-gray-500">
+                        <div className="p-2 bg-paper border-2 border-ink shadow-[2px_2px_0px_0px_#111111] text-ink">
                             <Settings size={20} />
                         </div>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 font-medium italic">
-                            <b>Catatan:</b> Jangan lupa buat bucket <b>"announcements"</b> secara manual di menu Storage agar gambar bisa tampil.
+                        <p className="text-xs text-ink font-mono font-bold uppercase tracking-widest">
+                            <b>CATATAN:</b> JANGAN LUPA BUAT BUCKET <b>"ANNOUNCEMENTS"</b> SECARA MANUAL DI MENU STORAGE AGAR GAMBAR BISA TAMPIL.
                         </p>
                     </div>
                     <a
                         href="https://supabase.com/dashboard"
                         target="_blank"
                         rel="noreferrer"
-                        className="flex items-center space-x-2 text-blue-600 dark:text-blue-400 text-xs font-black uppercase tracking-widest hover:underline"
+                        className="flex items-center space-x-2 text-editorial text-xs font-mono font-black uppercase tracking-widest hover:underline"
                     >
-                        <span>Buka Supabase</span>
+                        <span>BUKA SUPABASE</span>
                         <ExternalLink size={14} />
                     </a>
                 </div>

@@ -97,39 +97,39 @@ const TeacherDashboard = ({ userName }) => {
         }
     };
 
-    if (isLoading) return <div className="animate-pulse font-mono text-[10px] uppercase">Retrieving Records...</div>;
+    if (isLoading) return <div className="animate-pulse font-mono text-[10px] uppercase">Memuat Data...</div>;
 
     return (
         <div className="space-y-12">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                <StatCard title="Assigned Sections" value={stats.classesTaught?.toString() || "0"} icon={Hash} />
-                <StatCard title="Student Roster" value={stats.totalStudents?.toString() || "0"} icon={Users} />
-                <StatCard title="Pending Review" value={stats.pendingTasks?.toString() || "0"} icon={ClipboardList} trend={stats.pendingTasks > 0 ? "- Action Reqd" : ""} to="/teacher/assignments" />
-                <StatCard title="Daily Attendance" value={stats.attendance} icon={TrendingUp} />
+                <StatCard title="Kelas Diampu" value={stats.classesTaught?.toString() || "0"} icon={Hash} />
+                <StatCard title="Jumlah Siswa" value={stats.totalStudents?.toString() || "0"} icon={Users} />
+                <StatCard title="Tugas Tertunda" value={stats.pendingTasks?.toString() || "0"} icon={ClipboardList} trend={stats.pendingTasks > 0 ? "- Perlu Ditinjau" : ""} to="/teacher/assignments" />
+                <StatCard title="Kehadiran Hari Ini" value={stats.attendance} icon={TrendingUp} />
             </div>
 
             <div className="bg-paper p-8 border-2 border-ink shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] relative newsprint-texture">
                 <div className="flex items-center justify-between mb-8 border-b-2 border-ink pb-4">
                     <div className="flex items-center gap-3">
                         <AlertCircle size={24} className="text-newsprint-red" strokeWidth={1.5} />
-                        <h3 className="text-2xl font-serif font-black text-ink uppercase tracking-tight">Required Actions</h3>
+                        <h3 className="text-2xl font-serif font-black text-ink uppercase tracking-tight">Tindakan Diperlukan</h3>
                     </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div className="border border-ink/20 p-6 hover:bg-ink hover:text-paper transition-colors group">
-                        <h4 className="font-serif font-bold text-xl mb-2">Record Daily Attendance</h4>
-                        <p className="font-body text-sm mb-6 opacity-70">The attendance roster for your active classes requires your signature for today's session.</p>
+                        <h4 className="font-serif font-bold text-xl mb-2">Catat Kehadiran Harian</h4>
+                        <p className="font-body text-sm mb-6 opacity-70">Daftar kehadiran untuk kelas aktif Anda perlu diisi untuk sesi hari ini.</p>
                         <Link to="/teacher/attendance" className="inline-flex items-center text-[10px] font-mono font-bold uppercase tracking-widest border-b border-current pb-1 group-hover:text-newsprint-red">
-                            Open Roster <ChevronRight size={14} className="ml-1" />
+                            Buka Absensi <ChevronRight size={14} className="ml-1" />
                         </Link>
                     </div>
 
                     <div className="border border-ink/20 p-6 hover:bg-ink hover:text-paper transition-colors group">
-                        <h4 className="font-serif font-bold text-xl mb-2">Grade Open Assignments</h4>
-                        <p className="font-body text-sm mb-6 opacity-70">You have coursework submissions pending your review and grading.</p>
+                        <h4 className="font-serif font-bold text-xl mb-2">Nilai Tugas Siswa</h4>
+                        <p className="font-body text-sm mb-6 opacity-70">Ada tugas siswa yang menunggu peninjauan dan penilaian Anda.</p>
                         <Link to="/teacher/assignments" className="inline-flex items-center text-[10px] font-mono font-bold uppercase tracking-widest border-b border-current pb-1 group-hover:text-newsprint-red">
-                            Open Gradebook <ChevronRight size={14} className="ml-1" />
+                            Buka Penilaian <ChevronRight size={14} className="ml-1" />
                         </Link>
                     </div>
                 </div>

@@ -95,8 +95,8 @@ export default function AttendanceEntry() {
         <div className="space-y-6">
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b-4 border-ink pb-6">
                 <div>
-                    <h1 className="text-4xl font-serif font-black text-ink uppercase tracking-tighter leading-none mb-1">Attendance Roster</h1>
-                    <p className="font-mono text-[10px] uppercase tracking-widest opacity-60">Official Daily Roll Call</p>
+                    <h1 className="text-4xl font-serif font-black text-ink uppercase tracking-tighter leading-none mb-1">Daftar Kehadiran</h1>
+                    <p className="font-mono text-[10px] uppercase tracking-widest opacity-60">Absensi Harian Resmi</p>
 
                     <div className="flex items-center space-x-4 mt-6">
                         <div className="border-2 border-ink p-1 bg-white relative">
@@ -130,13 +130,13 @@ export default function AttendanceEntry() {
                         className="flex items-center space-x-2 border-2 border-ink bg-ink text-paper hover:bg-newsprint-red hover:border-newsprint-red hover:text-white px-6 py-3 font-mono text-[10px] font-bold uppercase tracking-widest transition-colors shadow-[4px_4px_0px_0px_rgba(204,0,0,0.2)] hover:shadow-none active:translate-y-[2px] active:translate-x-[2px]"
                     >
                         <Save size={16} strokeWidth={2} />
-                        <span>Commit Roster</span>
+                        <span>Simpan Absensi</span>
                     </button>
                 </div>
             </div>
 
             {isLoading ? (
-                <div className="py-20 text-center font-mono text-[10px] uppercase tracking-widest">Retrieving Official Manifest...</div>
+                <div className="py-20 text-center font-mono text-[10px] uppercase tracking-widest">Memuat Data Kehadiran...</div>
             ) : (
                 <div className="border-2 border-ink bg-white overflow-hidden shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] relative newsprint-texture">
                     <div className="overflow-x-auto">

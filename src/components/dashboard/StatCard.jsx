@@ -23,7 +23,7 @@ const StatCard = ({ title, value, icon: Icon, trend, color, to }) => {
 
             {to && (
                 <div className="mt-6 flex items-center border-t border-ink/10 pt-4 text-[10px] font-mono font-bold uppercase tracking-widest text-ink group-hover:text-newsprint-red transition-colors">
-                    <span>Access Detailed Log</span>
+                    <span>Lihat Detail</span>
                     <ChevronRight size={12} className="ml-1" />
                 </div>
             )}

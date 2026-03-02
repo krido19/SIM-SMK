@@ -4,8 +4,6 @@ import { supabase } from '../../lib/supabase';
 import { useFeedback } from '../../context/FeedbackContext';
 import {
     Plus,
-    Search,
-    Calendar,
     Save,
     Trash2,
     FileText,
@@ -13,7 +11,6 @@ import {
     X,
     ChevronDown,
     BookOpen,
-    Users,
     Upload,
     Download
 } from 'lucide-react';
@@ -21,15 +18,15 @@ import {
 const Modal = ({ isOpen, onClose, title, children }) => {
     if (!isOpen) return null;
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
-            <div className="bg-white dark:bg-gray-900 rounded-[2rem] w-full max-w-lg shadow-2xl p-6 transform transition-all scale-100 border border-gray-100 dark:border-gray-800">
-                <div className="flex justify-between items-center mb-6">
-                    <h3 className="text-xl font-black text-gray-900 dark:text-gray-100">{title}</h3>
-                    <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors font-bold text-gray-400">
-                        <X size={20} />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+            <div className="bg-paper border-4 border-ink shadow-[12px_12px_0px_0px_#111111] w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-300">
+                <div className="bg-ink text-paper px-6 py-4 flex justify-between items-center border-b-4 border-ink">
+                    <h3 className="font-mono font-black uppercase tracking-widest text-sm">{title}</h3>
+                    <button onClick={onClose} className="p-1 hover:bg-paper/10 transition-colors">
+                        <X size={20} strokeWidth={2.5} />
                     </button>
                 </div>
-                {children}
+                <div className="p-6">{children}</div>
             </div>
         </div>
     );
@@ -60,15 +57,12 @@ export default function Assignments() {
 
     const fetchInitialData = async () => {
         setIsLoading(true);
-        // Fetch Classes
         const { data: classes } = await supabase.from('classes').select('id, name');
         setDbClasses(classes || []);
 
-        // Fetch Subjects
         const { data: subjects } = await supabase.from('subjects').select('id, name').order('name');
         setDbSubjects(subjects || []);
 
-        // Fetch My Assignments
         const userId = localStorage.getItem('userId');
         if (userId) {
             const { data: asgs } = await supabase
@@ -160,117 +154,120 @@ export default function Assignments() {
     };
 
     return (
-        <div className="space-y-8 animate-in fade-in duration-500 max-w-7xl mx-auto">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="space-y-6 animate-in fade-in duration-500">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b-4 border-ink pb-6">
                 <div>
-                    <h1 className="text-3xl font-black text-gray-900 dark:text-gray-100 tracking-tight">Manajemen Tugas</h1>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 font-medium mt-1">Buat dan kelola tugas untuk siswa Anda.</p>
+                    <h1 className="text-4xl font-black text-ink font-serif uppercase tracking-tight">MANAJEMEN TUGAS</h1>
+                    <p className="text-ink font-mono font-bold uppercase tracking-widest mt-2 block">Buat dan kelola tugas untuk siswa Anda.</p>
                 </div>
                 <button
                     onClick={() => setIsModalOpen(true)}
-                    className="flex items-center justify-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-2xl font-black transition-all shadow-xl shadow-blue-100 active:scale-95"
+                    className="flex items-center justify-center space-x-2 bg-ink text-paper px-6 py-3 font-mono font-bold uppercase tracking-widest transition-all border-2 border-ink shadow-[4px_4px_0px_0px_#111111] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none hover:bg-paper hover:text-ink"
                 >
-                    <Plus size={20} />
-                    <span className="uppercase tracking-widest text-xs">Buat Tugas Baru</span>
+                    <Plus size={20} strokeWidth={3} />
+                    <span>BUAT TUGAS BARU</span>
                 </button>
             </div>
 
             {/* List */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {assignments.length > 0 ? assignments.map((asg) => (
-                    <div key={asg.id} className="bg-white dark:bg-gray-900 p-6 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-xl dark:shadow-black/20 transition-all group relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-blue-50 dark:bg-blue-900/10 rounded-full -mr-10 -mt-10 opacity-50 group-hover:scale-150 transition-transform duration-500"></div>
-
-                        <div className="relative z-10">
-                            <div className="flex justify-between items-start mb-4">
-                                <span className="px-3 py-1 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg text-[10px] font-black uppercase tracking-widest border border-blue-100/50 dark:border-blue-900/40">
-                                    {asg.classes?.name || 'Unknown Class'}
-                                </span>
-                                <div className="flex space-x-1">
-                                    <button onClick={() => handleDelete(asg.id)} className="p-2 hover:bg-red-50 dark:hover:bg-red-900/30 text-gray-300 dark:text-gray-600 hover:text-red-500 dark:hover:text-red-400 rounded-xl transition-colors">
-                                        <Trash2 size={16} />
+            {isLoading ? (
+                <div className="py-20 text-center font-mono text-[10px] uppercase tracking-widest">Memuat Data Tugas...</div>
+            ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {assignments.length > 0 ? assignments.map((asg) => (
+                        <div key={asg.id} className="bg-paper border-2 border-ink shadow-[8px_8px_0px_0px_#111111] group hover:-translate-y-1 hover:shadow-[12px_12px_0px_0px_#111111] transition-all duration-300">
+                            <div className="p-6 bg-ink text-paper relative overflow-hidden border-b-2 border-ink">
+                                <div className="flex items-start justify-between relative z-10">
+                                    <span className="px-2 py-1 bg-paper text-ink text-[10px] font-mono font-black uppercase tracking-widest border-2 border-ink">
+                                        {asg.classes?.name || 'Kelas Tidak Diketahui'}
+                                    </span>
+                                    <button onClick={() => handleDelete(asg.id)} className="p-2 border-2 border-transparent hover:border-editorial hover:bg-editorial transition-all text-paper">
+                                        <Trash2 size={16} strokeWidth={2.5} />
                                     </button>
                                 </div>
+                                <h3 className="text-2xl font-serif font-black mt-4 tracking-tight uppercase leading-tight line-clamp-2">{asg.title}</h3>
                             </div>
 
-                            <h3 className="text-xl font-black text-gray-900 dark:text-gray-100 mb-2 line-clamp-2 leading-tight group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                                {asg.title}
-                            </h3>
+                            <div className="p-6 space-y-4">
+                                <div className="flex items-center space-x-2 text-[10px] font-mono font-bold text-ink uppercase tracking-widest">
+                                    <BookOpen size={14} />
+                                    <span>{asg.subject_name}</span>
+                                </div>
 
-                            <div className="flex items-center space-x-2 text-xs font-bold text-gray-400 dark:text-gray-500 mb-4 uppercase tracking-wide">
-                                <BookOpen size={14} className="text-blue-300 dark:text-blue-700" />
-                                <span>{asg.subject_name}</span>
-                            </div>
+                                <p className="text-sm text-ink/70 font-body line-clamp-3 leading-relaxed border-l-2 border-ink/20 pl-4">
+                                    {asg.description || 'Tidak ada deskripsi.'}
+                                </p>
 
-                            <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-3 mb-6 leading-relaxed">
-                                {asg.description || 'Tidak ada deskripsi.'}
-                            </p>
-
-                            {asg.file_url && (
-                                <div className="mb-4">
+                                {asg.file_url && (
                                     <a
                                         href={asg.file_url}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="inline-flex items-center space-x-2 text-xs font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-3 py-2 rounded-xl border border-blue-100/50 dark:border-blue-900/40 transition-colors"
+                                        className="inline-flex items-center space-x-2 text-[10px] font-mono font-bold text-ink uppercase tracking-widest border-2 border-ink px-3 py-2 hover:bg-ink hover:text-paper transition-colors"
                                     >
                                         <Download size={14} />
-                                        <span>Download Lampiran</span>
+                                        <span>Unduh Lampiran</span>
                                     </a>
-                                </div>
-                            )}
+                                )}
 
-                            <div className="pt-4 border-t border-gray-50 dark:border-gray-800 flex items-center justify-between">
-                                <div className="flex items-center space-x-2 text-xs font-bold text-orange-500 dark:text-orange-600">
-                                    <Clock size={14} />
-                                    <span>Due: {new Date(asg.due_date).toLocaleDateString('id-ID')}</span>
+                                <div className="pt-4 border-t-2 border-ink/10 flex items-center justify-between">
+                                    <div className="flex items-center space-x-2 text-[10px] font-mono font-bold text-newsprint-red uppercase tracking-widest">
+                                        <Clock size={14} />
+                                        <span>Tenggat: {new Date(asg.due_date).toLocaleDateString('id-ID')}</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                )) : (
-                    <div className="col-span-full py-20 text-center bg-gray-50 dark:bg-gray-800/50 rounded-[3rem] border-2 border-dashed border-gray-200 dark:border-gray-800">
-                        <FileText size={48} className="mx-auto text-gray-300 dark:text-gray-700 mb-4" />
-                        <h3 className="text-lg font-black text-gray-400 dark:text-gray-500">Belum ada tugas</h3>
-                        <p className="text-sm text-gray-400 dark:text-gray-500">Mulai buat tugas baru untuk siswa Anda.</p>
-                    </div>
-                )}
-            </div>
+                    )) : (
+                        <div className="col-span-full py-20 text-center border-2 border-dashed border-ink/20 bg-paper">
+                            <FileText size={48} className="mx-auto text-ink/20 mb-4" strokeWidth={1} />
+                            <h3 className="text-lg font-serif font-black text-ink/40 uppercase">Belum Ada Tugas</h3>
+                            <p className="text-sm font-mono text-ink/30 uppercase tracking-widest mt-2">Mulai buat tugas baru untuk siswa Anda.</p>
+                        </div>
+                    )}
+                </div>
+            )}
 
             <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Buat Tugas Baru">
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="space-y-1">
-                        <label className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest px-1">Kelas Target</label>
-                        <select
-                            required
-                            className="w-full bg-gray-50 dark:bg-gray-800 border-transparent rounded-xl px-4 py-3 font-bold text-gray-700 dark:text-gray-200 outline-none focus:bg-white dark:focus:bg-gray-700 focus:border-blue-500 border-2 transition-all"
-                            value={formData.class_id}
-                            onChange={e => setFormData({ ...formData, class_id: e.target.value })}
-                        >
-                            <option value="">Pilih Kelas</option>
-                            {dbClasses.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                        </select>
+                        <label className="text-[10px] font-mono font-bold text-ink uppercase tracking-widest px-1">KELAS TARGET</label>
+                        <div className="relative group">
+                            <select
+                                required
+                                className="w-full bg-paper border-2 border-ink px-4 py-4 font-mono font-bold text-ink uppercase outline-none focus:shadow-[4px_4px_0px_0px_#111111] transition-all appearance-none cursor-pointer"
+                                value={formData.class_id}
+                                onChange={e => setFormData({ ...formData, class_id: e.target.value })}
+                            >
+                                <option value="">Pilih Kelas</option>
+                                {dbClasses.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                            </select>
+                            <ChevronDown size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-ink pointer-events-none" />
+                        </div>
                     </div>
 
                     <div className="space-y-1">
-                        <label className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest px-1">Mata Pelajaran</label>
-                        <select
-                            required
-                            className="w-full bg-gray-50 dark:bg-gray-800 border-transparent rounded-xl px-4 py-3 font-bold text-gray-700 dark:text-gray-200 outline-none focus:bg-white dark:focus:bg-gray-700 focus:border-blue-500 border-2 transition-all"
-                            value={formData.subject_name}
-                            onChange={e => setFormData({ ...formData, subject_name: e.target.value })}
-                        >
-                            <option value="">Pilih Mapel</option>
-                            {dbSubjects.map(s => <option key={s.id} value={s.name}>{s.name}</option>)}
-                        </select>
+                        <label className="text-[10px] font-mono font-bold text-ink uppercase tracking-widest px-1">MATA PELAJARAN</label>
+                        <div className="relative group">
+                            <select
+                                required
+                                className="w-full bg-paper border-2 border-ink px-4 py-4 font-mono font-bold text-ink uppercase outline-none focus:shadow-[4px_4px_0px_0px_#111111] transition-all appearance-none cursor-pointer"
+                                value={formData.subject_name}
+                                onChange={e => setFormData({ ...formData, subject_name: e.target.value })}
+                            >
+                                <option value="">Pilih Mapel</option>
+                                {dbSubjects.map(s => <option key={s.id} value={s.name}>{s.name}</option>)}
+                            </select>
+                            <ChevronDown size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-ink pointer-events-none" />
+                        </div>
                     </div>
 
                     <div className="space-y-1">
-                        <label className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest px-1">Judul Tugas</label>
+                        <label className="text-[10px] font-mono font-bold text-ink uppercase tracking-widest px-1">JUDUL TUGAS</label>
                         <input
                             required
                             type="text"
-                            className="w-full bg-gray-50 dark:bg-gray-800 border-transparent rounded-xl px-4 py-3 font-bold text-gray-700 dark:text-gray-200 outline-none focus:bg-white dark:focus:bg-gray-700 focus:border-blue-500 border-2 transition-all"
+                            className="w-full bg-paper border-2 border-ink px-4 py-4 font-mono font-bold text-ink uppercase outline-none focus:shadow-[4px_4px_0px_0px_#111111] transition-all"
                             placeholder="Contoh: Latihan Soal Bab 1"
                             value={formData.title}
                             onChange={e => setFormData({ ...formData, title: e.target.value })}
@@ -278,9 +275,9 @@ export default function Assignments() {
                     </div>
 
                     <div className="space-y-1">
-                        <label className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest px-1">Deskripsi / Instruksi</label>
+                        <label className="text-[10px] font-mono font-bold text-ink uppercase tracking-widest px-1">DESKRIPSI / INSTRUKSI</label>
                         <textarea
-                            className="w-full bg-gray-50 dark:bg-gray-800 border-transparent rounded-xl px-4 py-3 font-bold text-gray-700 dark:text-gray-200 outline-none focus:bg-white dark:focus:bg-gray-700 focus:border-blue-500 border-2 transition-all h-24 resize-none"
+                            className="w-full bg-paper border-2 border-ink px-4 py-4 font-mono font-bold text-ink outline-none focus:shadow-[4px_4px_0px_0px_#111111] transition-all h-24 resize-none"
                             placeholder="Jelaskan detail tugas di sini..."
                             value={formData.description}
                             onChange={e => setFormData({ ...formData, description: e.target.value })}
@@ -288,18 +285,18 @@ export default function Assignments() {
                     </div>
 
                     <div className="space-y-1">
-                        <label className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest px-1">Batas Pengumpulan (Deadline)</label>
+                        <label className="text-[10px] font-mono font-bold text-ink uppercase tracking-widest px-1">BATAS PENGUMPULAN</label>
                         <input
                             required
                             type="datetime-local"
-                            className="w-full bg-gray-50 dark:bg-gray-800 border-transparent rounded-xl px-4 py-3 font-bold text-gray-700 dark:text-gray-200 outline-none focus:bg-white dark:focus:bg-gray-700 focus:border-blue-500 border-2 transition-all"
+                            className="w-full bg-paper border-2 border-ink px-4 py-4 font-mono font-bold text-ink outline-none focus:shadow-[4px_4px_0px_0px_#111111] transition-all"
                             value={formData.due_date}
                             onChange={e => setFormData({ ...formData, due_date: e.target.value })}
                         />
                     </div>
 
                     <div className="space-y-1">
-                        <label className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest px-1">Lampiran File (Opsional)</label>
+                        <label className="text-[10px] font-mono font-bold text-ink uppercase tracking-widest px-1">LAMPIRAN FILE (OPSIONAL)</label>
                         <div className="relative">
                             <input
                                 type="file"
@@ -309,10 +306,10 @@ export default function Assignments() {
                             />
                             <label
                                 htmlFor="file-upload"
-                                className="flex items-center justify-center space-x-2 w-full bg-gray-50 dark:bg-gray-800 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl px-4 py-4 font-bold text-gray-500 dark:text-gray-400 cursor-pointer hover:bg-white dark:hover:bg-gray-700 hover:border-blue-500 transition-all"
+                                className="flex items-center justify-center space-x-2 w-full bg-paper border-2 border-dashed border-ink px-4 py-4 font-mono font-bold text-ink cursor-pointer hover:bg-neutral-50 hover:shadow-[4px_4px_0px_0px_#111111] transition-all uppercase tracking-widest text-[10px]"
                             >
-                                <Upload size={20} className={selectedFile ? 'text-blue-600' : ''} />
-                                <span className={selectedFile ? 'text-blue-600' : ''}>
+                                <Upload size={20} className={selectedFile ? 'text-newsprint-red' : ''} />
+                                <span className={selectedFile ? 'text-newsprint-red' : ''}>
                                     {selectedFile ? selectedFile.name : 'Pilih File (PDF, Gambar, dll)'}
                                 </span>
                             </label>
@@ -322,17 +319,17 @@ export default function Assignments() {
                     <button
                         type="submit"
                         disabled={isUploading}
-                        className={`w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-4 rounded-2xl shadow-xl shadow-blue-100 dark:shadow-black/20 transition-all flex items-center justify-center space-x-2 active:scale-95 mt-4 ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        className={`w-full bg-ink hover:bg-paper text-paper hover:text-ink font-mono font-bold py-4 border-2 border-ink transition-colors flex items-center justify-center space-x-2 shadow-[4px_4px_0px_0px_#111111] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_#111111] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none mt-6 ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
                         {isUploading ? (
                             <div className="flex items-center space-x-2">
-                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                <div className="w-4 h-4 border-2 border-paper border-t-transparent rounded-full animate-spin"></div>
                                 <span className="uppercase tracking-widest text-xs">Mengunggah...</span>
                             </div>
                         ) : (
                             <>
                                 <Save size={20} />
-                                <span className="uppercase tracking-widest text-xs">Terbitkan Tugas</span>
+                                <span className="uppercase tracking-widest text-xs">TERBITKAN TUGAS</span>
                             </>
                         )}
                     </button>

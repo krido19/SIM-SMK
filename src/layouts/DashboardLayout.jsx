@@ -88,71 +88,76 @@ export default function DashboardLayout() {
     const menuItems = {
         admin: [
             {
-                category: "The Front Page", items: [
-                    { to: '/dashboard', icon: LayoutDashboard, label: 'Live Bulletin / Home' }
+                category: "Halaman Utama", items: [
+                    { to: '/dashboard', icon: LayoutDashboard, label: 'Beranda' }
                 ]
             },
             {
-                category: "Directory", items: [
-                    { to: '/admin/students', icon: Users, label: 'Student Records' },
-                    { to: '/admin/teachers', icon: UserCircle, label: 'Faculty Directory' }
+                category: "Direktori", items: [
+                    { to: '/admin/students', icon: Users, label: 'Data Siswa' },
+                    { to: '/admin/teachers', icon: UserCircle, label: 'Data Guru' }
                 ]
             },
             {
-                category: "Academics", items: [
-                    { to: '/admin/classes', icon: Hash, label: 'Class Sections' },
-                    { to: '/admin/subjects', icon: BookOpen, label: 'Curriculum' },
-                    { to: '/admin/schedule', icon: Calendar, label: 'Timetable' }
+                category: "Akademik", items: [
+                    { to: '/admin/classes', icon: Hash, label: 'Kelas' },
+                    { to: '/admin/subjects', icon: BookOpen, label: 'Mata Pelajaran' },
+                    { to: '/admin/schedule', icon: Calendar, label: 'Jadwal Pelajaran' }
                 ]
             },
             {
-                category: "Administration", items: [
-                    { to: '/admin/announcements', icon: Bell, label: 'Gazette' },
-                    { to: '/admin/fonnte', icon: MessageCircle, label: 'Comms Center' },
-                    { to: '/admin/backup', icon: Database, label: 'Archives' },
-                    { to: '/admin/settings', icon: Settings, label: 'Preferences' }
+                category: "Administrasi", items: [
+                    { to: '/admin/announcements', icon: Bell, label: 'Pengumuman' },
+                    { to: '/admin/fonnte', icon: MessageCircle, label: 'Pusat Pesan' },
+                    { to: '/admin/backup', icon: Database, label: 'Cadangan Data' },
+                    { to: '/admin/settings', icon: Settings, label: 'Pengaturan' }
                 ]
             }
         ],
         guru: [
             {
-                category: "The Front Page", items: [
-                    { to: '/dashboard', icon: LayoutDashboard, label: 'Live Bulletin / Home' }
+                category: "Halaman Utama", items: [
+                    { to: '/dashboard', icon: LayoutDashboard, label: 'Beranda' }
                 ]
             },
             {
-                category: "Academics", items: [
-                    { to: '/teacher/grades', icon: BookOpen, label: 'Gradebook Ledger' },
-                    { to: '/teacher/attendance', icon: Users, label: 'Attendance Roster' },
-                    { to: '/teacher/assignments', icon: ClipboardList, label: 'Coursework Log' }
+                category: "Akademik", items: [
+                    { to: '/teacher/grades', icon: BookOpen, label: 'Input Nilai' },
+                    { to: '/teacher/attendance', icon: Users, label: 'Absensi Siswa' },
+                    { to: '/teacher/assignments', icon: ClipboardList, label: 'Tugas & Penilaian' }
+                ]
+            },
+            {
+                category: "Informasi", items: [
+                    { to: '/teacher/announcements', icon: Bell, label: 'Pengumuman' }
                 ]
             }
         ],
         siswa: [
             {
-                category: "The Front Page", items: [
-                    { to: '/dashboard', icon: LayoutDashboard, label: 'Live Bulletin / Home' }
+                category: "Halaman Utama", items: [
+                    { to: '/dashboard', icon: LayoutDashboard, label: 'Beranda' }
                 ]
             },
             {
-                category: "Academics", items: [
-                    { to: '/student/grades', icon: Award, label: 'Academic Transcript' },
-                    { to: '/student/attendance', icon: Users, label: 'Attendance Record' },
-                    { to: '/student/assignments', icon: ClipboardList, label: 'Coursework Log' }
+                category: "Akademik", items: [
+                    { to: '/student/grades', icon: Award, label: 'Rapor & Nilai' },
+                    { to: '/student/attendance', icon: Users, label: 'Rekap Kehadiran' },
+                    { to: '/student/assignments', icon: ClipboardList, label: 'Tugas Saya' }
                 ]
             }
         ],
         parent: [
             {
-                category: "The Front Page", items: [
-                    { to: '/dashboard', icon: LayoutDashboard, label: 'Live Bulletin / Home' }
+                category: "Halaman Utama", items: [
+                    { to: '/dashboard', icon: LayoutDashboard, label: 'Beranda' }
                 ]
             },
             {
-                category: "Academics", items: [
-                    { to: '/student/grades', icon: Award, label: 'Academic Transcript' },
-                    { to: '/student/attendance', icon: Users, label: 'Attendance Record' },
-                    { to: '/student/assignments', icon: ClipboardList, label: 'Coursework Log' }
+                category: "Akademik", items: [
+                    { to: '/student/grades', icon: Award, label: 'Rapor & Nilai' },
+                    { to: '/student/attendance', icon: Users, label: 'Rekap Kehadiran' },
+                    { to: '/student/assignments', icon: ClipboardList, label: 'Tugas Anak' }
                 ]
             }
         ]
@@ -217,7 +222,7 @@ export default function DashboardLayout() {
                             className="w-full flex items-center justify-center space-x-2 px-4 py-3 border border-ink font-sans font-bold text-[10px] uppercase tracking-widest hover:bg-ink hover:text-paper transition-all"
                         >
                             <LogOut size={16} strokeWidth={2} />
-                            <span>Terminate Session</span>
+                            <span>Keluar</span>
                         </button>
                     </div>
                 </div>
@@ -235,17 +240,17 @@ export default function DashboardLayout() {
                     </button>
 
                     <div className="hidden lg:flex items-center gap-4 text-[11px] font-mono uppercase tracking-widest opacity-60">
-                        <span>{new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                        <span>{new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
                     </div>
 
                     <div className="flex items-center space-x-4 h-full">
                         <div className="hidden md:flex h-full items-center border-x-2 border-ink px-6">
                             <div className="text-right">
                                 <p className="text-[11px] font-serif font-black leading-none">
-                                    {userName || "OFFICIAL AUTHOR"}
+                                    {userName || "PENGGUNA"}
                                 </p>
                                 <p className="text-[9px] font-mono uppercase tracking-widest mt-1 opacity-50">
-                                    Member: {role}
+                                    Peran: {role}
                                 </p>
                             </div>
                         </div>

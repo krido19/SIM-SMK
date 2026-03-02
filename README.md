@@ -2,6 +2,9 @@
 
 **SIM-SMK** adalah platform manajemen sekolah terintegrasi yang dirancang khusus untuk memenuhi kebutuhan kompleks Sekolah Menengah Kejuruan (SMK). Dibangun dengan estetika premium, performa tinggi, dan fokus pada kemudahan penggunaan bagi Admin, Guru, Siswa, hingga Orang Tua.
 
+📖 **PANDUAN ALUR APLIKASI (Read Me First!):**
+Silakan baca [README_FLOW.md](./README_FLOW.md) untuk memahami *User Journey* mulai dari login hingga fitur detail Dasbor setiap Peran (Admin, Guru, Siswa, Orang Tua).
+
 ---
 
 ## 🚀 Latar Belakang & Masalah

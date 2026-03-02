@@ -100,15 +100,15 @@ export default function StudentAttendance() {
     ];
 
     if (loading) {
-        return <div className="p-8 text-center bg-white dark:bg-gray-900 rounded-[3rem] shadow-xl animate-pulse font-black text-gray-400 dark:text-gray-500">Loading data absensi...</div>;
+        return <div className="p-8 text-center font-mono text-[10px] uppercase tracking-widest bg-paper border-2 border-ink shadow-[4px_4px_0px_0px_#111111] animate-pulse font-bold text-ink">Memuat data absensi...</div>;
     }
 
     return (
         <div className="space-y-8 animate-in fade-in duration-500 max-w-7xl mx-auto pb-10">
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b-4 border-ink pb-6">
                 <div>
-                    <h1 className="text-4xl font-serif font-black text-ink uppercase tracking-tighter leading-none mb-1">Attendance Record</h1>
-                    <p className="font-mono text-[10px] uppercase tracking-widest opacity-60 mt-2">Official Monitoring Log</p>
+                    <h1 className="text-4xl font-serif font-black text-ink uppercase tracking-tighter leading-none mb-1">Rekap Kehadiran</h1>
+                    <p className="font-mono text-[10px] uppercase tracking-widest opacity-60 mt-2">Catatan Kehadiran Resmi</p>
                 </div>
 
                 <div className="flex border-2 border-ink p-1 bg-white self-start shadow-[4px_4px_0px_0px_rgba(17,17,17,1)]">
@@ -117,7 +117,7 @@ export default function StudentAttendance() {
                         className={`flex items-center space-x-2 px-4 py-2 text-[10px] font-mono font-bold uppercase tracking-widest transition-colors ${viewMode === 'calendar' ? 'bg-ink text-paper' : 'text-ink/60 hover:bg-neutral-100 hover:text-ink'}`}
                     >
                         <CalendarDays size={14} strokeWidth={2} />
-                        <span>Calendar</span>
+                        <span>Kalender</span>
                     </button>
                     <div className="w-0.5 bg-ink/20 mx-1"></div>
                     <button
@@ -125,7 +125,7 @@ export default function StudentAttendance() {
                         className={`flex items-center space-x-2 px-4 py-2 text-[10px] font-mono font-bold uppercase tracking-widest transition-colors ${viewMode === 'list' ? 'bg-ink text-paper' : 'text-ink/60 hover:bg-neutral-100 hover:text-ink'}`}
                     >
                         <PieChart size={14} strokeWidth={2} />
-                        <span>List</span>
+                        <span>Daftar</span>
                     </button>
                 </div>
             </div>
@@ -133,10 +133,10 @@ export default function StudentAttendance() {
             {/* Stats Overview */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                 {[
-                    { label: 'Present', value: stats.hadir, bgClass: 'bg-green-100', dotClass: 'bg-green-600', textClass: 'text-green-800' },
-                    { label: 'Sick', value: stats.sakit, bgClass: 'bg-amber-100', dotClass: 'bg-amber-600', textClass: 'text-amber-800' },
-                    { label: 'Excused', value: stats.izin, bgClass: 'bg-blue-100', dotClass: 'bg-blue-600', textClass: 'text-blue-800' },
-                    { label: 'Absent', value: stats.alpa, bgClass: 'bg-newsprint-red', dotClass: 'bg-ink', textClass: 'text-white' },
+                    { label: 'Hadir', value: stats.hadir, bgClass: 'bg-green-100', dotClass: 'bg-green-600', textClass: 'text-green-800' },
+                    { label: 'Sakit', value: stats.sakit, bgClass: 'bg-amber-100', dotClass: 'bg-amber-600', textClass: 'text-amber-800' },
+                    { label: 'Izin', value: stats.izin, bgClass: 'bg-blue-100', dotClass: 'bg-blue-600', textClass: 'text-blue-800' },
+                    { label: 'Alpa', value: stats.alpa, bgClass: 'bg-newsprint-red', dotClass: 'bg-ink', textClass: 'text-white' },
                 ].map((stat) => (
                     <div key={stat.label} className={`border-2 border-ink p-6 shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] flex flex-col justify-between ${stat.bgClass}`}>
                         <div className="flex items-center space-x-2 mb-4">
@@ -144,7 +144,7 @@ export default function StudentAttendance() {
                             <span className={`text-[10px] font-mono font-bold uppercase tracking-widest ${stat.textClass}`}>{stat.label}</span>
                         </div>
                         <h2 className={`text-5xl font-mono font-black tracking-tighter ${stat.textClass}`}>{stat.value}</h2>
-                        <p className={`text-[9px] font-mono font-bold uppercase tracking-[0.2em] mt-4 pt-2 border-t-2 border-ink/20 ${stat.textClass}`}>Days Tally</p>
+                        <p className={`text-[9px] font-mono font-bold uppercase tracking-[0.2em] mt-4 pt-2 border-t-2 border-ink/20 ${stat.textClass}`}>Total Hari</p>
                     </div>
                 ))}
             </div>
@@ -155,13 +155,13 @@ export default function StudentAttendance() {
                     {viewMode === 'calendar' ? (
                         <div className="bg-white p-8 border-2 border-ink shadow-[8px_8px_0px_0px_rgba(17,17,17,1)] relative overflow-hidden newsprint-texture">
                             <div className="flex items-center justify-between mb-8 border-b-2 border-ink pb-4">
-                                <h3 className="text-2xl font-serif font-black text-ink uppercase tracking-tight">Academic Calendar</h3>
+                                <h3 className="text-2xl font-serif font-black text-ink uppercase tracking-tight">Kalender Akademik</h3>
                                 <div className="flex items-center space-x-4 border-2 border-ink p-1 bg-paper">
                                     <button onClick={prevMonth} className="px-3 py-1 hover:bg-neutral-200 transition-colors">
                                         <Clock size={16} strokeWidth={2} className="rotate-180 text-ink" />
                                     </button>
                                     <span className="text-xs font-mono font-bold uppercase tracking-widest text-ink">
-                                        {currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                                        {currentMonth.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}
                                     </span>
                                     <button onClick={nextMonth} className="px-3 py-1 hover:bg-neutral-200 transition-colors">
                                         <Clock size={16} strokeWidth={2} className="text-ink" />
@@ -170,7 +170,7 @@ export default function StudentAttendance() {
                             </div>
 
                             <div className="grid grid-cols-7 gap-px bg-ink mb-1 border-2 border-ink">
-                                {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(day => (
+                                {['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'].map(day => (
                                     <div key={day} className="text-center font-mono text-[10px] bg-paper font-black text-ink uppercase tracking-widest py-3">
                                         {day}
                                     </div>
@@ -210,7 +210,7 @@ export default function StudentAttendance() {
                                             {att?.notes && (
                                                 <div className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity z-20 pointer-events-none w-max max-w-xs">
                                                     <div className="bg-ink text-paper font-mono text-[9px] font-bold px-2 py-1 border border-ink shadow-[2px_2px_0px_0px_rgba(204,0,0,1)] whitespace-normal text-left uppercase tracking-wider">
-                                                        Note: {att.notes}
+                                                        Catatan: {att.notes}
                                                     </div>
                                                 </div>
                                             )}
@@ -222,22 +222,22 @@ export default function StudentAttendance() {
                             <div className="mt-8 flex items-center justify-center space-x-6 border-t-2 border-ink pt-6">
                                 <div className="flex items-center space-x-2">
                                     <div className="w-2 h-2 border border-ink bg-green-600" />
-                                    <span className="text-[9px] font-mono font-black uppercase tracking-widest text-ink">Present</span>
+                                    <span className="text-[9px] font-mono font-black uppercase tracking-widest text-ink">Hadir</span>
                                 </div>
                                 <div className="flex items-center space-x-2">
                                     <div className="w-2 h-2 border border-ink bg-amber-600" />
-                                    <span className="text-[9px] font-mono font-black uppercase tracking-widest text-ink">Excused/Sick</span>
+                                    <span className="text-[9px] font-mono font-black uppercase tracking-widest text-ink">Izin/Sakit</span>
                                 </div>
                                 <div className="flex items-center space-x-2">
                                     <div className="w-2 h-2 border border-ink bg-newsprint-red" />
-                                    <span className="text-[9px] font-mono font-black uppercase tracking-widest text-ink">Absent</span>
+                                    <span className="text-[9px] font-mono font-black uppercase tracking-widest text-ink">Alpa</span>
                                 </div>
                             </div>
                         </div>
                     ) : (
                         <div className="bg-white p-8 border-2 border-ink shadow-[8px_8px_0px_0px_rgba(17,17,17,1)] overflow-hidden relative newsprint-texture">
                             <div className="flex items-center justify-between mb-8 border-b-2 border-ink pb-4">
-                                <h3 className="text-2xl font-serif font-black text-ink uppercase tracking-tight">Attendance Log</h3>
+                                <h3 className="text-2xl font-serif font-black text-ink uppercase tracking-tight">Riwayat Kehadiran</h3>
                                 <div className="p-2 border-2 border-ink bg-neutral-100">
                                     <BarChart3 size={16} strokeWidth={2} className="text-ink" />
                                 </div>
@@ -246,7 +246,7 @@ export default function StudentAttendance() {
                                 {attendance.length === 0 ? (
                                     <div className="py-20 text-center">
                                         <XCircle size={48} strokeWidth={1} className="mx-auto text-ink/20 border-newsprint-red mb-4" />
-                                        <p className="font-mono text-ink/60 font-bold uppercase tracking-widest text-xs">No records found</p>
+                                        <p className="font-mono text-ink/60 font-bold uppercase tracking-widest text-xs">Tidak ada data ditemukan</p>
                                     </div>
                                 ) : (
                                     attendance.map((item) => (
@@ -256,17 +256,17 @@ export default function StudentAttendance() {
                                                     {item.status === 'Hadir' ? <CheckCircle2 size={20} strokeWidth={2} /> : <AlertCircle size={20} strokeWidth={2} />}
                                                 </div>
                                                 <div>
-                                                    <p className="font-serif text-lg font-black text-ink leading-tight">{new Date(item.date).toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' })}</p>
+                                                    <p className="font-serif text-lg font-black text-ink leading-tight">{new Date(item.date).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' })}</p>
                                                     <p className="font-mono text-[9px] font-bold text-ink/60 uppercase tracking-widest mt-1">
-                                                        {item.notes ? `Note: ${item.notes}` : 'Daily Log'}
+                                                        {item.notes ? `Catatan: ${item.notes}` : 'Catatan Harian'}
                                                     </p>
                                                 </div>
                                             </div>
                                             <div className="flex items-center justify-end">
                                                 <span className={`px-4 py-1.5 text-[10px] font-mono font-black uppercase tracking-widest border-2 border-ink shadow-[2px_2px_0px_0px_rgba(17,17,17,1)] ${item.status === 'Hadir' ? 'bg-green-100 text-green-800' :
-                                                        item.status === 'Sakit' ? 'bg-amber-100 text-amber-800' :
-                                                            item.status === 'Izin' ? 'bg-blue-100 text-blue-800' :
-                                                                'bg-newsprint-red text-white border-transparent shadow-[2px_2px_0px_0px_rgba(17,17,17,0.5)]'
+                                                    item.status === 'Sakit' ? 'bg-amber-100 text-amber-800' :
+                                                        item.status === 'Izin' ? 'bg-blue-100 text-blue-800' :
+                                                            'bg-newsprint-red text-white border-transparent shadow-[2px_2px_0px_0px_rgba(17,17,17,0.5)]'
                                                     }`}>
                                                     {item.status}
                                                 </span>
@@ -285,10 +285,10 @@ export default function StudentAttendance() {
                     <div className="bg-white p-8 border-2 border-ink shadow-[8px_8px_0px_0px_rgba(17,17,17,1)] flex flex-col items-center justify-center relative overflow-hidden group">
                         <div className="text-center relative z-10 w-full mb-6">
                             <h3 className="text-3xl font-serif font-black text-ink tracking-tight uppercase">
-                                Metric Details
+                                Rincian Metrik
                             </h3>
                             <p className="font-mono text-[9px] font-bold text-ink/60 mt-1 uppercase tracking-widest border-b-2 border-ink pb-4">
-                                Cumulative Record
+                                Rekap Kumulatif
                             </p>
                         </div>
 
@@ -308,18 +308,18 @@ export default function StudentAttendance() {
                             </svg>
                             <div className="absolute inset-0 flex flex-col items-center justify-center bg-white m-3 rounded-full border-2 border-ink">
                                 <span className="text-4xl font-serif font-black text-ink tracking-tighter leading-none">{stats.totalRate}<span className="text-xl">%</span></span>
-                                <span className="font-mono text-[8px] font-black text-ink/60 uppercase tracking-[0.2em] mt-1">Active</span>
+                                <span className="font-mono text-[8px] font-black text-ink/60 uppercase tracking-[0.2em] mt-1">Aktif</span>
                             </div>
                         </div>
 
                         <div className="w-full pt-6 border-t-2 border-ink grid grid-cols-2 mt-4 relative">
                             <div className="text-center border-r-2 border-ink">
                                 <span className="text-3xl font-mono font-black text-ink">{attendance.length}</span>
-                                <p className="font-mono text-[9px] font-bold text-ink/60 uppercase tracking-widest mt-1">Logged Days</p>
+                                <p className="font-mono text-[9px] font-bold text-ink/60 uppercase tracking-widest mt-1">Hari Tercatat</p>
                             </div>
                             <div className="text-center bg-ink text-paper -m-8 ml-0 -mt-0 py-6 pr-6 pl-4 flex flex-col justify-center items-center">
                                 <span className="text-3xl font-mono font-black">{stats.hadir}</span>
-                                <p className="font-mono text-[9px] font-bold uppercase tracking-widest mt-1 opacity-80">Present</p>
+                                <p className="font-mono text-[9px] font-bold uppercase tracking-widest mt-1 opacity-80">Hadir</p>
                             </div>
                         </div>
                     </div>
@@ -328,16 +328,16 @@ export default function StudentAttendance() {
                     <div className="bg-newsprint-red p-8 border-2 border-ink shadow-[8px_8px_0px_0px_rgba(17,17,17,1)] text-white relative">
                         <div className="relative z-10">
                             <div className="flex items-center justify-between border-b-2 border-ink/30 pb-4 mb-6">
-                                <h4 className="font-serif text-2xl font-black uppercase tracking-tight">Report Absence</h4>
+                                <h4 className="font-serif text-2xl font-black uppercase tracking-tight">Laporkan Ketidakhadiran</h4>
                                 <div className="border-2 border-ink bg-white p-2">
                                     <Clock size={16} strokeWidth={2} className="text-ink" />
                                 </div>
                             </div>
                             <p className="font-mono text-xs font-bold leading-relaxed mb-8 opacity-90 border-l-2 border-white pl-4 uppercase tracking-widest">
-                                Must notify coordinator prior to 8:00 AM for valid excuse status.
+                                Wajib menghubungi koordinator sebelum pukul 08:00 WIB untuk status izin yang sah.
                             </p>
                             <button className="w-full border-2 border-ink bg-white text-ink hover:bg-ink hover:text-white font-mono font-black py-4 shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] hover:shadow-none active:translate-y-[4px] active:translate-x-[4px] transition-all uppercase tracking-widest text-[10px]">
-                                Contact Coordinator
+                                Hubungi Koordinator
                             </button>
                         </div>
                     </div>

@@ -79,22 +79,22 @@ const StudentDashboard = ({ userName }) => {
         }
     };
 
-    if (isLoading) return <div className="animate-pulse font-mono text-[10px] uppercase">Retrieving Academic File...</div>;
+    if (isLoading) return <div className="animate-pulse font-mono text-[10px] uppercase">Memuat Data Akademik...</div>;
 
     return (
         <div className="space-y-12">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                <StatCard title="Overall Standing" value={stats.avgGrade?.toString() || "0"} icon={Award} to="/student/grades" />
-                <StatCard title="Enrolled Subjects" value={stats.totalSubjects?.toString() || "0"} icon={BookOpen} />
-                <StatCard title="Attendance Record" value={stats.attendance || "0%"} icon={Calendar} to="/student/attendance" />
-                <StatCard title="Open Coursework" value={stats.pendingTasks?.toString() || "0"} icon={ClipboardList} to="/student/assignments" trend={stats.pendingTasks > 0 ? "Due Soon" : ""} />
+                <StatCard title="Rata-Rata Nilai" value={stats.avgGrade?.toString() || "0"} icon={Award} to="/student/grades" />
+                <StatCard title="Mata Pelajaran" value={stats.totalSubjects?.toString() || "0"} icon={BookOpen} />
+                <StatCard title="Rekap Kehadiran" value={stats.attendance || "0%"} icon={Calendar} to="/student/attendance" />
+                <StatCard title="Tugas Aktif" value={stats.pendingTasks?.toString() || "0"} icon={ClipboardList} to="/student/assignments" trend={stats.pendingTasks > 0 ? "Segera" : ""} />
             </div>
 
             <div className="bg-paper p-8 border-2 border-ink shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] relative newsprint-texture">
                 <div className="flex items-center justify-between mb-8 border-b-2 border-ink pb-4">
                     <div className="flex items-center gap-3">
                         <Clock size={24} className="text-ink" strokeWidth={1.5} />
-                        <h3 className="text-2xl font-serif font-black text-ink uppercase tracking-tight">Impending Deadlines</h3>
+                        <h3 className="text-2xl font-serif font-black text-ink uppercase tracking-tight">Tenggat Waktu</h3>
                     </div>
                 </div>
 
@@ -102,19 +102,19 @@ const StudentDashboard = ({ userName }) => {
                     <div className="space-y-4">
                         <div className="flex items-start justify-between border-b border-ink/20 pb-4">
                             <div>
-                                <p className="text-[10px] font-mono font-bold uppercase tracking-widest text-newsprint-red mb-1">Due within 48 hours</p>
-                                <h4 className="font-serif font-bold text-xl">Review Pending Assignments</h4>
-                                <p className="font-body text-sm opacity-70">You have {stats.pendingTasks} incomplete tasks requiring submission.</p>
+                                <p className="text-[10px] font-mono font-bold uppercase tracking-widest text-newsprint-red mb-1">Tenggat dalam 48 jam</p>
+                                <h4 className="font-serif font-bold text-xl">Tinjau Tugas yang Belum Selesai</h4>
+                                <p className="font-body text-sm opacity-70">Kamu punya {stats.pendingTasks} tugas yang perlu diselesaikan.</p>
                             </div>
                             <Link to="/student/assignments" className="py-2 px-4 border-2 border-ink font-sans font-bold text-[10px] uppercase tracking-widest hover:bg-ink hover:text-paper transition-all">
-                                Go to Inbox
+                                Lihat Tugas
                             </Link>
                         </div>
                     </div>
                 ) : (
                     <div className="py-12 flex flex-col items-center justify-center opacity-40">
                         <Award size={48} className="mb-4" strokeWidth={1} />
-                        <p className="font-serif italic text-lg text-center">Your ledger is clear. No impending deadlines.</p>
+                        <p className="font-serif italic text-lg text-center">Tidak ada tenggat waktu mendatang. Semua tugas sudah selesai.</p>
                     </div>
                 )}
             </div>

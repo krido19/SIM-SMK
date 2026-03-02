@@ -1,8 +1,9 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { sendWhatsApp } from '../../utils/fonnte';
 import { useFeedback } from '../../context/FeedbackContext';
+import * as XLSX from 'xlsx';
 import {
     Plus,
     Search,
@@ -22,7 +23,11 @@ import {
     UserCircle,
     Mail,
     Hash,
-    MessageCircle
+    MessageCircle,
+    Download,
+    Upload,
+    FileSpreadsheet,
+    AlertTriangle
 } from 'lucide-react';
 
 
@@ -31,12 +36,12 @@ import {
 const Modal = ({ isOpen, onClose, title, children }) => {
     if (!isOpen) return null;
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-300">
-            <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-300 border border-gray-100 dark:border-gray-800">
-                <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between bg-gray-50/50 dark:bg-gray-800/50">
-                    <h3 className="text-xl font-black text-gray-900 dark:text-gray-100">{title}</h3>
-                    <button onClick={onClose} className="p-2 hover:bg-gray-200 dark:hover:bg-gray-800 rounded-xl transition-colors text-gray-400">
-                        <X size={20} />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-300">
+            <div className="bg-paper border-4 border-ink shadow-[12px_12px_0px_0px_#111111] w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-300">
+                <div className="px-6 py-4 border-b-4 border-ink flex items-center justify-between bg-gray-50">
+                    <h3 className="text-xl font-black text-ink uppercase tracking-widest font-serif">{title}</h3>
+                    <button onClick={onClose} className="p-2 border-2 border-transparent hover:border-ink text-ink transition-all">
+                        <X size={24} strokeWidth={3} />
                     </button>
                 </div>
                 <div className="p-6">
@@ -65,6 +70,10 @@ export default function Students() {
     const [filterStatus, setFilterStatus] = useState('Semua');
     const [sortConfig, setSortConfig] = useState({ key: 'name', direction: 'asc' });
 
+    const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+    const [importPreview, setImportPreview] = useState([]);
+    const [isImporting, setIsImporting] = useState(false);
+    const importFileRef = useRef(null);
     const statuses = ['Semua', 'Aktif', 'Izin', 'Sakit', 'Alpa', 'Lulus'];
     const location = useLocation();
 
@@ -275,216 +284,323 @@ export default function Students() {
         });
     };
 
+    // ── EXPORT ──────────────────────────────────────────────
+    const handleExport = () => {
+        const exportData = students.map((s, i) => ({
+            'No': i + 1,
+            'Nama Lengkap': s.name,
+            'NIS': s.nis,
+            'Kelas': s.class || '',
+            'Email': s.email || '',
+            'WA Siswa': s.waStudent || '',
+            'WA Orang Tua': s.waParent || '',
+            'Status': s.status || 'Aktif',
+        }));
+        const ws = XLSX.utils.json_to_sheet(exportData);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Data Siswa');
+        XLSX.writeFile(wb, `Data_Siswa_${new Date().toLocaleDateString('id-ID').replace(/\//g, '-')}.xlsx`);
+        showToast('Data siswa berhasil diekspor ke Excel', 'success');
+    };
+
+    // ── IMPORT PREVIEW ────────────────────────────────────────
+    const handleImportFile = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (evt) => {
+            const wb = XLSX.read(evt.target.result, { type: 'binary' });
+            const ws = wb.Sheets[wb.SheetNames[0]];
+            const rows = XLSX.utils.sheet_to_json(ws, { defval: '' });
+            const mapped = rows.map(r => ({
+                full_name: r['Nama Lengkap'] || r['nama'] || r['name'] || '',
+                nis: String(r['NIS'] || r['nis'] || ''),
+                class_name: r['Kelas'] || r['kelas'] || '',
+                email: r['Email'] || r['email'] || '',
+                wa_student: String(r['WA Siswa'] || r['wa_siswa'] || '-'),
+                wa_parent: String(r['WA Orang Tua'] || r['wa_ortu'] || '-'),
+                status: r['Status'] || r['status'] || 'Aktif',
+            })).filter(r => r.full_name);
+            setImportPreview(mapped);
+            setIsImportModalOpen(true);
+        };
+        reader.readAsBinaryString(file);
+        e.target.value = '';
+    };
+
+    // ── IMPORT SUBMIT ─────────────────────────────────────────
+    const handleImportSubmit = async () => {
+        setIsImporting(true);
+        let successCount = 0;
+        let errorCount = 0;
+        for (const row of importPreview) {
+            // resolve class_id from class_name
+            const cls = dbClasses.find(c => c.name.toLowerCase() === row.class_name.toLowerCase());
+            const payload = {
+                full_name: row.full_name,
+                nis: row.nis,
+                class_id: cls?.id || null,
+                email: row.email,
+                wa_student: row.wa_student,
+                wa_parent: row.wa_parent,
+                status: row.status,
+            };
+            const { error } = await supabase.from('students').insert([payload]);
+            if (error) errorCount++;
+            else successCount++;
+        }
+        setIsImporting(false);
+        setIsImportModalOpen(false);
+        setImportPreview([]);
+        fetchStudents();
+        showToast(`Import selesai: ${successCount} berhasil, ${errorCount} gagal`, errorCount > 0 ? 'warning' : 'success');
+    };
+
+    // ── DOWNLOAD TEMPLATE ──────────────────────────────────────
+    const handleDownloadTemplate = () => {
+        const template = [{ 'Nama Lengkap': 'Contoh Siswa', 'NIS': '12345', 'Kelas': 'X DKV', 'Email': 'siswa@email.com', 'WA Siswa': '08123456789', 'WA Orang Tua': '08198765432', 'Status': 'Aktif' }];
+        const ws = XLSX.utils.json_to_sheet(template);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Template');
+        XLSX.writeFile(wb, 'Template_Import_Siswa.xlsx');
+    };
+
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b-2 border-ink pb-6">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Manajemen Siswa</h1>
-                    <p className="text-sm text-gray-500">Kelola data seluruh siswa dengan fitur sortir dan filter canggih.</p>
+                    <h1 className="text-4xl font-black text-ink font-serif tracking-tight uppercase">DIREKTORI SISWA</h1>
+                    <p className="text-sm text-gray-600 font-mono uppercase tracking-widest mt-2 block">Registrasi Lengkap Siswa Terdaftar</p>
                 </div>
-                <button
-                    onClick={handleOpenAdd}
-                    className="flex items-center justify-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl font-semibold transition-all shadow-md active:scale-95"
-                >
-                    <Plus size={18} />
-                    <span>Tambah Siswa</span>
-                </button>
+                <div className="flex flex-wrap gap-2">
+                    {/* Download Template */}
+                    <button
+                        onClick={handleDownloadTemplate}
+                        className="flex items-center space-x-2 bg-paper text-ink border-2 border-ink px-4 py-3 font-mono font-bold uppercase tracking-widest text-xs transition-all shadow-[4px_4px_0px_0px_#111111] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none"
+                        title="Download Template Excel"
+                    >
+                        <FileSpreadsheet size={16} />
+                        <span>TEMPLATE</span>
+                    </button>
+                    {/* Import */}
+                    <label className="flex items-center space-x-2 bg-paper text-ink border-2 border-ink px-4 py-3 font-mono font-bold uppercase tracking-widest text-xs transition-all shadow-[4px_4px_0px_0px_#111111] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none cursor-pointer">
+                        <Upload size={16} />
+                        <span>IMPORT</span>
+                        <input ref={importFileRef} type="file" accept=".xlsx,.xls,.csv" className="hidden" onChange={handleImportFile} />
+                    </label>
+                    {/* Export */}
+                    <button
+                        onClick={handleExport}
+                        className="flex items-center space-x-2 bg-paper text-ink border-2 border-ink px-4 py-3 font-mono font-bold uppercase tracking-widest text-xs transition-all shadow-[4px_4px_0px_0px_#111111] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none"
+                    >
+                        <Download size={16} />
+                        <span>EXPORT</span>
+                    </button>
+                    {/* Tambah */}
+                    <button
+                        onClick={handleOpenAdd}
+                        className="flex items-center space-x-2 bg-ink text-paper border-2 border-ink px-4 py-3 font-mono font-bold uppercase tracking-widest text-xs transition-all shadow-[4px_4px_0px_0px_#111111] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none hover:bg-paper hover:text-ink"
+                    >
+                        <Plus size={16} strokeWidth={3} />
+                        <span>TAMBAH SISWA</span>
+                    </button>
+                </div>
             </div>
 
             {/* Advanced Filters & Search */}
-            <div className="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm space-y-4">
+            <div className="bg-paper p-6 border-2 border-ink shadow-[8px_8px_0px_0px_#111111] space-y-4">
                 <div className="flex flex-col lg:flex-row gap-4">
                     <div className="relative flex-1">
-                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400">
+                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-ink">
                             <Search size={18} />
                         </div>
                         <input
                             type="text"
-                            placeholder="Cari nama atau NIS..."
-                            className="block w-full pl-12 pr-4 py-3.5 bg-gray-50 dark:bg-gray-800 border-transparent focus:bg-white dark:focus:bg-gray-800 focus:border-blue-500 rounded-2xl font-bold text-gray-700 dark:text-gray-200 outline-none transition-all border-2"
+                            placeholder="CARI SISWA BERDASARKAN NAMA ATAU NIS..."
+                            className="block w-full pl-12 pr-4 py-4 bg-paper border-2 border-ink text-ink font-mono text-sm uppercase tracking-widest outline-none focus:bg-gray-50 focus:shadow-[4px_4px_0px_0px_#111111] transition-all"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </div>
-                    <div className="flex flex-wrap gap-3">
-                        <div className="relative group">
+                    <div className="flex flex-col sm:flex-row gap-4">
+                        <div className="relative group min-w-[200px]">
                             <select
-                                className="appearance-none bg-gray-50 dark:bg-gray-800 border-gray-100 dark:border-gray-800 px-6 py-3.5 pr-10 rounded-2xl text-sm font-black text-gray-600 dark:text-gray-400 focus:bg-white dark:focus:bg-gray-800 focus:ring-2 focus:ring-blue-500 transition-all outline-none cursor-pointer border-2"
+                                className="w-full appearance-none bg-paper border-2 border-ink px-4 py-4 pr-10 text-ink font-mono text-sm uppercase tracking-widest outline-none cursor-pointer focus:bg-gray-50 focus:shadow-[4px_4px_0px_0px_#111111] transition-all"
                                 value={filterClass}
                                 onChange={(e) => setFilterClass(e.target.value)}
                             >
-                                <option value="Semua">Kelas: Semua</option>
-                                {dbClasses.map(c => <option key={c.id} value={c.name}>Kelas: {c.name}</option>)}
+                                <option value="Semua">KELAS: SEMUA</option>
+                                {dbClasses.map(c => <option key={c.id} value={c.name}>KELAS: {c.name}</option>)}
                             </select>
-                            <ChevronDown size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 pointer-events-none" />
+                            <ChevronDown size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-ink pointer-events-none" />
                         </div>
-                        <div className="relative group">
+                        <div className="relative group min-w-[200px]">
                             <select
-                                className="appearance-none bg-gray-50 dark:bg-gray-800 border-gray-100 dark:border-gray-800 px-6 py-3.5 pr-10 rounded-2xl text-sm font-black text-gray-600 dark:text-gray-400 focus:bg-white dark:focus:bg-gray-800 focus:ring-2 focus:ring-blue-500 transition-all outline-none cursor-pointer border-2"
+                                className="w-full appearance-none bg-paper border-2 border-ink px-4 py-4 pr-10 text-ink font-mono text-sm uppercase tracking-widest outline-none cursor-pointer focus:bg-gray-50 focus:shadow-[4px_4px_0px_0px_#111111] transition-all"
                                 value={filterStatus}
                                 onChange={(e) => setFilterStatus(e.target.value)}
                             >
-                                {statuses.map(s => <option key={s} value={s}>Status: {s}</option>)}
+                                {statuses.map(s => <option key={s} value={s}>STATUS: {s.toUpperCase()}</option>)}
                             </select>
-                            <ChevronDown size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 pointer-events-none" />
+                            <ChevronDown size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-ink pointer-events-none" />
                         </div>
                     </div>
                 </div>
 
                 {/* Bulk Action Bar (Floating indicator style) */}
                 {selectedIds.length > 0 && (
-                    <div className="bg-gray-900 text-white px-6 py-4 rounded-2xl flex items-center justify-between animate-in slide-in-from-bottom-2">
+                    <div className="bg-ink text-paper px-6 py-4 border-2 border-ink flex items-center justify-between animate-in slide-in-from-bottom-2">
                         <div className="flex items-center space-x-4">
-                            <span className="text-xs font-black uppercase tracking-widest">{selectedIds.length} Siswa Terpilih</span>
-                            <div className="h-4 w-px bg-white/20" />
+                            <span className="text-xs font-mono font-bold uppercase tracking-widest">{selectedIds.length} SISWA DIPILIH</span>
+                            <div className="h-4 w-[2px] bg-paper/20" />
                             <button
                                 onClick={() => setSelectedIds([])}
-                                className="text-xs font-bold text-gray-400 hover:text-white transition-colors"
+                                className="text-xs font-mono font-bold text-gray-400 hover:text-paper transition-colors"
                             >
-                                Batal
+                                BATAL
                             </button>
                         </div>
                         <button
                             onClick={handleBulkDelete}
-                            className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-xl text-xs font-black flex items-center space-x-2 transition-all active:scale-95 shadow-lg shadow-red-500/20"
+                            className="bg-editorial hover:bg-red-800 text-paper px-6 py-2 text-xs font-mono font-bold flex items-center space-x-2 transition-colors border-2 border-paper"
                         >
                             <Trash size={14} />
-                            <span>Hapus Terpilih</span>
+                            <span>HAPUS TERPILIH</span>
                         </button>
                     </div>
                 )}
             </div>
 
             {/* Table with Sticky Header */}
-            <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden flex flex-col transition-colors">
+            <div className="bg-paper border-2 border-ink shadow-[8px_8px_0px_0px_#111111] overflow-hidden flex flex-col transition-colors">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                         <thead>
-                            <tr className="bg-gray-50/50 dark:bg-gray-800/50 border-b border-gray-100 dark:border-gray-800">
-                                <th className="px-6 py-5 w-10">
+                            <tr className="bg-ink text-paper border-b-4 border-ink">
+                                <th className="px-6 py-4 w-10 border-r-2 border-paper/20">
                                     <input
                                         type="checkbox"
-                                        className="h-5 w-5 rounded-lg border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                                        className="h-5 w-5 border-2 border-paper bg-transparent text-ink focus:ring-0 cursor-pointer appearance-none checked:bg-paper checked:relative checked:before:content-['✓'] checked:before:absolute checked:before:text-ink checked:before:font-black checked:before:text-sm checked:before:left-1/2 checked:before:top-1/2 checked:before:-translate-x-1/2 checked:before:-translate-y-1/2"
                                         checked={selectedIds.length === paginatedStudents.length && paginatedStudents.length > 0}
                                         onChange={handleSelectAll}
                                     />
                                 </th>
-                                <th className="px-6 py-5 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" onClick={() => toggleSort('name')}>
-                                    <div className="flex items-center space-x-2 text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">
-                                        <span>Siswa</span>
-                                        <ArrowUpDown size={14} className={sortConfig.key === 'name' ? 'text-blue-600' : 'text-gray-300 dark:text-gray-600'} />
+                                <th className="px-6 py-4 border-r-2 border-paper/20 cursor-pointer hover:bg-gray-800 transition-colors" onClick={() => toggleSort('name')}>
+                                    <div className="flex items-center space-x-2 text-xs font-mono font-bold uppercase tracking-widest">
+                                        <span>NAMA SISWA</span>
+                                        <ArrowUpDown size={14} className={sortConfig.key === 'name' ? 'text-paper' : 'text-gray-500'} />
                                     </div>
                                 </th>
-                                <th className="px-6 py-5 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" onClick={() => toggleSort('nis')}>
-                                    <div className="flex items-center space-x-2 text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">
-                                        <span>NIS</span>
-                                        <ArrowUpDown size={14} className={sortConfig.key === 'nis' ? 'text-blue-600' : 'text-gray-300 dark:text-gray-600'} />
+                                <th className="px-6 py-4 border-r-2 border-paper/20 cursor-pointer hover:bg-gray-800 transition-colors" onClick={() => toggleSort('nis')}>
+                                    <div className="flex items-center space-x-2 text-xs font-mono font-bold uppercase tracking-widest">
+                                        <span>ID (NIS)</span>
+                                        <ArrowUpDown size={14} className={sortConfig.key === 'nis' ? 'text-paper' : 'text-gray-500'} />
                                     </div>
                                 </th>
-                                <th className="px-6 py-5 text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Kelas</th>
-                                <th className="px-6 py-5 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" onClick={() => toggleSort('homeroom')}>
-                                    <div className="flex items-center space-x-2 text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">
-                                        <span>Wali Kelas</span>
-                                        <ArrowUpDown size={14} className={sortConfig.key === 'homeroom' ? 'text-blue-600' : 'text-gray-300 dark:text-gray-600'} />
+                                <th className="px-6 py-4 border-r-2 border-paper/20 text-xs font-mono font-bold uppercase tracking-widest">KELAS</th>
+                                <th className="px-6 py-4 border-r-2 border-paper/20 cursor-pointer hover:bg-gray-800 transition-colors" onClick={() => toggleSort('homeroom')}>
+                                    <div className="flex items-center space-x-2 text-xs font-mono font-bold uppercase tracking-widest">
+                                        <span>WALI KELAS</span>
+                                        <ArrowUpDown size={14} className={sortConfig.key === 'homeroom' ? 'text-paper' : 'text-gray-500'} />
                                     </div>
                                 </th>
-                                <th className="px-6 py-5 text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest text-center">Whatsapp</th>
-                                <th className="px-6 py-5 text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Status</th>
-                                <th className="px-6 py-5 text-center text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest uppercase tracking-widest text-center">Aksi</th>
+                                <th className="px-6 py-4 border-r-2 border-paper/20 text-xs font-mono font-bold uppercase tracking-widest text-center">KONTAK</th>
+                                <th className="px-6 py-4 border-r-2 border-paper/20 text-xs font-mono font-bold uppercase tracking-widest">STATUS</th>
+                                <th className="px-6 py-4 text-center text-xs font-mono font-bold uppercase tracking-widest">AKSI</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-50 dark:divide-gray-800">
+                        <tbody className="divide-y-2 divide-ink">
                             {paginatedStudents.length > 0 ? (
                                 paginatedStudents.map((student) => (
                                     <tr
                                         key={student.id}
-                                        className={`hover:bg-blue-50/30 dark:hover:bg-blue-900/10 transition-colors group ${selectedIds.includes(student.id) ? 'bg-blue-50/50 dark:bg-blue-900/20' : ''}`}
+                                        className={`hover:bg-gray-100 transition-colors group ${selectedIds.includes(student.id) ? 'bg-gray-200' : ''}`}
                                     >
-                                        <td className="px-6 py-5">
+                                        <td className="px-6 py-4 border-r-2 border-ink">
                                             <input
                                                 type="checkbox"
-                                                className="h-5 w-5 rounded-lg border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                                                className="h-5 w-5 border-2 border-ink bg-transparent text-ink focus:ring-0 cursor-pointer appearance-none checked:bg-ink checked:relative checked:before:content-['✓'] checked:before:absolute checked:before:text-paper checked:before:font-black checked:before:text-sm checked:before:left-1/2 checked:before:top-1/2 checked:before:-translate-x-1/2 checked:before:-translate-y-1/2"
                                                 checked={selectedIds.includes(student.id)}
                                                 onChange={() => handleSelectOne(student.id)}
                                             />
                                         </td>
-                                        <td className="px-6 py-5">
+                                        <td className="px-6 py-4 border-r-2 border-ink">
                                             <div className="flex items-center space-x-4">
-                                                <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-900 flex items-center justify-center text-blue-600 dark:text-blue-400 font-black border border-gray-100 dark:border-gray-800 shadow-sm group-hover:scale-110 transition-transform">
+                                                <div className="h-10 w-10 bg-paper border-2 border-ink flex items-center justify-center text-ink font-serif font-black shadow-[2px_2px_0px_0px_#111111]">
                                                     {student.name.substring(0, 2).toUpperCase()}
                                                 </div>
                                                 <div>
-                                                    <p className="text-sm font-black text-gray-900 dark:text-gray-100">{student.name}</p>
-                                                    <p className="text-xs font-bold text-gray-400 dark:text-gray-500 mt-0.5">{student.email}</p>
+                                                    <p className="text-sm font-bold text-ink font-serif uppercase">{student.name}</p>
+                                                    <p className="text-[10px] font-mono font-bold text-gray-500 mt-0.5">{student.email}</p>
                                                 </div>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-5 text-sm font-black text-gray-600 dark:text-gray-400">{student.nis}</td>
-                                        <td className="px-6 py-5">
-                                            <span className="px-3 py-1.5 rounded-xl bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-400 text-[10px] font-black uppercase tracking-wider border border-indigo-100/50 dark:border-indigo-900/40">
+                                        <td className="px-6 py-4 border-r-2 border-ink text-sm font-mono font-bold text-ink">{student.nis}</td>
+                                        <td className="px-6 py-4 border-r-2 border-ink">
+                                            <span className="px-2 py-1 bg-paper text-ink text-[10px] font-mono font-bold uppercase tracking-wider border-2 border-ink shadow-[2px_2px_0px_0px_#111111]">
                                                 {student.class}
                                             </span>
                                         </td>
-                                        <td className="px-6 py-5">
-                                            <span className="text-sm font-black text-gray-600 dark:text-gray-400 block">
+                                        <td className="px-6 py-4 border-r-2 border-ink">
+                                            <span className="text-xs font-mono font-bold text-ink uppercase">
                                                 {student.homeroom}
                                             </span>
                                         </td>
-                                        <td className="px-6 py-5">
-                                            <div className="flex flex-col space-y-2 items-center">
-                                                <div className="flex items-center space-x-2 w-full justify-between">
-                                                    <div className="flex items-center space-x-1">
-                                                        <span className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-tighter">Siswa:</span>
-                                                        <span className="text-[11px] font-bold text-blue-600 dark:text-blue-400">{student.waStudent || '-'}</span>
+                                        <td className="px-6 py-4 border-r-2 border-ink">
+                                            <div className="flex flex-col space-y-2">
+                                                <div className="flex items-center justify-between min-w-[120px]">
+                                                    <span className="text-[10px] font-mono font-bold text-gray-500 uppercase">SISWA:</span>
+                                                    <div className="flex items-center space-x-2">
+                                                        <span className="text-[10px] font-mono font-bold text-ink">{student.waStudent || '-'}</span>
+                                                        {student.waStudent && student.waStudent !== '-' && (
+                                                            <button
+                                                                onClick={() => sendWhatsApp(student.waStudent, `Halo ${student.name}, ada pesan dari sekolah...`, showToast)}
+                                                                className="text-ink hover:text-blue-600 transition-colors"
+                                                                title="Hubungi Siswa"
+                                                            >
+                                                                <MessageCircle size={14} />
+                                                            </button>
+                                                        )}
                                                     </div>
-                                                    {student.waStudent && student.waStudent !== '-' && (
-                                                        <button
-                                                            onClick={() => sendWhatsApp(student.waStudent, `Halo ${student.name}, ada pesan dari sekolah...`, showToast)}
-                                                            className="p-1 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded text-blue-600 dark:text-blue-400 transition-colors"
-                                                            title="Kirim WA ke Siswa"
-                                                        >
-                                                            <MessageCircle size={14} />
-                                                        </button>
-                                                    )}
                                                 </div>
-                                                <div className="flex items-center space-x-2 w-full justify-between">
-                                                    <div className="flex items-center space-x-1">
-                                                        <span className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-tighter">Ortu:</span>
-                                                        <span className="text-[11px] font-bold text-indigo-600 dark:text-indigo-400">{student.waParent || '-'}</span>
+                                                <div className="flex items-center justify-between min-w-[120px]">
+                                                    <span className="text-[10px] font-mono font-bold text-gray-500 uppercase">ORTU:</span>
+                                                    <div className="flex items-center space-x-2">
+                                                        <span className="text-[10px] font-mono font-bold text-ink">{student.waParent || '-'}</span>
+                                                        {student.waParent && student.waParent !== '-' && (
+                                                            <button
+                                                                onClick={() => sendWhatsApp(student.waParent, `Halo Orang Tua dari ${student.name}, ada pengumuman penting...`, showToast)}
+                                                                className="text-ink hover:text-blue-600 transition-colors"
+                                                                title="Hubungi Orang Tua"
+                                                            >
+                                                                <MessageCircle size={14} />
+                                                            </button>
+                                                        )}
                                                     </div>
-                                                    {student.waParent && student.waParent !== '-' && (
-                                                        <button
-                                                            onClick={() => sendWhatsApp(student.waParent, `Halo Orang Tua dari ${student.name}, ada pengumuman penting...`, showToast)}
-                                                            className="p-1 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded text-indigo-600 dark:text-indigo-400 transition-colors"
-                                                            title="Kirim WA ke Orang Tua"
-                                                        >
-                                                            <MessageCircle size={14} />
-                                                        </button>
-                                                    )}
                                                 </div>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-5">
-                                            <span className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest border ${student.status === 'Aktif'
-                                                ? 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 border-emerald-100/50 dark:border-emerald-900/30'
-                                                : 'bg-orange-50 dark:bg-orange-950/30 text-orange-700 dark:text-orange-400 border-orange-100/50 dark:border-orange-900/30'
+                                        <td className="px-6 py-4 border-r-2 border-ink text-center">
+                                            <span className={`px-2 py-1 text-[10px] font-mono font-bold uppercase tracking-widest border-2 border-ink ${student.status === 'Aktif'
+                                                ? 'bg-paper text-ink shadow-[2px_2px_0px_0px_#111111]'
+                                                : 'bg-gray-200 text-gray-600'
                                                 }`}>
                                                 {student.status}
                                             </span>
                                         </td>
-                                        <td className="px-6 py-5">
+                                        <td className="px-6 py-4">
                                             <div className="flex items-center justify-center space-x-2">
                                                 <button
                                                     onClick={() => handleOpenEdit(student)}
-                                                    className="p-3 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-600 dark:hover:bg-blue-600 hover:text-white rounded-xl transition-all shadow-sm active:scale-95"
+                                                    className="p-2 bg-paper text-ink hover:bg-ink hover:text-paper border-2 border-ink transition-colors shadow-[2px_2px_0px_0px_#111111] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none"
                                                 >
-                                                    <Edit2 size={16} />
+                                                    <Edit2 size={14} />
                                                 </button>
                                                 <button
                                                     onClick={() => handleDelete(student.id)}
-                                                    className="p-3 bg-red-50 dark:bg-red-950/20 text-red-600 dark:text-red-400 hover:bg-red-600 dark:hover:bg-red-600 hover:text-white rounded-xl transition-all shadow-sm active:scale-95"
+                                                    className="p-2 bg-paper text-editorial hover:bg-editorial hover:text-paper border-2 border-editorial transition-colors shadow-[2px_2px_0px_0px_#CC0000] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none"
                                                 >
-                                                    <Trash2 size={16} />
+                                                    <Trash2 size={14} />
                                                 </button>
                                             </div>
                                         </td>
@@ -492,8 +608,8 @@ export default function Students() {
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan="8" className="px-6 py-20 text-center text-gray-400 dark:text-gray-600 font-bold uppercase tracking-widest text-xs">
-                                        Data tidak ditemukan
+                                    <td colSpan="8" className="px-6 py-20 text-center text-ink font-mono font-bold uppercase tracking-widest text-xs border-r-2 border-ink">
+                                        TIDAK ADA DATA DITEMUKAN
                                     </td>
                                 </tr>
                             )}
@@ -502,18 +618,18 @@ export default function Students() {
                 </div>
 
                 {/* Pagination Footer */}
-                <div className="p-8 bg-gray-50/50 dark:bg-gray-800/30 border-t border-gray-100 dark:border-gray-800 flex flex-col md:flex-row items-center justify-between gap-6">
+                <div className="p-6 bg-paper border-t-4 border-ink flex flex-col md:flex-row items-center justify-between gap-6">
                     <div className="flex items-center space-x-4">
-                        <p className="text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Baris per halaman:</p>
+                        <p className="text-xs font-mono font-bold text-ink uppercase tracking-widest">BARIS PER HALAMAN:</p>
                         <select
-                            className="bg-transparent text-sm font-black text-gray-700 dark:text-gray-300 outline-none cursor-pointer"
+                            className="bg-transparent border-2 border-ink text-sm text-ink font-mono font-bold outline-none cursor-pointer py-1 px-2"
                             value={pageSize}
                             onChange={(e) => {
                                 setPageSize(Number(e.target.value));
                                 setCurrentPage(1);
                             }}
                         >
-                            {[5, 10, 20, 50].map(v => <option key={v} value={v} className="dark:bg-gray-900">{v}</option>)}
+                            {[5, 10, 20, 50].map(v => <option key={v} value={v}>{v}</option>)}
                         </select>
                     </div>
 
@@ -521,24 +637,24 @@ export default function Students() {
                         <button
                             disabled={currentPage === 1}
                             onClick={() => setCurrentPage(p => p - 1)}
-                            className="p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-400 dark:text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 disabled:opacity-30 disabled:hover:text-gray-400 transition-all shadow-sm active:scale-90"
+                            className="p-2 bg-paper border-2 border-ink text-ink hover:bg-ink hover:text-paper disabled:opacity-30 disabled:hover:bg-paper disabled:hover:text-ink transition-colors shadow-[2px_2px_0px_0px_#111111] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none"
                         >
                             <ChevronLeft size={20} />
                         </button>
-                        <div className="flex items-center px-6 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm">
-                            <span className="text-xs font-black text-gray-900 dark:text-gray-100 tracking-tighter">Halaman {currentPage} dari {totalPages || 1}</span>
+                        <div className="flex items-center px-4 py-2 bg-paper border-2 border-ink">
+                            <span className="text-xs font-mono font-bold text-ink uppercase tracking-widest">HALAMAN {currentPage} DARI {totalPages || 1}</span>
                         </div>
                         <button
                             disabled={currentPage >= totalPages}
                             onClick={() => setCurrentPage(p => p + 1)}
-                            className="p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-400 dark:text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 disabled:opacity-30 disabled:hover:text-gray-400 transition-all shadow-sm active:scale-90"
+                            className="p-2 bg-paper border-2 border-ink text-ink hover:bg-ink hover:text-paper disabled:opacity-30 disabled:hover:bg-paper disabled:hover:text-ink transition-colors shadow-[2px_2px_0px_0px_#111111] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none"
                         >
                             <ChevronRight size={20} />
                         </button>
                     </div>
 
-                    <div className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em]">
-                        Menampilkan {paginatedStudents.length} dari {processedStudents.length} siswa
+                    <div className="text-[10px] font-mono font-bold text-gray-500 uppercase tracking-widest">
+                        MENAMPILKAN {paginatedStudents.length} DARI {processedStudents.length} SISWA
                     </div>
                 </div>
             </div>
@@ -547,19 +663,19 @@ export default function Students() {
             <Modal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
-                title={currentStudent ? 'Edit Data Siswa' : 'Tambah Siswa Baru'}
+                title={currentStudent ? 'EDIT DATA SISWA' : 'DAFTARKAN SISWA BARU'}
             >
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="space-y-1">
-                        <label className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest px-1">Nama Lengkap</label>
+                        <label className="text-[10px] font-mono font-bold text-ink uppercase tracking-widest px-1">NAMA LENGKAP</label>
                         <div className="relative">
-                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-300 dark:text-gray-600">
+                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-ink">
                                 <UserCircle size={18} />
                             </div>
                             <input
                                 required
                                 type="text"
-                                className="w-full bg-gray-50 dark:bg-gray-800 border-transparent rounded-2xl pl-12 pr-4 py-4 font-bold text-gray-700 dark:text-gray-200 outline-none transition-all focus:bg-white dark:focus:bg-gray-800 focus:border-blue-500 border-2"
+                                className="w-full bg-paper border-2 border-ink pl-12 pr-4 py-4 font-mono font-bold text-ink uppercase outline-none focus:shadow-[4px_4px_0px_0px_#111111] transition-all"
                                 value={formData.name}
                                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                             />
@@ -567,31 +683,31 @@ export default function Students() {
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-1">
-                            <label className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest px-1">NIS</label>
+                            <label className="text-[10px] font-mono font-bold text-ink uppercase tracking-widest px-1">NIS</label>
                             <div className="relative">
-                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-300 dark:text-gray-600">
+                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-ink">
                                     <Hash size={18} />
                                 </div>
                                 <input
                                     required
                                     type="text"
-                                    className="w-full bg-gray-50 dark:bg-gray-800 border-transparent rounded-2xl pl-12 pr-4 py-4 font-bold text-gray-700 dark:text-gray-200 outline-none transition-all focus:bg-white dark:focus:bg-gray-800 focus:border-blue-500 border-2"
+                                    className="w-full bg-paper border-2 border-ink pl-12 pr-4 py-4 font-mono font-bold text-ink outline-none focus:shadow-[4px_4px_0px_0px_#111111] transition-all"
                                     value={formData.nis}
                                     onChange={(e) => setFormData({ ...formData, nis: e.target.value })}
                                 />
                             </div>
                         </div>
                         <div className="space-y-1">
-                            <label className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest px-1">Email</label>
+                            <label className="text-[10px] font-mono font-bold text-ink uppercase tracking-widest px-1">ALAMAT EMAIL</label>
                             <div className="relative">
-                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-300 dark:text-gray-600">
+                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-ink">
                                     <Mail size={18} />
                                 </div>
                                 <input
                                     required
                                     type="text"
-                                    className="w-full bg-gray-50 dark:bg-gray-800 border-transparent rounded-2xl pl-12 pr-4 py-4 font-bold text-gray-700 dark:text-gray-200 outline-none transition-all focus:bg-white dark:focus:bg-gray-800 focus:border-blue-500 border-2"
-                                    placeholder="email@example.com atau -"
+                                    className="w-full bg-paper border-2 border-ink pl-12 pr-4 py-4 font-mono font-bold text-ink outline-none focus:shadow-[4px_4px_0px_0px_#111111] transition-all"
+                                    placeholder="siswa@email.com"
                                     value={formData.email}
                                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                                 />
@@ -600,21 +716,21 @@ export default function Students() {
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-1">
-                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">WA Siswa</label>
+                            <label className="text-[10px] font-mono font-bold text-ink uppercase tracking-widest px-1">WA SISWA</label>
                             <input
                                 type="text"
-                                className="w-full bg-gray-50 border-transparent rounded-2xl px-4 py-4 font-bold text-gray-700 outline-none transition-all focus:bg-white focus:border-blue-500 border-2"
-                                placeholder="62812... atau -"
+                                className="w-full bg-paper border-2 border-ink px-4 py-4 font-mono font-bold text-ink outline-none focus:shadow-[4px_4px_0px_0px_#111111] transition-all"
+                                placeholder="62812... ATAU -"
                                 value={formData.waStudent}
                                 onChange={(e) => setFormData({ ...formData, waStudent: e.target.value })}
                             />
                         </div>
                         <div className="space-y-1">
-                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">WA Orang Tua</label>
+                            <label className="text-[10px] font-mono font-bold text-ink uppercase tracking-widest px-1">WA ORANG TUA</label>
                             <input
                                 type="text"
-                                className="w-full bg-gray-50 border-transparent rounded-2xl px-4 py-4 font-bold text-gray-700 outline-none transition-all focus:bg-white focus:border-blue-500 border-2"
-                                placeholder="62812... atau -"
+                                className="w-full bg-paper border-2 border-ink px-4 py-4 font-mono font-bold text-ink outline-none focus:shadow-[4px_4px_0px_0px_#111111] transition-all"
+                                placeholder="62812... ATAU -"
                                 value={formData.waParent}
                                 onChange={(e) => setFormData({ ...formData, waParent: e.target.value })}
                             />
@@ -622,41 +738,102 @@ export default function Students() {
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-1">
-                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Kelas</label>
+                            <label className="text-[10px] font-mono font-bold text-ink uppercase tracking-widest px-1">KELAS</label>
                             <div className="relative group">
                                 <select
-                                    className="w-full bg-gray-50 border-transparent rounded-2xl px-6 py-4 font-bold text-gray-700 outline-none transition-all focus:bg-white focus:border-blue-500 border-2 appearance-none cursor-pointer"
+                                    className="w-full bg-paper border-2 border-ink px-4 py-4 font-mono font-bold text-ink uppercase outline-none focus:shadow-[4px_4px_0px_0px_#111111] transition-all appearance-none cursor-pointer"
                                     value={formData.class_id}
                                     onChange={(e) => setFormData({ ...formData, class_id: e.target.value })}
                                 >
                                     {dbClasses.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                                 </select>
-                                <ChevronDown size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                                <ChevronDown size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-ink pointer-events-none" />
                             </div>
                         </div>
                         <div className="space-y-1">
-                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Status</label>
+                            <label className="text-[10px] font-mono font-bold text-ink uppercase tracking-widest px-1">STATUS</label>
                             <div className="relative group">
                                 <select
-                                    className="w-full bg-gray-50 border-transparent rounded-2xl px-6 py-4 font-bold text-gray-700 outline-none transition-all focus:bg-white focus:border-blue-500 border-2 appearance-none cursor-pointer"
+                                    className="w-full bg-paper border-2 border-ink px-4 py-4 font-mono font-bold text-ink uppercase outline-none focus:shadow-[4px_4px_0px_0px_#111111] transition-all appearance-none cursor-pointer"
                                     value={formData.status}
                                     onChange={(e) => setFormData({ ...formData, status: e.target.value })}
                                 >
-                                    {statuses.filter(s => s !== 'Semua').map(s => <option key={s} value={s}>{s}</option>)}
+                                    {statuses.filter(s => s !== 'Semua').map(s => <option key={s} value={s}>{s.toUpperCase()}</option>)}
                                 </select>
-                                <ChevronDown size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                                <ChevronDown size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-ink pointer-events-none" />
                             </div>
                         </div>
                     </div>
                     <button
                         type="submit"
-                        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-5 rounded-[2rem] shadow-xl shadow-blue-100 transition-all flex items-center justify-center space-x-2 active:scale-95 mt-6"
+                        className="w-full bg-ink hover:bg-paper text-paper hover:text-ink font-mono font-bold py-4 border-2 border-ink transition-colors flex items-center justify-center space-x-2 shadow-[4px_4px_0px_0px_#111111] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_#111111] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none mt-6"
                     >
                         <Save size={20} />
-                        <span className="uppercase tracking-widest text-xs">Simpan Data Siswa</span>
+                        <span className="uppercase tracking-widest text-xs">SIMPAN DATA SISWA</span>
                     </button>
                 </form>
             </Modal>
+
+            {/* ─── IMPORT PREVIEW MODAL ─────────────────── */}
+            {isImportModalOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-300">
+                    <div className="bg-paper border-4 border-ink shadow-[12px_12px_0px_0px_#111111] w-full max-w-3xl overflow-hidden animate-in zoom-in-95 duration-300">
+                        <div className="px-6 py-4 border-b-4 border-ink flex items-center justify-between bg-gray-50">
+                            <div>
+                                <h3 className="text-xl font-black text-ink uppercase tracking-widest font-serif">PREVIEW IMPORT SISWA</h3>
+                                <p className="text-[10px] font-mono text-gray-500 uppercase tracking-widest mt-1">{importPreview.length} BARIS SIAP DIIMPOR</p>
+                            </div>
+                            <button onClick={() => { setIsImportModalOpen(false); setImportPreview([]); }} className="p-2 border-2 border-transparent hover:border-ink text-ink transition-all">
+                                <X size={24} strokeWidth={3} />
+                            </button>
+                        </div>
+                        <div className="p-4 max-h-[55vh] overflow-y-auto">
+                            <table className="w-full text-left border-collapse border-2 border-ink">
+                                <thead>
+                                    <tr className="bg-ink text-paper">
+                                        {['Nama Lengkap', 'NIS', 'Kelas', 'Email', 'Status'].map(h => (
+                                            <th key={h} className="px-3 py-2 text-[9px] font-mono font-bold uppercase tracking-widest border-r border-paper/30 last:border-r-0">{h}</th>
+                                        ))}
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-ink">
+                                    {importPreview.map((row, i) => (
+                                        <tr key={i} className={i % 2 === 0 ? 'bg-paper' : 'bg-gray-50'}>
+                                            <td className="px-3 py-2 text-xs font-mono font-bold text-ink border-r border-ink uppercase">{row.full_name}</td>
+                                            <td className="px-3 py-2 text-xs font-mono text-ink border-r border-ink">{row.nis}</td>
+                                            <td className="px-3 py-2 text-xs font-mono text-ink border-r border-ink uppercase">{row.class_name}</td>
+                                            <td className="px-3 py-2 text-xs font-mono text-gray-600 border-r border-ink">{row.email}</td>
+                                            <td className="px-3 py-2 text-xs font-mono text-ink uppercase">{row.status}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div className="p-4 border-t-4 border-ink flex items-center justify-between bg-gray-50">
+                            <div className="flex items-center space-x-2 text-[10px] font-mono text-gray-500 uppercase tracking-widest">
+                                <AlertTriangle size={14} className="text-yellow-600" />
+                                <span>PASTIKAN NAMA KELAS PERSIS SAMA DENGAN DATA DI SISTEM</span>
+                            </div>
+                            <div className="flex space-x-3">
+                                <button
+                                    onClick={() => { setIsImportModalOpen(false); setImportPreview([]); }}
+                                    className="px-6 py-3 border-2 border-ink text-ink font-mono font-bold text-xs uppercase tracking-widest hover:bg-ink hover:text-paper transition-all"
+                                >
+                                    BATAL
+                                </button>
+                                <button
+                                    onClick={handleImportSubmit}
+                                    disabled={isImporting}
+                                    className="px-6 py-3 bg-ink text-paper border-2 border-ink font-mono font-bold text-xs uppercase tracking-widest flex items-center space-x-2 shadow-[4px_4px_0px_0px_#111111] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all disabled:opacity-50"
+                                >
+                                    {isImporting ? <span className="animate-spin rounded-full h-4 w-4 border-b-2 border-paper" /> : <Upload size={14} />}
+                                    <span>{isImporting ? 'MENGIMPOR...' : `KONFIRMASI IMPORT (${importPreview.length})`}</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
