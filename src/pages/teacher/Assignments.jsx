@@ -57,13 +57,40 @@ export default function Assignments() {
 
     const fetchInitialData = async () => {
         setIsLoading(true);
-        const { data: classes } = await supabase.from('classes').select('id, name');
-        setDbClasses(classes || []);
-
-        const { data: subjects } = await supabase.from('subjects').select('id, name').order('name');
-        setDbSubjects(subjects || []);
-
+        const role = localStorage.getItem('userRole');
         const userId = localStorage.getItem('userId');
+        const userName = localStorage.getItem('userName');
+
+        if (role === 'guru' && (userId || userName)) {
+            // Fetch only classes/subjects this teacher teaches
+            let schedules = [];
+            if (userId) {
+                const { data: s1 } = await supabase.from('schedules').select('class_id, class_name, subject_name').eq('teacher_id', userId);
+                if (s1) schedules.push(...s1);
+            }
+            if (userName) {
+                const { data: s2 } = await supabase.from('schedules').select('class_id, class_name, subject_name').eq('teacher_name', userName);
+                if (s2) schedules.push(...s2);
+            }
+
+            const classMap = {};
+            schedules.forEach(s => {
+                if (s.class_id && !classMap[s.class_id]) classMap[s.class_id] = { id: s.class_id, name: s.class_name || 'Kelas' };
+            });
+            setDbClasses(Object.values(classMap));
+
+            const subjectNames = [...new Set(schedules.map(s => s.subject_name).filter(Boolean))];
+            if (subjectNames.length > 0) {
+                const { data: subData } = await supabase.from('subjects').select('id, name').in('name', subjectNames);
+                setDbSubjects(subData || []);
+            }
+        } else {
+            const { data: classes } = await supabase.from('classes').select('id, name');
+            setDbClasses(classes || []);
+            const { data: subjects } = await supabase.from('subjects').select('id, name').order('name');
+            setDbSubjects(subjects || []);
+        }
+
         if (userId) {
             const { data: asgs } = await supabase
                 .from('assignments')

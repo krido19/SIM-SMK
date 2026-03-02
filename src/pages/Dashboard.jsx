@@ -32,7 +32,7 @@ export default function Dashboard() {
             // 2. Fetch Announcements
             const { data: ann } = await supabase
                 .from('announcements')
-                .select('id, title, date, content')
+                .select('id, title, date, content, image_url, category')
                 .order('created_at', { ascending: false })
                 .limit(4);
             setAnnouncements(ann || []);

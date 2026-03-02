@@ -22,10 +22,46 @@ export default function AttendanceEntry() {
 
     useEffect(() => {
         const fetchClasses = async () => {
-            const { data } = await supabase.from('classes').select('id, name');
-            if (data) {
-                setDbClasses(data);
-                if (data.length > 0) setSelectedClassId(data[0].id);
+            const role = localStorage.getItem('userRole');
+            const userId = localStorage.getItem('userId');
+            const userName = localStorage.getItem('userName');
+
+            if (role === 'guru' && (userId || userName)) {
+                // Fetch only classes this teacher teaches
+                let schedules = [];
+
+                if (userId) {
+                    const { data: s1 } = await supabase
+                        .from('schedules')
+                        .select('class_id, class_name')
+                        .eq('teacher_id', userId);
+                    if (s1) schedules.push(...s1);
+                }
+                if (userName) {
+                    const { data: s2 } = await supabase
+                        .from('schedules')
+                        .select('class_id, class_name')
+                        .eq('teacher_name', userName);
+                    if (s2) schedules.push(...s2);
+                }
+
+                // Deduplicate classes
+                const classMap = {};
+                schedules.forEach(s => {
+                    if (s.class_id && !classMap[s.class_id]) {
+                        classMap[s.class_id] = { id: s.class_id, name: s.class_name || 'Kelas' };
+                    }
+                });
+                const teacherClasses = Object.values(classMap);
+                setDbClasses(teacherClasses);
+                if (teacherClasses.length > 0) setSelectedClassId(teacherClasses[0].id);
+            } else {
+                // Admin: show all
+                const { data } = await supabase.from('classes').select('id, name');
+                if (data) {
+                    setDbClasses(data);
+                    if (data.length > 0) setSelectedClassId(data[0].id);
+                }
             }
         };
         fetchClasses();

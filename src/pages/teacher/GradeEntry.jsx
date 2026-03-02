@@ -29,12 +29,62 @@ export default function GradeEntry() {
 
     useEffect(() => {
         const fetchInitialData = async () => {
-            const { data: clsData } = await supabase.from('classes').select('id, name');
-            const { data: subData } = await supabase.from('subjects').select('id, name');
-            if (clsData) setDbClasses(clsData);
-            if (subData) setDbSubjects(subData);
-            if (clsData?.length > 0) setSelectedClassId(clsData[0].id);
-            if (subData?.length > 0) setSelectedSubjectId(subData[0].id);
+            const role = localStorage.getItem('userRole');
+            const userId = localStorage.getItem('userId');
+            const userName = localStorage.getItem('userName');
+
+            if (role === 'guru' && (userId || userName)) {
+                // Fetch only classes/subjects this teacher is assigned to
+                let schedules = [];
+
+                if (userId) {
+                    const { data: s1 } = await supabase
+                        .from('schedules')
+                        .select('class_id, class_name, subject_name')
+                        .eq('teacher_id', userId);
+                    if (s1) schedules.push(...s1);
+                }
+                if (userName) {
+                    const { data: s2 } = await supabase
+                        .from('schedules')
+                        .select('class_id, class_name, subject_name')
+                        .eq('teacher_name', userName);
+                    if (s2) schedules.push(...s2);
+                }
+
+                // Deduplicate classes
+                const classMap = {};
+                schedules.forEach(s => {
+                    if (s.class_id && !classMap[s.class_id]) {
+                        classMap[s.class_id] = { id: s.class_id, name: s.class_name || 'Kelas' };
+                    }
+                });
+                const teacherClasses = Object.values(classMap);
+
+                // Get unique subject names, then find their IDs
+                const subjectNames = [...new Set(schedules.map(s => s.subject_name).filter(Boolean))];
+                let teacherSubjects = [];
+                if (subjectNames.length > 0) {
+                    const { data: subData } = await supabase
+                        .from('subjects')
+                        .select('id, name')
+                        .in('name', subjectNames);
+                    teacherSubjects = subData || [];
+                }
+
+                setDbClasses(teacherClasses);
+                setDbSubjects(teacherSubjects);
+                if (teacherClasses.length > 0) setSelectedClassId(teacherClasses[0].id);
+                if (teacherSubjects.length > 0) setSelectedSubjectId(teacherSubjects[0].id);
+            } else {
+                // Admin: show all
+                const { data: clsData } = await supabase.from('classes').select('id, name');
+                const { data: subData } = await supabase.from('subjects').select('id, name');
+                if (clsData) setDbClasses(clsData);
+                if (subData) setDbSubjects(subData);
+                if (clsData?.length > 0) setSelectedClassId(clsData[0].id);
+                if (subData?.length > 0) setSelectedSubjectId(subData[0].id);
+            }
         };
         fetchInitialData();
     }, []);

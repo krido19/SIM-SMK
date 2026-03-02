@@ -25,7 +25,9 @@ const AttendanceEntry = lazy(() => import('./pages/teacher/AttendanceEntry'))
 const StudentGrades = lazy(() => import('./pages/student/StudentGrades'))
 const StudentAttendance = lazy(() => import('./pages/student/StudentAttendance'))
 const Assignments = lazy(() => import('./pages/teacher/Assignments'))
+const TeacherSchedule = lazy(() => import('./pages/teacher/TeacherSchedule'))
 const StudentAssignments = lazy(() => import('./pages/student/StudentAssignments'))
+const StudentAnnouncements = lazy(() => import('./pages/student/StudentAnnouncements'))
 
 const LoadingFallback = () => (
   <div className="min-h-screen bg-neutral-100 flex items-center justify-center p-4 newsprint-texture">
@@ -76,11 +78,13 @@ function App() {
                   <Route path="/teacher/attendance" element={<AttendanceEntry />} />
                   <Route path="/teacher/assignments" element={<Assignments />} />
                   <Route path="/teacher/announcements" element={<Announcements />} />
+                  <Route path="/teacher/schedule" element={<TeacherSchedule />} />
 
                   {/* Student/Parent Routes */}
                   <Route path="/student/grades" element={<StudentGrades />} />
                   <Route path="/student/attendance" element={<StudentAttendance />} />
                   <Route path="/student/assignments" element={<StudentAssignments />} />
+                  <Route path="/student/announcements" element={<StudentAnnouncements />} />
 
                   <Route path="/" element={<Navigate to="/login" replace />} />
                 </Route>
