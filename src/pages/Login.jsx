@@ -131,6 +131,7 @@ export default function Login() {
                 </div>
 
                 <div className="relative z-10 flex flex-col justify-center flex-1 my-12">
+                     <img src="/logo.png" alt="Logo" className="w-48 mb-12 invert" />
                     <h1 className="text-8xl xl:text-9xl font-serif font-black uppercase tracking-tighter leading-[0.85] mb-8">
                         Sistem<br />Informasi<br />Sekolah.
                     </h1>

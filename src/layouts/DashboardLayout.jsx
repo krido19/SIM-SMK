@@ -192,13 +192,14 @@ export default function DashboardLayout() {
                     {/* Header Logo Section */}
                     <div className="p-6 border-b-2 border-ink">
                         <div className="flex items-center justify-between mb-4">
-                            <h1 className="text-2xl font-serif font-black tracking-tighter leading-none">
-                                {schoolName}
-                            </h1>
+                            <img src="/logo.png" alt="Logo" className="w-12 h-12 object-contain" />
                             <button className="lg:hidden" onClick={() => setIsSidebarOpen(false)}>
                                 <X size={20} />
                             </button>
                         </div>
+                        <h1 className="text-2xl font-serif font-black tracking-tighter leading-none mb-2">
+                            {schoolName}
+                        </h1>
                         <div className="flex items-center gap-2">
                             <span className="text-[9px] font-mono uppercase tracking-widest border border-ink/20 px-1.5 py-0.5">Vol. 1</span>
                             <span className="text-[9px] font-mono uppercase tracking-widest border border-ink/20 px-1.5 py-0.5">Est. 2024</span>
