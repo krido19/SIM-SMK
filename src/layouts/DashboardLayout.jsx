@@ -142,6 +142,7 @@ export default function DashboardLayout() {
             },
             {
                 category: "Akademik", items: [
+                    { to: '/student/schedule', icon: Calendar, label: 'Jadwal Pelajaran' },
                     { to: '/student/grades', icon: Award, label: 'Rapor & Nilai' },
                     { to: '/student/attendance', icon: Users, label: 'Rekap Kehadiran' },
                     { to: '/student/assignments', icon: ClipboardList, label: 'Tugas Saya' }
@@ -161,6 +162,7 @@ export default function DashboardLayout() {
             },
             {
                 category: "Akademik", items: [
+                    { to: '/student/schedule', icon: Calendar, label: 'Jadwal Anak' },
                     { to: '/student/grades', icon: Award, label: 'Rapor & Nilai' },
                     { to: '/student/attendance', icon: Users, label: 'Rekap Kehadiran' },
                     { to: '/student/assignments', icon: ClipboardList, label: 'Tugas Anak' }

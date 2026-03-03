@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useFeedback } from '../../context/FeedbackContext';
+import * as XLSX from 'xlsx';
 import {
     Plus,
     Calendar,
@@ -18,6 +19,8 @@ import {
     Layout,
     Grid,
     List as ListIcon,
+    Download,
+    Upload,
     AlertCircle,
     CheckCircle2,
     XCircle
@@ -114,6 +117,7 @@ export default function Schedule() {
     const userRole = localStorage.getItem('userRole') || 'admin';
     const canManage = userRole === 'admin';
     const timeSlots = useMemo(() => calculateTimeSlots(schoolStartTime), [schoolStartTime]);
+    const fileInputRef = useRef(null);
 
     useEffect(() => {
         fetchData();
@@ -293,6 +297,103 @@ export default function Schedule() {
             showToast('Terjadi kesalahan sistem: ' + err.message, 'error');
         } finally {
             setIsLoading(false);
+        }
+    };
+
+    const handleDownloadTemplate = () => {
+        const templateData = [
+            {
+                'Hari': 'Senin',
+                'Jam Ke': 1,
+                'Waktu Mulai': '07:00',
+                'Waktu Selesai': '07:45',
+                'Kelas': dbClasses[0]?.name || 'X RPL 1',
+                'Mata Pelajaran': dbSubjects[0]?.name || 'Matematika',
+                'Guru': dbTeachers[0]?.name || 'Budi Santoso',
+                'Minggu': 'Minggu Ganjil'
+            },
+            {
+                'Hari': 'Senin',
+                'Jam Ke': 2,
+                'Waktu Mulai': '07:45',
+                'Waktu Selesai': '08:30',
+                'Kelas': dbClasses[0]?.name || 'X RPL 1',
+                'Mata Pelajaran': dbSubjects[0]?.name || 'Matematika',
+                'Guru': dbTeachers[0]?.name || 'Budi Santoso',
+                'Minggu': 'Minggu Ganjil'
+            }
+        ];
+
+        const ws = XLSX.utils.json_to_sheet(templateData);
+        ws['!cols'] = [
+            { wch: 10 }, { wch: 8 }, { wch: 12 }, { wch: 15 },
+            { wch: 15 }, { wch: 30 }, { wch: 30 }, { wch: 15 }
+        ];
+
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Template Jadwal");
+        XLSX.writeFile(wb, "Template_Jadwal_SIM_SMK.xlsx");
+    };
+
+    const handleImportSubmit = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        setIsLoading(true);
+        try {
+            const data = await file.arrayBuffer();
+            const workbook = XLSX.read(data);
+            const sheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[sheetName];
+            const json = XLSX.utils.sheet_to_json(worksheet);
+
+            if (json.length === 0) {
+                showToast('File Excel kosong', 'error');
+                return;
+            }
+
+            let successCount = 0;
+            let errorCount = 0;
+            const newSchedules = [];
+
+            for (const row of json) {
+                const matchedClass = dbClasses.find(c => c.name.toLowerCase() === String(row['Kelas'] || '').toLowerCase());
+                const matchedTeacher = dbTeachers.find(t => t.name.toLowerCase() === String(row['Guru'] || '').toLowerCase());
+                const subjectName = String(row['Mata Pelajaran'] || '').trim();
+
+                if (!matchedClass || !subjectName) {
+                    errorCount++;
+                    continue; // Skip invalid rows
+                }
+
+                newSchedules.push({
+                    class_id: matchedClass.id,
+                    class_name: matchedClass.name,
+                    subject_name: subjectName,
+                    teacher_id: matchedTeacher ? matchedTeacher.id : null,
+                    teacher_name: matchedTeacher ? matchedTeacher.name : String(row['Guru'] || '').trim(),
+                    day: row['Hari'] || 'Senin',
+                    week_type: row['Minggu'] || currentWeekType,
+                    jam_ke: parseInt(row['Jam Ke']) || 1,
+                    start_time: row['Waktu Mulai'] || '',
+                    end_time: row['Waktu Selesai'] || ''
+                });
+            }
+
+            if (newSchedules.length > 0) {
+                const { error } = await supabase.from('schedules').insert(newSchedules);
+                if (error) throw error;
+                successCount = newSchedules.length;
+            }
+
+            showToast(`Import Selesai: ${successCount} berhasil, ${errorCount} gagal/dilewati.`, successCount > 0 ? 'success' : 'error');
+            fetchData();
+        } catch (error) {
+            console.error('Import error:', error);
+            showToast('Gagal memproses file Excel', 'error');
+        } finally {
+            setIsLoading(false);
+            if (fileInputRef.current) fileInputRef.current.value = '';
         }
     };
 

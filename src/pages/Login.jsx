@@ -9,6 +9,7 @@ export default function Login() {
     const [schoolLogo, setSchoolLogo] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [selectedRole, setSelectedRole] = useState('siswa'); // default to siswa
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -42,35 +43,46 @@ export default function Login() {
         const pass = password.trim();
 
         try {
-            // 1. Admin Hardcoded
-            if (id === 'admin@school.id' && pass === 'admin123') {
-                localStorage.setItem('userRole', 'admin');
-                localStorage.setItem('userName', 'Admin Utama');
-                localStorage.setItem('userId', 'admin'); // Hardcoded for admin
-                navigate('/dashboard');
-                return;
-            }
-
-            // 2. Guru / Teacher (Check by Email or NIP)
-            const { data: guru, error: guruErr } = await supabase
-                .from('teachers')
-                .select('*')
-                .or(`email.eq.${id},nip.eq.${id}`)
-                .maybeSingle();
-
-            if (!guruErr && guru) {
-                if (pass === 'guru123' || pass === id || (guru.email && pass === guru.email.split('@')[0])) {
-                    localStorage.setItem('userRole', 'guru');
-                    localStorage.setItem('userName', guru.name);
-                    localStorage.setItem('userId', guru.id);
-                    localStorage.setItem('userNIP', guru.nip); // Store NIP for robust lookup
+            // 1. Admin Login
+            if (selectedRole === 'admin' || (id === 'admin@school.id' && pass === 'admin123')) {
+                if (id === 'admin@school.id' && pass === 'admin123') {
+                    localStorage.setItem('userRole', 'admin');
+                    localStorage.setItem('userName', 'Admin Utama');
+                    localStorage.setItem('userId', 'admin');
                     navigate('/dashboard');
+                    return;
+                } else if (selectedRole === 'admin') {
+                    setError('Invalid Admin credentials.');
+                    setLoading(false);
                     return;
                 }
             }
 
-            // 3. Student (Numeric NIS)
-            if (/^\d+$/.test(id)) {
+            // 2. Guru / Teacher
+            if (selectedRole === 'guru') {
+                const { data: guru, error: guruErr } = await supabase
+                    .from('teachers')
+                    .select('*')
+                    .or(`email.eq.${id},nip.eq.${id}`)
+                    .maybeSingle();
+
+                if (!guruErr && guru) {
+                    if (pass === 'guru123' || pass === id || (guru.email && pass === guru.email.split('@')[0])) {
+                        localStorage.setItem('userRole', 'guru');
+                        localStorage.setItem('userName', guru.name);
+                        localStorage.setItem('userId', guru.id);
+                        localStorage.setItem('userNIP', guru.nip);
+                        navigate('/dashboard');
+                        return;
+                    }
+                }
+                setError('Authentication failed. Invalid Guru ID or Password.');
+                setLoading(false);
+                return;
+            }
+
+            // 3. Student (Siswa)
+            if (selectedRole === 'siswa') {
                 const { data: student, error: stdErr } = await supabase
                     .from('students')
                     .select('*, classes(name)')
@@ -87,26 +99,34 @@ export default function Login() {
                         return;
                     }
                 }
+                setError('Authentication failed. Invalid NIS or Password.');
+                setLoading(false);
+                return;
             }
 
-            // 4. Parent (OT + NIS)
-            if (id.toUpperCase().startsWith('OT')) {
-                const nis = id.substring(2).trim();
+            // 4. Parent (Orang Tua)
+            if (selectedRole === 'parent') {
+                // Handle both with prefix and without in the ID field
+                const cleanNis = id.toUpperCase().startsWith('OT') ? id.substring(2).trim() : id.trim();
+
                 const { data: student, error: stdErr } = await supabase
                     .from('students')
                     .select('*')
-                    .eq('nis', nis)
+                    .eq('nis', cleanNis)
                     .maybeSingle();
 
                 if (!stdErr && student) {
-                    if (pass === 'parent123' || pass === 'siswa123' || pass === nis) {
+                    if (pass === 'parent123' || pass === 'siswa123' || pass === cleanNis) {
                         localStorage.setItem('userRole', 'parent');
                         localStorage.setItem('userName', 'Orang Tua ' + student.full_name);
-                        localStorage.setItem('userId', student.id); // Parent views student data
+                        localStorage.setItem('userId', student.id);
                         navigate('/dashboard');
                         return;
                     }
                 }
+                setError('Authentication failed. Invalid Student NIS or Password.');
+                setLoading(false);
+                return;
             }
 
             setError('Authentication failed. Invalid ID or Password provided.');
@@ -131,7 +151,7 @@ export default function Login() {
                 </div>
 
                 <div className="relative z-10 flex flex-col justify-center flex-1 my-12">
-                     <img src="/logo.png" alt="Logo" className="w-48 mb-12 invert" />
+                    <img src="/logo.png" alt="Logo" className="w-48 mb-12 invert" />
                     <h1 className="text-8xl xl:text-9xl font-serif font-black uppercase tracking-tighter leading-[0.85] mb-8">
                         Sistem<br />Informasi<br />Sekolah.
                     </h1>
@@ -196,8 +216,31 @@ export default function Login() {
                                 )}
 
                                 <div className="space-y-2">
+                                    <label className="block text-[10px] font-mono font-black text-ink uppercase tracking-[0.2em]">
+                                        Masuk Sebagai
+                                    </label>
+                                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                                        {[
+                                            { id: 'siswa', label: 'Siswa' },
+                                            { id: 'parent', label: 'Wali' },
+                                            { id: 'guru', label: 'Guru' },
+                                            { id: 'admin', label: 'Admin' }
+                                        ].map((r) => (
+                                            <button
+                                                key={r.id}
+                                                type="button"
+                                                onClick={() => setSelectedRole(r.id)}
+                                                className={`py-2 px-1 border-2 border-ink font-mono text-[10px] font-black uppercase tracking-tighter transition-all ${selectedRole === r.id ? 'bg-ink text-white' : 'bg-transparent text-ink hover:bg-neutral-100'}`}
+                                            >
+                                                {r.label}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div className="space-y-2">
                                     <label htmlFor="email" className="block text-[10px] font-mono font-black text-ink uppercase tracking-[0.2em]">
-                                        Identitas (Email/NIS/NIP)
+                                        {selectedRole === 'siswa' || selectedRole === 'parent' ? 'NIS SISWA' : 'ID / EMAIL / NIP'}
                                     </label>
                                     <input
                                         id="email"
