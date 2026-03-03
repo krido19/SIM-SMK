@@ -90,6 +90,39 @@ export default function DatabaseBackup() {
                 }
             }
 
+            fullSQL += `-- 4. ADDITIONAL SETUPS & CONSTRAINTS\n\n`;
+
+            // Storage Setup
+            fullSQL += `-- Create 'assignments' bucket if it doesn't exist\n`;
+            fullSQL += `INSERT INTO storage.buckets (id, name, public) VALUES ('assignments', 'assignments', true) ON CONFLICT (id) DO NOTHING;\n\n`;
+
+            fullSQL += `-- Storage Policies for assignments\n`;
+            fullSQL += `DROP POLICY IF EXISTS "Assignments Read Access" ON storage.objects;\n`;
+            fullSQL += `CREATE POLICY "Assignments Read Access" ON storage.objects FOR SELECT USING (bucket_id = 'assignments');\n\n`;
+
+            fullSQL += `DROP POLICY IF EXISTS "Assignments Upload Access" ON storage.objects;\n`;
+            fullSQL += `CREATE POLICY "Assignments Upload Access" ON storage.objects FOR INSERT TO authenticated WITH CHECK (bucket_id = 'assignments');\n\n`;
+
+            fullSQL += `DROP POLICY IF EXISTS "Assignments Delete Access" ON storage.objects;\n`;
+            fullSQL += `CREATE POLICY "Assignments Delete Access" ON storage.objects FOR DELETE TO authenticated USING (bucket_id = 'assignments' AND auth.uid() = owner);\n\n`;
+
+            // Unique Constraints
+            fullSQL += `-- Advanced Constraints\n`;
+            fullSQL += `ALTER TABLE public.attendance DROP CONSTRAINT IF EXISTS unique_attendance_student_date;\n`;
+            fullSQL += `ALTER TABLE public.attendance ADD CONSTRAINT unique_attendance_student_date UNIQUE (student_id, date);\n\n`;
+
+            fullSQL += `ALTER TABLE public.grades DROP CONSTRAINT IF EXISTS grades_student_id_subject_id_key;\n`;
+            fullSQL += `ALTER TABLE public.grades DROP CONSTRAINT IF EXISTS grades_student_subject_semester_unique;\n`;
+            fullSQL += `ALTER TABLE public.grades ADD CONSTRAINT grades_student_subject_semester_unique UNIQUE (student_id, subject_id, semester);\n\n`;
+
+            // Additional RLS for assignments
+            fullSQL += `-- Revised Policies for assignments table\n`;
+            fullSQL += `DROP POLICY IF EXISTS "Authenticated users can insert" ON public.assignments;\n`;
+            fullSQL += `CREATE POLICY "Authenticated users can insert" ON public.assignments FOR INSERT TO authenticated WITH CHECK (true);\n\n`;
+
+            fullSQL += `DROP POLICY IF EXISTS "Authenticated users can update" ON public.assignments;\n`;
+            fullSQL += `CREATE POLICY "Authenticated users can update" ON public.assignments FOR UPDATE TO authenticated USING (true);\n\n`;
+
             // Create and download file
             const blob = new Blob([fullSQL], { type: 'text/plain' });
             const url = window.URL.createObjectURL(blob);
