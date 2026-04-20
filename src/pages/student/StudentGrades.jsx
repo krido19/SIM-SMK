@@ -7,8 +7,19 @@ import {
     Download,
     Printer,
     ChevronRight,
-    Target
+    Target,
+    Calendar
 } from 'lucide-react';
+
+// Generate daftar tahun ajaran dari 2020/2021 sampai tahun depan
+function generateAcademicYears() {
+    const currentYear = new Date().getFullYear();
+    const years = [];
+    for (let y = currentYear + 1; y >= 2020; y--) {
+        years.push(`${y}/${y + 1}`);
+    }
+    return years;
+}
 
 export default function StudentGrades() {
     const userRole = localStorage.getItem('userRole');
@@ -20,19 +31,55 @@ export default function StudentGrades() {
     const [average, setAverage] = useState(0);
     const [passedCount, setPassedCount] = useState(0);
     const [selectedSemester, setSelectedSemester] = useState(1);
+    const [selectedYear, setSelectedYear] = useState('');
+    const [availableYears, setAvailableYears] = useState([]);
 
+    // Load daftar tahun ajaran yang punya data untuk siswa ini
     useEffect(() => {
         if (userId) {
+            loadAvailableYears();
+        }
+    }, [userId]);
+
+    useEffect(() => {
+        if (userId && selectedYear) {
             fetchGrades();
         }
-    }, [userId, selectedSemester]);
+    }, [userId, selectedSemester, selectedYear]);
+
+    const loadAvailableYears = async () => {
+        // Ambil semua tahun ajaran unik dari data nilai siswa ini
+        const { data } = await supabase
+            .from('grades')
+            .select('academic_year')
+            .eq('student_id', userId);
+
+        let years = [];
+        if (data && data.length > 0) {
+            const unique = [...new Set(data.map(g => g.academic_year).filter(Boolean))];
+            // Urutkan dari terbaru ke terlama
+            years = unique.sort((a, b) => b.localeCompare(a));
+        }
+
+        // Jika tidak ada data, fallback ke tahun ajaran saat ini dari settings
+        if (years.length === 0) {
+            const { data: setting } = await supabase
+                .from('settings')
+                .select('value')
+                .eq('key', 'current_academic_year')
+                .maybeSingle();
+            const currentYear = setting?.value || '2023/2024';
+            years = [currentYear];
+        }
+
+        setAvailableYears(years);
+        setSelectedYear(years[0]); // Default ke tahun terbaru
+    };
 
     const fetchGrades = async () => {
+        setLoading(true);
         try {
-            // Get all subjects first to ensure we show even those without grades (optional, but good)
-            // Or just get grades joined with subjects.
-            // Let's get grades with subjects.
-            const { data, error } = await supabase
+            let query = supabase
                 .from('grades')
                 .select(`
                     *,
@@ -44,9 +91,14 @@ export default function StudentGrades() {
                 .eq('student_id', userId)
                 .eq('semester', selectedSemester);
 
-            if (error) throw error;
+            // Filter tahun ajaran jika tersedia
+            if (selectedYear) {
+                query = query.eq('academic_year', selectedYear);
+            }
 
-            console.log('Fetched grades:', data);
+            const { data, error } = await query;
+
+            if (error) throw error;
 
             if (data) {
                 const processed = data.map(g => ({
@@ -63,9 +115,12 @@ export default function StudentGrades() {
 
                 // Stats
                 if (processed.length > 0) {
-                    const total = processed.reduce((acc, curr) => acc + curr.final, 0);
+                    const total = processed.reduce((acc, curr) => acc + (curr.final || 0), 0);
                     setAverage((total / processed.length).toFixed(1));
                     setPassedCount(processed.filter(p => p.status === 'Lulus').length);
+                } else {
+                    setAverage(0);
+                    setPassedCount(0);
                 }
             }
         } catch (err) {
@@ -84,10 +139,33 @@ export default function StudentGrades() {
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b-4 border-ink pb-6">
                 <div>
                     <h1 className="text-4xl font-serif font-black text-ink uppercase tracking-tighter leading-none mb-1">Rapor Nilai</h1>
-                    <div className="flex items-center space-x-4 mt-4">
-                        <p className="font-mono text-[10px] uppercase tracking-widest opacity-60">Tahun Ajaran 2023/2024</p>
+
+                    {/* Filter Bar */}
+                    <div className="flex flex-wrap items-center gap-3 mt-4">
+                        {/* Pilih Tahun Ajaran */}
                         <div className="border-2 border-ink p-1 bg-white relative">
-                            <span className="absolute -top-2 left-2 bg-paper px-1 text-[8px] font-mono font-bold uppercase tracking-widest text-ink">Semester</span>
+                            <span className="absolute -top-2 left-2 bg-white px-1 text-[8px] font-mono font-bold uppercase tracking-widest text-ink">Tahun Ajaran</span>
+                            <select
+                                className="appearance-none bg-transparent px-2 text-xs font-bold font-mono uppercase tracking-widest text-ink focus:outline-none cursor-pointer"
+                                value={selectedYear}
+                                onChange={(e) => setSelectedYear(e.target.value)}
+                            >
+                                {availableYears.map(y => (
+                                    <option key={y} value={y}>{y}</option>
+                                ))}
+                                {/* Jika ingin lihat tahun lain yang mungkin tidak ada datanya */}
+                                {generateAcademicYears()
+                                    .filter(y => !availableYears.includes(y))
+                                    .map(y => (
+                                        <option key={y} value={y}>{y} (kosong)</option>
+                                    ))
+                                }
+                            </select>
+                        </div>
+
+                        {/* Pilih Semester */}
+                        <div className="border-2 border-ink p-1 bg-white relative">
+                            <span className="absolute -top-2 left-2 bg-white px-1 text-[8px] font-mono font-bold uppercase tracking-widest text-ink">Semester</span>
                             <select
                                 className="appearance-none bg-transparent px-2 text-xs font-bold font-mono uppercase tracking-widest text-ink focus:outline-none cursor-pointer"
                                 value={selectedSemester}
@@ -153,7 +231,11 @@ export default function StudentGrades() {
                                     average >= 75 ? 'Cukup' : 'Perlu Perbaikan'}
                         </h2>
                     </div>
-                    <p className="font-mono text-[9px] font-bold mt-6 uppercase tracking-[0.2em] border-t-2 border-ink pt-2">Berdasarkan nilai keseluruhan</p>
+                    <div>
+                        <p className="font-mono text-[9px] font-bold mt-4 uppercase tracking-[0.2em] border-t-2 border-ink pt-2">
+                            {selectedYear} • Sem. {selectedSemester}
+                        </p>
+                    </div>
                 </div>
             </div>
 
@@ -174,8 +256,16 @@ export default function StudentGrades() {
                         <tbody className="divide-y-2 divide-ink">
                             {grades.length === 0 ? (
                                 <tr>
-                                    <td colSpan="6" className="p-12 text-center text-ink/60 font-serif italic text-lg">
-                                        Belum ada data nilai untuk semester ini.
+                                    <td colSpan="6" className="p-12 text-center">
+                                        <div className="flex flex-col items-center gap-3">
+                                            <Calendar size={32} className="text-ink/30" />
+                                            <p className="text-ink/60 font-serif italic text-lg">
+                                                Belum ada nilai untuk {selectedYear} Semester {selectedSemester}.
+                                            </p>
+                                            <p className="text-ink/40 font-mono text-[10px] uppercase tracking-widest">
+                                                Coba pilih tahun ajaran atau semester yang berbeda.
+                                            </p>
+                                        </div>
                                     </td>
                                 </tr>
                             ) : (
@@ -192,9 +282,9 @@ export default function StudentGrades() {
                                         <td className="p-4 border-r border-ink text-center">
                                             <span className="font-mono text-sm text-ink/60">{sub.kkm}</span>
                                         </td>
-                                        <td className="p-4 border-r border-ink text-center font-mono font-bold text-lg">{sub.tugas}</td>
-                                        <td className="p-4 border-r border-ink text-center font-mono font-bold text-lg">{sub.uts}</td>
-                                        <td className="p-4 border-r border-ink text-center font-mono font-bold text-lg">{sub.uas}</td>
+                                        <td className="p-4 border-r border-ink text-center font-mono font-bold text-lg">{sub.tugas ?? '-'}</td>
+                                        <td className="p-4 border-r border-ink text-center font-mono font-bold text-lg">{sub.uts ?? '-'}</td>
+                                        <td className="p-4 border-r border-ink text-center font-mono font-bold text-lg">{sub.uas ?? '-'}</td>
                                         <td className="p-4 text-center bg-neutral-100">
                                             <span className={`font-mono text-3xl font-black ${sub.final < sub.kkm ? 'text-newsprint-red' : 'text-ink'}`}>
                                                 {sub.final}

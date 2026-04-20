@@ -9,7 +9,6 @@ export default function Login() {
     const [schoolLogo, setSchoolLogo] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [selectedRole, setSelectedRole] = useState('siswa'); // default to siswa
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -38,58 +37,65 @@ export default function Login() {
         e.preventDefault();
         setLoading(true);
         setError(null);
+        
+        // Membersihkan cache sisa dari sesi sebelumnya sebelum proses login baru.
+        localStorage.removeItem('userRole');
+        localStorage.removeItem('userName');
+        localStorage.removeItem('userId');
+        localStorage.removeItem('userNIP');
+        localStorage.removeItem('userClass');
 
         const id = email.trim();
         const pass = password.trim();
 
         try {
             // 1. Admin Login
-            if (selectedRole === 'admin' || (id === 'admin@school.id' && pass === 'admin123')) {
-                if (id === 'admin@school.id' && pass === 'admin123') {
-                    localStorage.setItem('userRole', 'admin');
-                    localStorage.setItem('userName', 'Admin Utama');
-                    localStorage.setItem('userId', 'admin');
-                    navigate('/dashboard');
-                    return;
-                } else if (selectedRole === 'admin') {
-                    setError('Invalid Admin credentials.');
-                    setLoading(false);
-                    return;
-                }
-            }
-
-            // 2. Guru / Teacher
-            if (selectedRole === 'guru') {
-                const { data: guru, error: guruErr } = await supabase
-                    .from('teachers')
-                    .select('*')
-                    .or(`email.eq.${id},nip.eq.${id}`)
-                    .maybeSingle();
-
-                if (!guruErr && guru) {
-                    if (pass === 'guru123' || pass === id || (guru.email && pass === guru.email.split('@')[0])) {
-                        localStorage.setItem('userRole', 'guru');
-                        localStorage.setItem('userName', guru.name);
-                        localStorage.setItem('userId', guru.id);
-                        localStorage.setItem('userNIP', guru.nip);
-                        navigate('/dashboard');
-                        return;
-                    }
-                }
-                setError('Authentication failed. Invalid Guru ID or Password.');
-                setLoading(false);
+            if (id === 'admin@school.id' && pass === 'admin123') {
+                localStorage.setItem('userRole', 'admin');
+                localStorage.setItem('userName', 'Admin Utama');
+                localStorage.setItem('userId', 'admin');
+                navigate('/dashboard');
                 return;
             }
 
-            // 3. Student (Siswa)
-            if (selectedRole === 'siswa') {
-                const { data: student, error: stdErr } = await supabase
-                    .from('students')
-                    .select('*, classes(name)')
-                    .eq('nis', id)
-                    .maybeSingle();
+            // 2. Guru / Teacher
+            const { data: guru, error: guruErr } = await supabase
+                .from('teachers')
+                .select('*')
+                .or(`email.eq.${id},nip.eq.${id}`)
+                .maybeSingle();
 
-                if (!stdErr && student) {
+            if (!guruErr && guru) {
+                if (pass === 'guru123' || pass === id || (guru.email && pass === guru.email.split('@')[0])) {
+                    localStorage.setItem('userRole', 'guru');
+                    localStorage.setItem('userName', guru.name);
+                    localStorage.setItem('userId', guru.id);
+                    localStorage.setItem('userNIP', guru.nip);
+                    navigate('/dashboard');
+                    return;
+                }
+            }
+
+            // 3. Parent or Student
+            const isParent = id.toUpperCase().startsWith('OT');
+            const cleanNis = isParent ? id.substring(2).trim() : id.trim();
+
+            const { data: student, error: stdErr } = await supabase
+                .from('students')
+                .select('*, classes(name)')
+                .eq('nis', cleanNis)
+                .maybeSingle();
+
+            if (!stdErr && student) {
+                if (isParent) {
+                    if (pass === 'parent123' || pass === 'siswa123' || pass === cleanNis) {
+                        localStorage.setItem('userRole', 'parent');
+                        localStorage.setItem('userName', 'Orang Tua ' + student.full_name);
+                        localStorage.setItem('userId', student.id);
+                        navigate('/dashboard');
+                        return;
+                    }
+                } else {
                     if (pass === 'siswa123' || pass === id) {
                         localStorage.setItem('userRole', 'siswa');
                         localStorage.setItem('userName', student.full_name);
@@ -99,34 +105,6 @@ export default function Login() {
                         return;
                     }
                 }
-                setError('Authentication failed. Invalid NIS or Password.');
-                setLoading(false);
-                return;
-            }
-
-            // 4. Parent (Orang Tua)
-            if (selectedRole === 'parent') {
-                // Handle both with prefix and without in the ID field
-                const cleanNis = id.toUpperCase().startsWith('OT') ? id.substring(2).trim() : id.trim();
-
-                const { data: student, error: stdErr } = await supabase
-                    .from('students')
-                    .select('*')
-                    .eq('nis', cleanNis)
-                    .maybeSingle();
-
-                if (!stdErr && student) {
-                    if (pass === 'parent123' || pass === 'siswa123' || pass === cleanNis) {
-                        localStorage.setItem('userRole', 'parent');
-                        localStorage.setItem('userName', 'Orang Tua ' + student.full_name);
-                        localStorage.setItem('userId', student.id);
-                        navigate('/dashboard');
-                        return;
-                    }
-                }
-                setError('Authentication failed. Invalid Student NIS or Password.');
-                setLoading(false);
-                return;
             }
 
             setError('Authentication failed. Invalid ID or Password provided.');
@@ -139,51 +117,53 @@ export default function Login() {
     };
 
     return (
-        <div className="min-h-screen grid grid-cols-1 lg:grid-cols-2 text-ink bg-paper newsprint-texture selection:bg-ink selection:text-paper">
+        <div className="min-h-screen grid grid-cols-1 lg:grid-cols-2 bg-gray-50 text-gray-900 transition-colors duration-300">
 
-            {/* Left Column - Editorial Cover */}
-            <div className="hidden lg:flex flex-col justify-between p-12 border-r-4 border-ink bg-ink text-paper relative overflow-hidden">
-                <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
+            {/* Left Column - Digital Poster */}
+            <div className="hidden lg:flex flex-col justify-between p-12 bg-blue-600 text-white relative overflow-hidden">
+                {/* Large decorative shape */}
+                <div className="absolute top-[-10%] right-[-10%] w-[120%] h-[120%] rounded-full border-[100px] border-white/5 pointer-events-none" />
+                <div className="absolute bottom-[-20%] left-[-20%] w-[80%] h-[80%] rounded-full bg-white/5 pointer-events-none" />
 
-                <div className="relative z-10 flex justify-between items-start border-b-2 border-paper/30 pb-4">
-                    <span className="font-mono text-[10px] uppercase tracking-[0.3em]">Volume I - Edisi No. {new Date().getDate()}</span>
-                    <span className="font-mono text-[10px] uppercase tracking-[0.3em] font-bold">{new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                <div className="relative z-10 flex justify-between items-center pb-4 border-b border-white/20">
+                    <span className="font-sans text-xs uppercase tracking-wider font-semibold opacity-80">Akademik Digital</span>
+                    <span className="font-sans text-xs uppercase tracking-wider font-bold">{new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
                 </div>
 
-                <div className="relative z-10 flex flex-col justify-center flex-1 my-12">
-                    <img src="/logo.png" alt="Logo" className="w-48 mb-12 invert" />
-                    <h1 className="text-8xl xl:text-9xl font-serif font-black uppercase tracking-tighter leading-[0.85] mb-8">
+                <div className="relative z-10 flex flex-col justify-center flex-1 my-16">
+                    <img src="/logo.png" alt="Logo" className="w-40 mb-12 filter brightness-0 invert" />
+                    <h1 className="text-7xl xl:text-8xl font-sans font-bold uppercase tracking-tight leading-[0.9] mb-8 mt-2">
                         Sistem<br />Informasi<br />Sekolah.
                     </h1>
-                    <div className="border-l-4 border-newsprint-red pl-6 py-2">
-                        <p className="font-mono text-sm uppercase tracking-widest leading-relaxed max-w-md text-paper/80 font-bold">
-                            Sistem Informasi Akademik Resmi untuk {schoolName}. Diperlukan autentikasi untuk mengakses.
+                    <div className="pl-6 py-2 border-l-4 border-white">
+                        <p className="font-sans text-lg leading-relaxed max-w-sm text-white/90 font-medium">
+                            Platform Akademik Terintegrasi {schoolName}. Akses real-time ke data pendidikan.
                         </p>
                     </div>
                 </div>
 
-                <div className="relative z-10 grid grid-cols-3 gap-8 py-6 border-t-2 border-paper/30 font-mono text-[10px] uppercase tracking-widest text-paper/60">
+                <div className="relative z-10 grid grid-cols-3 gap-8 py-6 border-t border-white/20 font-sans text-xs uppercase tracking-wider text-white/80">
                     <div>
-                        <p className="font-bold text-paper mb-1">Siswa</p>
-                        <p>Data Akademik & Jadwal</p>
+                        <p className="font-bold text-white mb-2 text-sm">Siswa</p>
+                        <p className="leading-snug">Data Akademik & Jadwal</p>
                     </div>
                     <div>
-                        <p className="font-bold text-paper mb-1">Guru</p>
-                        <p>Penilaian & Manajemen Absensi</p>
+                        <p className="font-bold text-white mb-2 text-sm">Guru</p>
+                        <p className="leading-snug">Penilaian & Absensi</p>
                     </div>
                     <div>
-                        <p className="font-bold text-paper mb-1">Administrasi</p>
-                        <p>Pengawasan Sistem & Konfigurasi</p>
+                        <p className="font-bold text-white mb-2 text-sm">Admin</p>
+                        <p className="leading-snug">Konfigurasi Sistem</p>
                     </div>
                 </div>
             </div>
 
             {/* Right Column - Login Form */}
-            <div className="flex flex-col justify-center items-center p-6 sm:p-12 relative bg-paper transition-colors duration-300">
+            <div className="flex flex-col justify-center items-center p-6 sm:p-12 relative bg-white transition-colors duration-300">
                 <div className="absolute top-6 right-6 z-20">
                     <button
                         onClick={toggleTheme}
-                        className="p-2 border-2 border-ink bg-white hover:bg-ink hover:text-white transition-all shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] active:translate-y-[2px] active:translate-x-[2px] active:shadow-none"
+                        className="p-2 rounded-md bg-gray-100 hover:bg-gray-200 text-gray-600 transition-colors"
                     >
                         {theme === 'dark' ? <Sun size={20} strokeWidth={2} /> : <Moon size={20} strokeWidth={2} />}
                     </button>
@@ -191,56 +171,33 @@ export default function Login() {
 
                 <div className="w-full max-w-md mx-auto relative z-10">
                     {/* Mobile Header */}
-                    <div className="lg:hidden text-center mb-12 border-b-4 border-ink pb-6">
-                        <h1 className="text-5xl font-serif font-black uppercase tracking-tighter leading-none mb-4">
-                            SIM SMK.
+                    <div className="lg:hidden text-center mb-10 pb-6 border-b border-gray-100">
+                        <h1 className="text-4xl font-sans font-bold tracking-tight mb-2">
+                            SIM SMK
                         </h1>
-                        <p className="font-mono text-[10px] uppercase tracking-widest font-bold">
-                            {schoolName} • Sistem Informasi
+                        <p className="font-sans text-sm font-medium text-gray-500 uppercase tracking-wider">
+                            {schoolName} • Akademik
                         </p>
                     </div>
 
-                    <div className="bg-white border-2 border-ink shadow-[12px_12px_0px_0px_rgba(17,17,17,1)] relative">
-                        <div className="bg-ink text-paper p-4 flex justify-between items-center border-b-2 border-ink">
-                            <h2 className="font-mono font-black uppercase tracking-widest text-sm">Portal Masuk</h2>
-                            <div className="w-2 h-2 bg-newsprint-red rounded-full animate-pulse" />
+                    <div className="bg-white relative">
+                        <div className="mb-8">
+                            <h2 className="text-3xl font-sans font-bold text-gray-900 mb-2">Selamat Datang</h2>
+                            <p className="text-gray-500 font-sans">Masuk untuk mengakses layanan akademik</p>
                         </div>
 
                         <div className="p-8">
                             <form className="space-y-6" onSubmit={handleLogin}>
                                 {error && (
-                                    <div className="bg-newsprint-red text-white p-4 flex items-start space-x-3 border-2 border-ink shadow-[4px_4px_0px_0px_rgba(17,17,17,1)]">
+                                    <div className="bg-red-50 text-red-600 p-4 rounded-md flex items-start space-x-3 mb-6">
                                         <AlertCircle size={20} className="shrink-0 mt-0.5" />
-                                        <span className="font-mono text-[10px] uppercase tracking-widest font-bold leading-tight">{error}</span>
+                                        <span className="font-sans text-sm font-medium">{error}</span>
                                     </div>
                                 )}
 
-                                <div className="space-y-2">
-                                    <label className="block text-[10px] font-mono font-black text-ink uppercase tracking-[0.2em]">
-                                        Masuk Sebagai
-                                    </label>
-                                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                                        {[
-                                            { id: 'siswa', label: 'Siswa' },
-                                            { id: 'parent', label: 'Wali' },
-                                            { id: 'guru', label: 'Guru' },
-                                            { id: 'admin', label: 'Admin' }
-                                        ].map((r) => (
-                                            <button
-                                                key={r.id}
-                                                type="button"
-                                                onClick={() => setSelectedRole(r.id)}
-                                                className={`py-2 px-1 border-2 border-ink font-mono text-[10px] font-black uppercase tracking-tighter transition-all ${selectedRole === r.id ? 'bg-ink text-white' : 'bg-transparent text-ink hover:bg-neutral-100'}`}
-                                            >
-                                                {r.label}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                <div className="space-y-2">
-                                    <label htmlFor="email" className="block text-[10px] font-mono font-black text-ink uppercase tracking-[0.2em]">
-                                        {selectedRole === 'siswa' || selectedRole === 'parent' ? 'NIS SISWA' : 'ID / EMAIL / NIP'}
+                                <div className="space-y-2 pt-2">
+                                    <label htmlFor="email" className="block text-sm font-sans font-semibold text-gray-700">
+                                        Email / NIP / NIS
                                     </label>
                                     <input
                                         id="email"
@@ -248,13 +205,13 @@ export default function Login() {
                                         required
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
-                                        className="w-full px-4 py-3 bg-neutral-50 border-2 border-ink focus:bg-white focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2 transition-all font-mono font-bold text-ink placeholder:text-ink/30"
+                                        className="w-full px-4 py-3 bg-gray-100 rounded-md focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 border-2 border-transparent focus:border-blue-500 transition-all font-sans text-gray-900 placeholder:text-gray-400"
                                         placeholder="Masukkan ID..."
                                     />
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label htmlFor="password" className="block text-[10px] font-mono font-black text-ink uppercase tracking-[0.2em]">
+                                    <label htmlFor="password" className="block text-sm font-sans font-semibold text-gray-700">
                                         Kata Sandi
                                     </label>
                                     <div className="relative">
@@ -264,15 +221,15 @@ export default function Login() {
                                             required
                                             value={password}
                                             onChange={(e) => setPassword(e.target.value)}
-                                            className="w-full pl-4 pr-12 py-3 bg-neutral-50 border-2 border-ink focus:bg-white focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2 transition-all font-mono font-bold text-ink placeholder:text-ink/30"
+                                            className="w-full pl-4 pr-12 py-3 bg-gray-100 rounded-md focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 border-2 border-transparent focus:border-blue-500 transition-all font-sans text-gray-900 placeholder:text-gray-400"
                                             placeholder="••••••••"
                                         />
                                         <button
                                             type="button"
                                             onClick={() => setShowPassword(!showPassword)}
-                                            className="absolute inset-y-0 right-0 px-4 flex items-center text-ink/50 hover:text-ink transition-colors border-l-2 border-ink bg-neutral-100 hover:bg-neutral-200"
+                                            className="absolute inset-y-0 right-0 px-4 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
                                         >
-                                            {showPassword ? <EyeOff size={16} strokeWidth={2} /> : <Eye size={16} strokeWidth={2} />}
+                                            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                                         </button>
                                     </div>
                                 </div>
@@ -280,15 +237,15 @@ export default function Login() {
                                 <button
                                     type="submit"
                                     disabled={loading}
-                                    className="w-full py-4 mt-8 bg-ink hover:bg-newsprint-red text-paper font-mono font-black uppercase tracking-[0.2em] border-2 border-transparent transition-colors flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="w-full py-4 mt-8 rounded-md bg-blue-600 hover:bg-blue-700 text-white font-sans font-bold text-lg transition-transform duration-200 hover:scale-[1.02] flex items-center justify-center space-x-2 disabled:opacity-70 disabled:hover:scale-100"
                                 >
                                     {loading ? (
                                         <>
-                                            <Loader2 className="animate-spin" size={18} strokeWidth={3} />
-                                            <span>Memverifikasi...</span>
+                                            <Loader2 className="animate-spin" size={20} strokeWidth={3} />
+                                            <span>Memproses...</span>
                                         </>
                                     ) : (
-                                        <span>Masuk</span>
+                                        <span>Masuk ke Sistem</span>
                                     )}
                                 </button>
                             </form>
@@ -296,23 +253,22 @@ export default function Login() {
                     </div>
 
                     {/* Guidelines */}
-                    <div className="mt-12">
-                        <div className="flex items-center justify-between border-b-2 border-ink pb-2 mb-6">
-                            <h3 className="font-serif font-black text-ink uppercase text-sm tracking-tight">Panduan Akses</h3>
-                            <span className="font-mono text-[8px] uppercase tracking-widest text-ink/60">Ref: IDX-001</span>
+                    <div className="mt-8 pt-8 border-t border-gray-100">
+                        <div className="flex items-center justify-between mb-4">
+                            <h3 className="font-sans font-semibold text-gray-700">Panduan Akses</h3>
                         </div>
 
-                        <div className="grid grid-cols-1 gap-4 font-mono text-[10px] uppercase tracking-widest text-ink/80">
-                            <div className="flex border-l-2 border-ink pl-4 py-1">
-                                <span className="w-16 font-black text-ink shrink-0">Guru:</span>
+                        <div className="space-y-3 font-sans text-sm text-gray-500">
+                            <div className="flex items-start">
+                                <span className="w-16 font-bold text-gray-900 shrink-0">Guru</span>
                                 <span>Gunakan NIP resmi atau format email valid.</span>
                             </div>
-                            <div className="flex border-l-2 border-ink pl-4 py-1">
-                                <span className="w-16 font-black text-ink shrink-0">Siswa:</span>
-                                <span>Gunakan NIS numerik yang telah ditetapkan.</span>
+                            <div className="flex items-start">
+                                <span className="w-16 font-bold text-gray-900 shrink-0">Siswa</span>
+                                <span>Gunakan NIS (Nomor Induk Siswa) yang ditetapkan.</span>
                             </div>
-                            <div className="flex border-l-2 border-newsprint-red pl-4 py-1">
-                                <span className="w-16 font-black text-newsprint-red shrink-0">Ortu:</span>
+                            <div className="flex items-start">
+                                <span className="w-16 font-bold text-blue-600 shrink-0">Wali</span>
                                 <span>Awali dengan 'OT' + NIS siswa (cth: OT2023001).</span>
                             </div>
                         </div>

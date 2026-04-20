@@ -15,6 +15,7 @@ export default function Dashboard() {
     const [announcements, setAnnouncements] = useState([]);
     const [nextClass, setNextClass] = useState(null);
     const [currentWeekType, setCurrentWeekType] = useState('Minggu Ganjil');
+    const [academicPeriod, setAcademicPeriod] = useState('Semester Ganjil 23/24');
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
@@ -25,9 +26,14 @@ export default function Dashboard() {
         setIsLoading(true);
         try {
             // 1. Get Global Settings
-            const { data: weekData } = await supabase.from('settings').select('value').eq('key', 'current_week_type').maybeSingle();
-            const weekType = weekData?.value || 'Minggu Ganjil';
+            const { data: settingsData } = await supabase.from('settings').select('key, value').in('key', ['current_week_type', 'current_semester', 'current_academic_year']);
+            
+            const weekType = settingsData?.find(s => s.key === 'current_week_type')?.value || 'Minggu Ganjil';
+            const semester = settingsData?.find(s => s.key === 'current_semester')?.value || 'Semester Ganjil';
+            const academicYear = settingsData?.find(s => s.key === 'current_academic_year')?.value || '23/24';
+            
             setCurrentWeekType(weekType);
+            setAcademicPeriod(`${semester} ${academicYear}`);
 
             // 2. Fetch Announcements
             const { data: ann } = await supabase
@@ -111,7 +117,7 @@ export default function Dashboard() {
                     <div className="border-2 border-ink p-4 bg-white shadow-[4px_4px_0px_0px_rgba(17,17,17,1)]">
                         <p className="text-[10px] font-mono font-bold uppercase tracking-widest border-b border-ink/10 pb-2 mb-2">Siklus Akademik</p>
                         <p className="text-sm font-serif font-bold italic">{currentWeekType}</p>
-                        <p className="text-[11px] font-mono opacity-60 mt-1 uppercase">Semester Ganjil 23/24</p>
+                        <p className="text-[11px] font-mono opacity-60 mt-1 uppercase">{academicPeriod}</p>
                     </div>
                 </div>
             </div>

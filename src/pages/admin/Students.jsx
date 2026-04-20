@@ -188,7 +188,7 @@ export default function Students() {
 
     const handleSelectAll = (e) => {
         if (e.target.checked) {
-            setSelectedIds(paginatedStudents.map(s => s.id));
+            setSelectedIds(processedStudents.map(s => s.id));
         } else {
             setSelectedIds([]);
         }
@@ -313,9 +313,9 @@ export default function Students() {
             const ws = wb.Sheets[wb.SheetNames[0]];
             const rows = XLSX.utils.sheet_to_json(ws, { defval: '' });
             const mapped = rows.map(r => ({
-                full_name: r['Nama Lengkap'] || r['nama'] || r['name'] || '',
+                full_name: r['Nama Lengkap'] || r['Nama'] || r['nama'] || r['name'] || '',
                 nis: String(r['NIS'] || r['nis'] || ''),
-                class_name: r['Kelas'] || r['kelas'] || '',
+                class_name: String(r['Kelas'] || r['kelas'] || '').trim(),
                 email: r['Email'] || r['email'] || '',
                 wa_student: String(r['WA Siswa'] || r['wa_siswa'] || '-'),
                 wa_parent: String(r['WA Orang Tua'] || r['wa_ortu'] || '-'),
@@ -335,7 +335,9 @@ export default function Students() {
         let errorCount = 0;
         for (const row of importPreview) {
             // resolve class_id from class_name
-            const cls = dbClasses.find(c => c.name.toLowerCase() === row.class_name.toLowerCase());
+            const cleanClassName = (row.class_name || '').replace(/\s+/g, '').toLowerCase();
+            const cls = dbClasses.find(c => c.name.replace(/\s+/g, '').toLowerCase() === cleanClassName);
+            
             const payload = {
                 full_name: row.full_name,
                 nis: row.nis,
@@ -345,8 +347,11 @@ export default function Students() {
                 wa_parent: row.wa_parent,
                 status: row.status,
             };
-            const { error } = await supabase.from('students').insert([payload]);
-            if (error) errorCount++;
+            const { error } = await supabase.from('students').upsert([payload], { onConflict: 'nis' });
+            if (error) {
+                console.error("Import error details:", error);
+                errorCount++;
+            }
             else successCount++;
         }
         setIsImporting(false);
@@ -358,7 +363,7 @@ export default function Students() {
 
     // ── DOWNLOAD TEMPLATE ──────────────────────────────────────
     const handleDownloadTemplate = () => {
-        const template = [{ 'Nama Lengkap': 'Contoh Siswa', 'NIS': '12345', 'Kelas': 'X DKV', 'Email': 'siswa@email.com', 'WA Siswa': '08123456789', 'WA Orang Tua': '08198765432', 'Status': 'Aktif' }];
+        const template = [{ 'Nama Lengkap': 'Contoh Siswa', 'NIS': '12345', 'Kelas': 'X RPL 1', 'Wali Kelas': 'Budi Santoso', 'Email': 'siswa@email.com', 'WA Siswa': '08123456789', 'WA Orang Tua': '08198765432', 'Status': 'Aktif' }];
         const ws = XLSX.utils.json_to_sheet(template);
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, 'Template');
@@ -481,7 +486,7 @@ export default function Students() {
                                     <input
                                         type="checkbox"
                                         className="h-5 w-5 border-2 border-paper bg-transparent text-ink focus:ring-0 cursor-pointer appearance-none checked:bg-paper checked:relative checked:before:content-['✓'] checked:before:absolute checked:before:text-ink checked:before:font-black checked:before:text-sm checked:before:left-1/2 checked:before:top-1/2 checked:before:-translate-x-1/2 checked:before:-translate-y-1/2"
-                                        checked={selectedIds.length === paginatedStudents.length && paginatedStudents.length > 0}
+                                        checked={selectedIds.length === processedStudents.length && processedStudents.length > 0}
                                         onChange={handleSelectAll}
                                     />
                                 </th>

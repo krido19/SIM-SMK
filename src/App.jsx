@@ -31,17 +31,16 @@ const StudentSchedule = lazy(() => import('./pages/student/StudentSchedule'))
 const StudentAnnouncements = lazy(() => import('./pages/student/StudentAnnouncements'))
 
 const LoadingFallback = () => (
-  <div className="min-h-screen bg-neutral-100 flex items-center justify-center p-4 newsprint-texture">
+  <div className="min-h-screen bg-neutral-100 flex items-center justify-center p-4">
     <div className="flex flex-col items-center space-y-6">
-      <div className="relative w-24 h-24 border-4 border-ink p-1 bg-white shadow-[8px_8px_0px_0px_rgba(17,17,17,1)]">
-        <div className="absolute inset-1 bg-ink animate-pulse" style={{ animationDuration: '1s' }}></div>
-        <div className="absolute bottom-0 right-0 w-4 h-4 bg-newsprint-red mix-blend-multiply flex items-center justify-center">
-          <div className="w-1 h-1 bg-white animate-ping"></div>
-        </div>
+      <div className="flex space-x-2">
+        <div className="w-8 h-8 rounded-md bg-blue-500 animate-bounce" style={{ animationDelay: '0ms' }}></div>
+        <div className="w-8 h-8 rounded-md bg-emerald-500 animate-bounce" style={{ animationDelay: '150ms' }}></div>
+        <div className="w-8 h-8 rounded-md bg-amber-500 animate-bounce" style={{ animationDelay: '300ms' }}></div>
       </div>
-      <div className="border-t-4 border-ink pt-2 text-center w-48">
-        <p className="text-ink font-serif font-black uppercase tracking-tighter text-2xl leading-none">Newsprint</p>
-        <p className="text-ink font-mono font-bold uppercase tracking-[0.3em] text-[8px] mt-1">Initializing Press...</p>
+      <div className="text-center w-64 pt-4">
+        <p className="text-gray-900 font-sans font-bold uppercase tracking-widest text-xl leading-none">Memuat</p>
+        <p className="text-gray-500 font-sans font-medium text-sm mt-2">Menyiapkan ruang kerja...</p>
       </div>
     </div>
   </div>

@@ -29,13 +29,17 @@ const SidebarLink = ({ to, icon: Icon, children }) => (
     <NavLink
         to={to}
         className={({ isActive }) =>
-            `flex items-center space-x-3 px-4 py-3 transition-colors duration-200 border-b border-ink/5 last:border-0 ${isActive
-                ? 'bg-ink text-paper'
-                : 'text-ink/60 hover:bg-neutral-100'}`
+            `flex items-center space-x-3 px-4 py-3 transition-all duration-200 rounded-md ${isActive
+                ? 'bg-blue-50 text-blue-600 font-bold'
+                : 'text-gray-500 hover:bg-gray-100/80 hover:text-gray-900 font-medium'}`
         }
     >
-        <Icon size={18} strokeWidth={1.5} />
-        <span className="font-sans font-bold text-[11px] uppercase tracking-widest leading-none">{children}</span>
+        {({ isActive }) => (
+            <>
+                <Icon size={18} strokeWidth={isActive ? 2 : 1.5} />
+                <span className="font-sans text-[13px] tracking-wide leading-none overflow-hidden text-ellipsis whitespace-nowrap">{children}</span>
+            </>
+        )}
     </NavLink>
 );
 
@@ -176,7 +180,7 @@ export default function DashboardLayout() {
     };
 
     return (
-        <div className={`flex h-screen overflow-hidden bg-paper text-ink transition-colors duration-300 newsprint-texture`}>
+        <div className={`flex h-screen overflow-hidden bg-gray-50 text-gray-900 transition-colors duration-300`}>
             {/* Sidebar Mobile Overlay */}
             {isSidebarOpen && (
                 <div
@@ -187,34 +191,33 @@ export default function DashboardLayout() {
 
             {/* Sidebar */}
             <aside className={`
-                fixed inset-y-0 left-0 z-50 w-64 bg-paper border-r-2 border-ink transform transition-transform duration-300 ease-in-out lg:static lg:translate-x-0
+                fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 transform transition-transform duration-300 ease-in-out lg:static lg:translate-x-0 shadow-sm
                 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
             `}>
                 <div className="h-full flex flex-col">
                     {/* Header Logo Section */}
-                    <div className="p-6 border-b-2 border-ink">
+                    <div className="p-6 border-b border-gray-50">
                         <div className="flex items-center justify-between mb-4">
-                            <img src="/logo.png" alt="Logo" className="w-12 h-12 object-contain" />
-                            <button className="lg:hidden" onClick={() => setIsSidebarOpen(false)}>
+                            <div className="bg-blue-600 p-2 rounded-lg">
+                                <img src="/logo.png" alt="Logo" className="w-8 h-8 object-contain filter brightness-0 invert" />
+                            </div>
+                            <button className="lg:hidden text-gray-500 hover:text-gray-900 hover:bg-gray-100 p-1 rounded-md" onClick={() => setIsSidebarOpen(false)}>
                                 <X size={20} />
                             </button>
                         </div>
-                        <h1 className="text-2xl font-serif font-black tracking-tighter leading-none mb-2">
+                        <h1 className="text-xl font-sans font-bold tracking-tight text-gray-900 leading-tight mb-1 truncate">
                             {schoolName}
                         </h1>
-                        <div className="flex items-center gap-2">
-                            <span className="text-[9px] font-mono uppercase tracking-widest border border-ink/20 px-1.5 py-0.5">Vol. 1</span>
-                            <span className="text-[9px] font-mono uppercase tracking-widest border border-ink/20 px-1.5 py-0.5">Est. 2024</span>
-                        </div>
+                        <p className="text-xs text-gray-400 font-medium">Sistem Informasi Akademik</p>
                     </div>
 
-                    <nav className="flex-1 overflow-y-auto no-scrollbar pb-6">
+                    <nav className="flex-1 overflow-y-auto no-scrollbar p-4 space-y-6">
                         {getMenu().map((group, groupIdx) => (
                             <div key={groupIdx}>
-                                <div className="px-4 py-2 bg-ink text-paper border-y-2 border-ink mt-[-2px]">
-                                    <p className="text-[10px] font-mono font-bold uppercase tracking-[0.2em]">{group.category}</p>
-                                </div>
-                                <div className="py-2">
+                                <h3 className="px-4 text-[10px] font-sans font-bold text-gray-400 uppercase tracking-wider mb-2">
+                                    {group.category}
+                                </h3>
+                                <div className="space-y-1">
                                     {group.items.map((item) => (
                                         <SidebarLink key={item.to + item.label} to={item.to} icon={item.icon}>
                                             {item.label}
@@ -225,13 +228,13 @@ export default function DashboardLayout() {
                         ))}
                     </nav>
 
-                    <div className="p-4 border-t-2 border-ink bg-neutral-100/30">
+                    <div className="p-4 border-t border-gray-50 bg-white">
                         <button
                             onClick={handleLogout}
-                            className="w-full flex items-center justify-center space-x-2 px-4 py-3 border border-ink font-sans font-bold text-[10px] uppercase tracking-widest hover:bg-ink hover:text-paper transition-all"
+                            className="w-full flex items-center justify-center space-x-2 px-4 py-3 rounded-md font-sans text-sm font-semibold text-gray-600 bg-gray-50 hover:bg-red-50 hover:text-red-600 transition-colors"
                         >
                             <LogOut size={16} strokeWidth={2} />
-                            <span>Keluar</span>
+                            <span>Keluar Sistem</span>
                         </button>
                     </div>
                 </div>
@@ -240,37 +243,37 @@ export default function DashboardLayout() {
             {/* Main Content */}
             <div className="flex-1 flex flex-col overflow-hidden">
                 {/* Header */}
-                <header className="h-16 bg-paper border-b-2 border-ink flex items-center justify-between px-6 sticky top-0 z-30">
+                <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 sticky top-0 z-30 shadow-sm">
                     <button
-                        className="p-2 lg:hidden border border-ink hover:bg-ink hover:text-paper transition-colors"
+                        className="p-2 lg:hidden text-gray-500 hover:bg-gray-50 rounded-md transition-colors"
                         onClick={() => setIsSidebarOpen(true)}
                     >
                         <Menu size={20} />
                     </button>
 
-                    <div className="hidden lg:flex items-center gap-4 text-[11px] font-mono uppercase tracking-widest opacity-60">
+                    <div className="hidden lg:flex items-center text-sm font-medium text-gray-400">
                         <span>{new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
                     </div>
 
-                    <div className="flex items-center space-x-4 h-full">
-                        <div className="hidden md:flex h-full items-center border-x-2 border-ink px-6">
+                    <div className="flex items-center space-x-6 h-full ml-auto">
+                        <div className="hidden sm:flex h-full items-center mr-2">
                             <div className="text-right">
-                                <p className="text-[11px] font-serif font-black leading-none">
-                                    {userName || "PENGGUNA"}
+                                <p className="text-sm font-sans font-bold text-gray-900 leading-none">
+                                    {userName || "Pengguna"}
                                 </p>
-                                <p className="text-[9px] font-mono uppercase tracking-widest mt-1 opacity-50">
-                                    Peran: {role}
+                                <p className="text-xs font-sans text-blue-600 font-medium mt-1">
+                                    {role.charAt(0).toUpperCase() + role.slice(1)} {(role === 'siswa' && userClass) ? ` • ${userClass}` : ''}
                                 </p>
                             </div>
                         </div>
-                        <div className="h-10 w-10 border-2 border-ink flex items-center justify-center font-serif font-black bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                        <div className="h-10 w-10 rounded-full bg-blue-600 flex items-center justify-center font-sans font-bold text-white text-lg shadow-sm border-2 border-white ring-2 ring-blue-50">
                             {role[0].toUpperCase()}
                         </div>
                     </div>
                 </header>
 
                 {/* Page Content */}
-                <main className="flex-1 overflow-y-auto bg-paper">
+                <main className="flex-1 overflow-y-auto bg-gray-50">
                     <div className="max-w-screen-2xl mx-auto p-6 md:p-8">
                         <Outlet />
                     </div>

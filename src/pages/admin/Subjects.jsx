@@ -26,20 +26,43 @@ import {
 const Modal = ({ isOpen, onClose, title, children, maxWidth = "max-w-md" }) => {
     if (!isOpen) return null;
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-300">
-            <div className={`bg-paper border-4 border-ink shadow-[12px_12px_0px_0px_#111111] w-full ${maxWidth} overflow-hidden animate-in zoom-in-95 duration-300`}>
-                <div className="px-6 py-4 border-b-4 border-ink flex items-center justify-between bg-gray-50">
-                    <h3 className="text-xl font-black text-ink uppercase tracking-widest font-serif">{title}</h3>
-                    <button onClick={onClose} className="p-2 border-2 border-transparent hover:border-ink text-ink transition-all">
-                        <X size={24} strokeWidth={3} />
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-gray-900/40 backdrop-blur-sm animate-in fade-in duration-200">
+            <div className={`bg-white rounded-xl shadow-xl w-full ${maxWidth} overflow-hidden animate-in zoom-in-95 duration-200`}>
+                <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-white">
+                    <h3 className="text-lg font-bold text-gray-900 tracking-tight">{title}</h3>
+                    <button onClick={onClose} className="p-2 rounded-md hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors">
+                        <X size={20} />
                     </button>
                 </div>
-                <div className="p-6 overflow-y-auto max-h-[80vh]">
+                <div className="p-6 overflow-y-auto max-h-[80vh] bg-gray-50/50">
                     {children}
                 </div>
             </div>
         </div>
     );
+};
+
+export const subjectColorMap = {
+    blue: { bg: 'bg-blue-50/50', border: 'border-blue-100', icon: 'bg-blue-100 text-blue-600' },
+    indigo: { bg: 'bg-indigo-50/50', border: 'border-indigo-100', icon: 'bg-indigo-100 text-indigo-600' },
+    violet: { bg: 'bg-violet-50/50', border: 'border-violet-100', icon: 'bg-violet-100 text-violet-600' },
+    orange: { bg: 'bg-orange-50/50', border: 'border-orange-100', icon: 'bg-orange-100 text-orange-600' },
+    emerald: { bg: 'bg-emerald-50/50', border: 'border-emerald-100', icon: 'bg-emerald-100 text-emerald-600' },
+    rose: { bg: 'bg-rose-50/50', border: 'border-rose-100', icon: 'bg-rose-100 text-rose-600' },
+};
+
+export const getJurusanColorInfo = (jurusan) => {
+    const colors = [
+        'bg-cyan-100 text-cyan-700 border-cyan-200',
+        'bg-fuchsia-100 text-fuchsia-700 border-fuchsia-200',
+        'bg-lime-100 text-lime-700 border-lime-200',
+        'bg-amber-100 text-amber-700 border-amber-200',
+        'bg-pink-100 text-pink-700 border-pink-200'
+    ];
+    if (!jurusan || jurusan.toLowerCase() === 'umum') return 'bg-gray-100 text-gray-600 border-gray-200';
+    let hash = 0;
+    for (let i = 0; i < jurusan.length; i++) hash = jurusan.charCodeAt(i) + ((hash << 5) - hash);
+    return colors[Math.abs(hash) % colors.length];
 };
 
 export default function Subjects() {
@@ -249,108 +272,112 @@ export default function Subjects() {
 
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b-2 border-ink pb-6">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6">
                 <div>
-                    <h1 className="text-4xl font-black text-ink font-serif uppercase tracking-tight">MATA PELAJARAN</h1>
-                    <p className="text-sm text-gray-600 font-mono uppercase tracking-widest mt-2 block">Manajemen Kurikulum, Jurusan &amp; Pengampu</p>
+                    <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Data Mata Pelajaran</h1>
+                    <p className="text-sm text-gray-500 mt-1 block">Manajemen kurikulum, jurusan & pengampu</p>
                 </div>
-                <div className="flex flex-wrap gap-2">
-                    <button onClick={handleDownloadTemplate} className="flex items-center space-x-2 bg-paper text-ink border-2 border-ink px-4 py-3 font-mono font-bold uppercase tracking-widest text-xs transition-all shadow-[4px_4px_0px_0px_#111111] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none">
+                <div className="flex flex-wrap gap-2.5">
+                    <button onClick={handleDownloadTemplate} className="flex items-center space-x-2 bg-white text-gray-600 border border-gray-200 px-4 py-2 rounded-lg font-medium text-sm shadow-sm hover:bg-gray-50 transition-colors">
                         <FileSpreadsheet size={16} />
-                        <span>TEMPLATE</span>
+                        <span>Template</span>
                     </button>
-                    <label className="flex items-center space-x-2 bg-paper text-ink border-2 border-ink px-4 py-3 font-mono font-bold uppercase tracking-widest text-xs transition-all shadow-[4px_4px_0px_0px_#111111] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none cursor-pointer">
+                    <label className="flex items-center space-x-2 bg-white text-gray-600 border border-gray-200 px-4 py-2 rounded-lg font-medium text-sm shadow-sm hover:bg-gray-50 transition-colors cursor-pointer">
                         <Upload size={16} />
-                        <span>IMPORT</span>
+                        <span>Import</span>
                         <input ref={importFileRef} type="file" accept=".xlsx,.xls,.csv" className="hidden" onChange={handleImportFile} />
                     </label>
-                    <button onClick={handleExport} className="flex items-center space-x-2 bg-paper text-ink border-2 border-ink px-4 py-3 font-mono font-bold uppercase tracking-widest text-xs transition-all shadow-[4px_4px_0px_0px_#111111] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none">
+                    <button onClick={handleExport} className="flex items-center space-x-2 bg-white text-gray-600 border border-gray-200 px-4 py-2 rounded-lg font-medium text-sm shadow-sm hover:bg-gray-50 transition-colors">
                         <Download size={16} />
-                        <span>EXPORT</span>
+                        <span>Export</span>
                     </button>
-                    <button onClick={handleOpenAdd} className="flex items-center space-x-2 bg-ink text-paper border-2 border-ink px-4 py-3 font-mono font-bold uppercase tracking-widest text-xs transition-all shadow-[4px_4px_0px_0px_#111111] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none hover:bg-paper hover:text-ink">
-                        <Plus size={16} strokeWidth={3} />
-                        <span>TAMBAH MAPEL</span>
+                    <button onClick={handleOpenAdd} className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg font-medium text-sm shadow-sm shadow-blue-200 hover:bg-blue-700 transition-colors">
+                        <Plus size={18} strokeWidth={2.5} />
+                        <span>Tambah Mapel</span>
                     </button>
                 </div>
             </div>
 
             {/* Search Bar */}
-            <div className="bg-paper p-6 border-2 border-ink shadow-[8px_8px_0px_0px_#111111]">
+            <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
                 <div className="relative">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-ink pointer-events-none" size={18} />
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={18} />
                     <input
                         type="text"
-                        placeholder="CARI MATA PELAJARAN ATAU JURUSAN..."
-                        className="block w-full pl-12 pr-4 py-4 bg-paper border-2 border-ink text-ink font-mono text-sm uppercase tracking-widest outline-none focus:bg-gray-50 focus:shadow-[4px_4px_0px_0px_#111111] transition-all"
+                        placeholder="Cari mata pelajaran atau jurusan..."
+                        className="block w-full pl-11 pr-4 py-2.5 bg-gray-50 border border-transparent rounded-lg text-gray-900 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all outline-none placeholder:text-gray-400 sm:text-sm font-medium"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredSubjects.map((subject) => (
-                    <div key={subject.id} className="bg-paper border-2 border-ink shadow-[8px_8px_0px_0px_#111111] transition-transform hover:-translate-y-1 hover:shadow-[12px_12px_0px_0px_#111111] group relative flex flex-col h-full overflow-hidden">
-                        {/* Action buttons (top right) */}
-                        <div className="absolute top-0 right-0 p-4 flex space-x-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button
-                                onClick={() => handleOpenEdit(subject)}
-                                className="p-2 bg-paper text-ink hover:bg-ink hover:text-paper border-2 border-ink transition-colors shadow-[2px_2px_0px_0px_#111111] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none"
-                            >
-                                <Edit2 size={14} />
-                            </button>
-                            <button
-                                onClick={() => handleDelete(subject.id)}
-                                className="p-2 bg-paper text-editorial hover:bg-editorial hover:text-paper border-2 border-editorial transition-colors shadow-[2px_2px_0px_0px_#CC0000] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none"
-                            >
-                                <Trash2 size={14} />
-                            </button>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                {filteredSubjects.map((subject) => {
+                    const cMap = subjectColorMap[subject.color] || subjectColorMap.blue;
+                    const jColor = getJurusanColorInfo(subject.jurusan);
+                    return (
+                        <div key={subject.id} className={`bg-white border hover:border-blue-200 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 group relative flex flex-col h-full overflow-hidden`}>
+                            {/* Action buttons (top right) */}
+                            <div className="absolute top-3 right-3 flex space-x-1.5 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button
+                                    onClick={() => handleOpenEdit(subject)}
+                                    className="p-2 bg-white text-gray-400 hover:text-blue-600 rounded-lg border border-gray-100 shadow-sm transition-colors"
+                                >
+                                    <Edit2 size={14} strokeWidth={2.5} />
+                                </button>
+                                <button
+                                    onClick={() => handleDelete(subject.id)}
+                                    className="p-2 bg-white text-gray-400 hover:text-red-600 rounded-lg border border-gray-100 shadow-sm transition-colors"
+                                >
+                                    <Trash2 size={14} strokeWidth={2.5} />
+                                </button>
+                            </div>
+
+                            {/* Content Area */}
+                            <div className={`p-5 flex-1 flex flex-col ${cMap.bg}`}>
+                                {/* Header row: Icon and Jurusan Badge */}
+                                <div className="flex justify-between items-start mb-5">
+                                    <div className={`h-11 w-11 rounded-lg flex items-center justify-center ${cMap.icon} shadow-sm group-hover:scale-105 transition-transform`}>
+                                        <BookOpen size={20} strokeWidth={2.5} />
+                                    </div>
+                                    <span className={`px-2.5 py-1 text-[11px] font-bold rounded-full border ${jColor} uppercase tracking-wider`}>
+                                        {subject.jurusan || 'Umum'}
+                                    </span>
+                                </div>
+
+                                {/* Title */}
+                                <div className="space-y-1 mb-5">
+                                    <h3 className="text-lg font-bold text-gray-900 tracking-tight leading-tight">{subject.name}</h3>
+                                </div>
+
+                                {/* Teachers List */}
+                                <div className="mt-auto flex-1 space-y-2.5 pt-4 border-t border-gray-200/60">
+                                    <div className="flex items-center space-x-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                        <Users size={14} />
+                                        <span>GURU PENGAMPU</span>
+                                    </div>
+                                    <div className="flex flex-wrap gap-1.5">
+                                        {subject.teachers ? subject.teachers.split(', ').map((teacher, idx) => (
+                                            <span key={idx} className="text-[11px] font-semibold text-gray-700 bg-white border border-gray-200 rounded-md px-2 py-1 shadow-sm">
+                                                {teacher}
+                                            </span>
+                                        )) : <span className="text-[11px] font-medium text-gray-400 italic">Belum Ada Pengampu</span>}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* KKM Footer Indicator */}
+                            <div className="bg-white border-t border-gray-100 px-5 py-3.5 flex items-center justify-between">
+                                <div className="flex items-center space-x-2 text-gray-500">
+                                    <Target size={16} />
+                                    <span className="text-[11px] font-bold uppercase tracking-wider">KKM Minimal</span>
+                                </div>
+                                <span className={`text-xl font-black ${cMap.icon.split(' ')[1]}`}>{subject.kkm}</span>
+                            </div>
                         </div>
-
-                        {/* Content Area */}
-                        <div className="p-6 flex-1 flex flex-col">
-                            {/* Icon */}
-                            <div className="flex items-start mb-6">
-                                <div className="h-16 w-16 bg-paper border-2 border-ink flex items-center justify-center text-ink shadow-[4px_4px_0px_0px_#111111] group-hover:scale-110 transition-transform">
-                                    <BookOpen size={24} />
-                                </div>
-                            </div>
-
-                            {/* Title & Badge */}
-                            <div className="space-y-2 mb-6">
-                                <h3 className="text-xl font-black text-ink font-serif uppercase tracking-tight">{subject.name}</h3>
-                                <div className="inline-block px-2 py-1 bg-ink text-paper text-[10px] font-mono font-bold uppercase tracking-widest border border-ink">
-                                    JURUSAN: {subject.jurusan}
-                                </div>
-                            </div>
-
-                            {/* Teachers List */}
-                            <div className="mt-4 flex-1 space-y-3 pt-6 border-t-2 border-ink">
-                                <div className="flex items-center space-x-2 text-[10px] font-mono font-bold text-ink uppercase tracking-widest">
-                                    <Users size={12} />
-                                    <span>GURU PENGAMPU</span>
-                                </div>
-                                <div className="flex flex-wrap gap-2">
-                                    {subject.teachers ? subject.teachers.split(', ').map((teacher, idx) => (
-                                        <span key={idx} className="text-[10px] font-mono font-bold text-ink border-2 border-ink px-2 py-1 uppercase tracking-widest bg-gray-50">
-                                            {teacher}
-                                        </span>
-                                    )) : <span className="text-[10px] font-mono font-bold text-gray-500 italic uppercase">BELUM ADA GURU</span>}
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* KKM Footer Indicator */}
-                        <div className="bg-editorial text-paper px-6 py-4 mt-auto border-t-2 border-ink flex items-center justify-between group-hover:bg-ink transition-colors">
-                            <div className="flex items-center space-x-2">
-                                <Target size={16} />
-                                <span className="text-[10px] font-mono font-bold uppercase tracking-widest">KKM MINIMAL</span>
-                            </div>
-                            <span className="text-2xl font-black font-serif">{subject.kkm}</span>
-                        </div>
-                    </div>
-                ))}
+                    );
+                })}
             </div>
 
             {/* Modal */}
@@ -361,54 +388,55 @@ export default function Subjects() {
                 maxWidth="max-w-md"
             >
                 <form onSubmit={handleSubmit} className="space-y-4">
-                    <div className="space-y-1">
-                        <label className="text-[10px] font-mono font-bold text-ink uppercase tracking-widest px-1">NAMA MATA PELAJARAN</label>
+                    <div className="space-y-1.5">
+                        <label className="text-xs font-semibold text-gray-700 block">Nama Mata Pelajaran</label>
                         <input
                             required
                             type="text"
-                            className="w-full bg-paper border-2 border-ink px-4 py-4 font-mono font-bold text-ink uppercase outline-none focus:shadow-[4px_4px_0px_0px_#111111] transition-all"
+                            className="w-full bg-white border border-gray-200 rounded-lg px-4 py-2.5 font-medium text-gray-900 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all placeholder:text-gray-400"
+                            placeholder="Misal: Pendidikan Pancasila"
                             value={formData.name}
                             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                         />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-1">
-                            <label className="text-[10px] font-mono font-bold text-ink uppercase tracking-widest px-1">KKM MINIMAL</label>
+                        <div className="space-y-1.5">
+                            <label className="text-xs font-semibold text-gray-700 block">KKM Minimal</label>
                             <input
                                 required
                                 type="number"
-                                className="w-full bg-paper border-2 border-ink px-4 py-4 font-mono font-bold text-ink uppercase outline-none focus:shadow-[4px_4px_0px_0px_#111111] transition-all"
+                                className="w-full bg-white border border-gray-200 rounded-lg px-4 py-2.5 font-medium text-gray-900 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all"
                                 value={formData.kkm}
                                 onChange={(e) => setFormData({ ...formData, kkm: parseInt(e.target.value) })}
                             />
                         </div>
-                        <div className="space-y-1">
-                            <label className="text-[10px] font-mono font-bold text-ink uppercase tracking-widest px-1">WARNA IKON</label>
+                        <div className="space-y-1.5">
+                            <label className="text-xs font-semibold text-gray-700 block">Warna Ikon Identitas</label>
                             <div className="relative group">
                                 <select
-                                    className="w-full bg-paper border-2 border-ink px-4 py-4 font-mono font-bold text-ink uppercase outline-none focus:shadow-[4px_4px_0px_0px_#111111] transition-all appearance-none cursor-pointer"
+                                    className="w-full bg-white border border-gray-200 rounded-lg px-4 py-2.5 font-medium text-gray-900 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all appearance-none cursor-pointer"
                                     value={formData.color}
                                     onChange={(e) => setFormData({ ...formData, color: e.target.value })}
                                 >
-                                    <option value="blue">BIRU</option>
-                                    <option value="indigo">INDIGO</option>
-                                    <option value="violet">UNGU</option>
-                                    <option value="orange">ORANGE</option>
-                                    <option value="emerald">HIJAU</option>
-                                    <option value="rose">MERAH</option>
+                                    <option value="blue">Biru (Umum)</option>
+                                    <option value="indigo">Indigo (Sains)</option>
+                                    <option value="violet">Ungu (Kreatif)</option>
+                                    <option value="orange">Orange (Sosial)</option>
+                                    <option value="emerald">Hijau (Alam/Agama)</option>
+                                    <option value="rose">Merah (OlahRaga/Seni)</option>
                                 </select>
-                                <ChevronDown size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-ink pointer-events-none" />
+                                <ChevronDown size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
                             </div>
                         </div>
                     </div>
-                    <div className="space-y-1">
-                        <label className="text-[10px] font-mono font-bold text-ink uppercase tracking-widest px-1">JURUSAN (KETIK BARU ATAU PILIH)</label>
+                    <div className="space-y-1.5">
+                        <label className="text-xs font-semibold text-gray-700 block text-left">Target Jurusan</label>
                         <div className="relative">
                             <input
                                 list="jurusan-list"
                                 type="text"
-                                className="w-full bg-paper border-2 border-ink px-4 py-4 font-mono font-bold text-ink uppercase outline-none focus:shadow-[4px_4px_0px_0px_#111111] transition-all"
-                                placeholder="MISAL: DKV, PPLG, ATAU JURUSAN BARU..."
+                                className="w-full bg-white border border-gray-200 rounded-lg px-4 py-2.5 font-medium text-gray-900 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all placeholder:text-gray-400"
+                                placeholder="Ketik atau pilih dari list... (Misal: Umum, DKV)"
                                 value={formData.jurusan}
                                 onChange={(e) => setFormData({ ...formData, jurusan: e.target.value })}
                             />
@@ -420,87 +448,89 @@ export default function Subjects() {
                         </div>
                     </div>
 
-                    <div className="space-y-2">
-                        <label className="text-[10px] font-mono font-bold text-ink uppercase tracking-widest px-1">GURU PENGAMPU (BISA PILIH BANYAK)</label>
-                        <div className="max-h-48 overflow-y-auto bg-gray-50 border-2 border-ink focus-within:bg-paper focus-within:shadow-[4px_4px_0px_0px_#111111] transition-all p-4 space-y-2 no-scrollbar">
+                    <div className="space-y-1.5">
+                        <label className="text-xs font-semibold text-gray-700 block">Pilih Guru Pengampu (Multi)</label>
+                        <div className="max-h-48 overflow-y-auto bg-white border border-gray-200 rounded-lg p-2 space-y-1 no-scrollbar">
                             {dbTeachers.map(teacher => (
                                 <button
                                     key={teacher.id}
                                     type="button"
                                     onClick={() => handleTeacherToggle(teacher.name)}
-                                    className={`w-full flex items-center justify-between p-3 border-2 transition-colors font-mono font-bold text-xs uppercase tracking-widest ${formData.teachers.includes(teacher.name)
-                                        ? 'bg-ink text-paper border-ink shadow-[2px_2px_0px_0px_#111111] translate-x-[1px] translate-y-[1px]'
-                                        : 'bg-paper text-ink border-ink hover:bg-gray-100 hover:shadow-[2px_2px_0px_0px_#111111]'
+                                    className={`w-full flex items-center justify-between p-2.5 rounded-md transition-colors font-medium text-sm ${formData.teachers.includes(teacher.name)
+                                        ? 'bg-blue-50 text-blue-700 border border-blue-100'
+                                        : 'bg-white text-gray-700 hover:bg-gray-50 border border-transparent'
                                         }`}
                                 >
                                     <div className="flex items-center space-x-3">
-                                        <UserCircle size={16} />
+                                        <UserCircle size={18} className={formData.teachers.includes(teacher.name) ? "text-blue-500" : "text-gray-400"} />
                                         <span>{teacher.name}</span>
                                     </div>
-                                    {formData.teachers.includes(teacher.name) && <CheckCircle2 size={16} />}
+                                    {formData.teachers.includes(teacher.name) && <CheckCircle2 size={18} className="text-blue-600" />}
                                 </button>
                             ))}
-                            {dbTeachers.length === 0 && <p className="text-center text-xs font-mono font-bold text-gray-500 uppercase tracking-widest py-4">BELUM ADA DATA GURU</p>}
+                            {dbTeachers.length === 0 && <p className="text-center text-sm font-medium text-gray-500 py-4">Belum ada data guru</p>}
                         </div>
                     </div>
 
-                    <button
-                        type="submit"
-                        disabled={isLoading}
-                        className="w-full bg-ink hover:bg-paper text-paper hover:text-ink font-mono font-bold py-4 border-2 border-ink transition-colors flex items-center justify-center space-x-2 shadow-[4px_4px_0px_0px_#111111] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_#111111] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none disabled:opacity-50 mt-6"
-                    >
-                        {isLoading ? <span className="animate-spin rounded-full h-5 w-5 border-b-2 border-paper" /> : <Save size={20} />}
-                        <span className="uppercase tracking-widest text-xs">{currentSubject ? 'SIMPAN PERUBAHAN' : 'BUAT MAPEL'}</span>
-                    </button>
+                    <div className="pt-4 border-t border-gray-100 mt-2">
+                        <button
+                            type="submit"
+                            disabled={isLoading}
+                            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition-colors flex items-center justify-center space-x-2 shadow-sm shadow-blue-200 disabled:opacity-50"
+                        >
+                            {isLoading ? <span className="animate-spin rounded-full h-5 w-5 border-b-2 border-white" /> : <Save size={18} />}
+                            <span>{currentSubject ? 'Simpan Perubahan' : 'Buat Mapel Baru'}</span>
+                        </button>
+                    </div>
                 </form>
             </Modal>
 
             {/* ─── IMPORT PREVIEW MODAL ─────────────────── */}
             {isImportModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-300">
-                    <div className="bg-paper border-4 border-ink shadow-[12px_12px_0px_0px_#111111] w-full max-w-2xl overflow-hidden animate-in zoom-in-95 duration-300">
-                        <div className="px-6 py-4 border-b-4 border-ink flex items-center justify-between bg-gray-50">
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/40 backdrop-blur-sm animate-in fade-in duration-200">
+                    <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+                        <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
                             <div>
-                                <h3 className="text-xl font-black text-ink uppercase tracking-widest font-serif">PREVIEW IMPORT MAPEL</h3>
-                                <p className="text-[10px] font-mono text-gray-500 uppercase tracking-widest mt-1">{importPreview.length} MAPEL SIAP DIIMPOR</p>
+                                <h3 className="text-lg font-bold text-gray-900 tracking-tight">Preview Import Mapel</h3>
+                                <p className="text-xs font-medium text-gray-500 mt-1">{importPreview.length} mapel siap diimpor</p>
                             </div>
-                            <button onClick={() => { setIsImportModalOpen(false); setImportPreview([]); }} className="p-2 border-2 border-transparent hover:border-ink text-ink transition-all">
-                                <X size={24} strokeWidth={3} />
+                            <button onClick={() => { setIsImportModalOpen(false); setImportPreview([]); }} className="p-2 rounded-md hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors">
+                                <X size={20} />
                             </button>
                         </div>
-                        <div className="p-4 max-h-[55vh] overflow-y-auto">
-                            <table className="w-full text-left border-collapse border-2 border-ink">
+                        <div className="p-4 max-h-[55vh] overflow-y-auto bg-gray-50/50">
+                            <table className="w-full text-left bg-white rounded-lg overflow-hidden border border-gray-200 shadow-sm">
                                 <thead>
-                                    <tr className="bg-ink text-paper">
+                                    <tr className="bg-gray-100 text-gray-600">
                                         {['Nama Mapel', 'KKM', 'Jurusan', 'Guru Pengampu'].map(h => (
-                                            <th key={h} className="px-3 py-2 text-[9px] font-mono font-bold uppercase tracking-widest border-r border-paper/30 last:border-r-0">{h}</th>
+                                            <th key={h} className="px-4 py-2 text-xs font-bold border-b border-gray-200">{h}</th>
                                         ))}
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-ink">
+                                <tbody className="divide-y divide-gray-100">
                                     {importPreview.map((row, i) => (
-                                        <tr key={i} className={i % 2 === 0 ? 'bg-paper' : 'bg-gray-50'}>
-                                            <td className="px-3 py-2 text-xs font-mono font-bold text-ink border-r border-ink uppercase">{row.name}</td>
-                                            <td className="px-3 py-2 text-xs font-mono text-ink border-r border-ink font-bold">{row.kkm}</td>
-                                            <td className="px-3 py-2 text-xs font-mono text-ink border-r border-ink uppercase">{row.jurusan}</td>
-                                            <td className="px-3 py-2 text-xs font-mono text-gray-600">{row.teachers}</td>
+                                        <tr key={i} className="hover:bg-gray-50/50">
+                                            <td className="px-4 py-2 text-sm font-semibold text-gray-900 border-r border-gray-100/50">{row.name}</td>
+                                            <td className="px-4 py-2 text-sm font-medium text-gray-700 border-r border-gray-100/50">{row.kkm}</td>
+                                            <td className="px-4 py-2 text-xs font-bold text-gray-600 border-r border-gray-100/50">{row.jurusan}</td>
+                                            <td className="px-4 py-2 text-xs font-medium text-gray-500">{row.teachers}</td>
                                         </tr>
                                     ))}
                                 </tbody>
                             </table>
                         </div>
-                        <div className="p-4 border-t-4 border-ink flex items-center justify-between bg-gray-50">
-                            <div className="flex items-center space-x-2 text-[10px] font-mono text-gray-500 uppercase tracking-widest">
-                                <AlertTriangle size={14} className="text-yellow-600" />
-                                <span>DATA AKAN DITAMBAHKAN SEBAGAI MAPEL BARU</span>
+                        <div className="p-4 border-t border-gray-100 flex items-center justify-between bg-white">
+                            <div className="flex items-center space-x-2 text-xs font-medium text-amber-600/90 bg-amber-50 px-3 py-1.5 rounded-md">
+                                <AlertTriangle size={14} />
+                                <span>Data akan ditambahkan sebagai mapel baru</span>
                             </div>
                             <div className="flex space-x-3">
-                                <button onClick={() => { setIsImportModalOpen(false); setImportPreview([]); }} className="px-6 py-3 border-2 border-ink text-ink font-mono font-bold text-xs uppercase tracking-widest hover:bg-ink hover:text-paper transition-all">
-                                    BATAL
+                                <button onClick={() => { setIsImportModalOpen(false); setImportPreview([]); }} className="px-5 py-2.5 rounded-lg border border-gray-200 text-gray-700 font-semibold text-sm hover:bg-gray-50 transition-colors">
+                                    Batal
                                 </button>
-                                <button onClick={handleImportSubmit} disabled={isImporting} className="px-6 py-3 bg-ink text-paper border-2 border-ink font-mono font-bold text-xs uppercase tracking-widest flex items-center space-x-2 shadow-[4px_4px_0px_0px_#111111] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all disabled:opacity-50">
-                                    {isImporting ? <span className="animate-spin rounded-full h-4 w-4 border-b-2 border-paper" /> : <Upload size={14} />}
-                                    <span>{isImporting ? 'MENGIMPOR...' : `KONFIRMASI IMPORT (${importPreview.length})`}</span>
+                                <button onClick={handleImportSubmit} disabled={isImporting} className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 rounded-lg text-white font-semibold text-sm flex items-center space-x-2 transition-colors disabled:opacity-50">
+                                    {isImporting ? <span className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" /> : <Upload size={16} />}
+                                    <span>{isImporting ? 'Mengimpor...' : `Konfirmasi (${importPreview.length})`}</span>
                                 </button>
                             </div>
                         </div>

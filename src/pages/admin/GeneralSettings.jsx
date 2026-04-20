@@ -6,6 +6,9 @@ import { Save, Settings, Info, Loader2, GraduationCap } from 'lucide-react';
 export default function GeneralSettings() {
     const [schoolName, setSchoolName] = useState('');
     const [schoolLogo, setSchoolLogo] = useState('');
+    const [currentWeekType, setCurrentWeekType] = useState('Minggu Ganjil');
+    const [currentSemester, setCurrentSemester] = useState('Semester Ganjil');
+    const [currentAcademicYear, setCurrentAcademicYear] = useState('23/24');
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
@@ -20,17 +23,23 @@ export default function GeneralSettings() {
         setIsLoading(true);
         const { data: settings } = await supabase
             .from('settings')
-            .select('*')
-            .or('key.eq.school_name,key.eq.school_logo');
+            .select('*');
 
         if (settings) {
             const name = settings.find(s => s.key === 'school_name')?.value;
             const logo = settings.find(s => s.key === 'school_logo')?.value;
+            const week = settings.find(s => s.key === 'current_week_type')?.value;
+            const sem = settings.find(s => s.key === 'current_semester')?.value;
+            const year = settings.find(s => s.key === 'current_academic_year')?.value;
+            
             if (name) setSchoolName(name);
             if (logo) {
                 setSchoolLogo(logo);
                 setLogoPreview(logo);
             }
+            if (week) setCurrentWeekType(week);
+            if (sem) setCurrentSemester(sem);
+            if (year) setCurrentAcademicYear(year);
         }
         setIsLoading(false);
     };
@@ -73,7 +82,10 @@ export default function GeneralSettings() {
 
         const settingsToUpsert = [
             { key: 'school_name', value: schoolName, updated_at: new Date() },
-            { key: 'school_logo', value: schoolLogo, updated_at: new Date() }
+            { key: 'school_logo', value: schoolLogo, updated_at: new Date() },
+            { key: 'current_week_type', value: currentWeekType, updated_at: new Date() },
+            { key: 'current_semester', value: currentSemester, updated_at: new Date() },
+            { key: 'current_academic_year', value: currentAcademicYear, updated_at: new Date() }
         ];
 
         const { error } = await supabase
@@ -167,6 +179,53 @@ export default function GeneralSettings() {
                                 value={schoolName}
                                 onChange={(e) => setSchoolName(e.target.value)}
                             />
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4 border-t-2 border-ink border-dashed">
+                            <div className="space-y-2">
+                                <label className="flex items-center space-x-2 text-[10px] font-mono font-bold text-ink uppercase tracking-widest px-1">
+                                    <GraduationCap size={16} />
+                                    <span>SIKLUS MINGGU</span>
+                                </label>
+                                <select
+                                    value={currentWeekType}
+                                    onChange={(e) => setCurrentWeekType(e.target.value)}
+                                    className="w-full bg-paper border-2 border-ink focus:bg-gray-50 focus:shadow-[4px_4px_0px_0px_#111111] px-4 py-3 font-mono font-bold text-ink uppercase outline-none transition-all appearance-none cursor-pointer"
+                                >
+                                    <option value="Minggu Ganjil">MINGGU GANJIL</option>
+                                    <option value="Minggu Genap">MINGGU GENAP</option>
+                                </select>
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="flex items-center space-x-2 text-[10px] font-mono font-bold text-ink uppercase tracking-widest px-1">
+                                    <GraduationCap size={16} />
+                                    <span>SEMESTER</span>
+                                </label>
+                                <select
+                                    value={currentSemester}
+                                    onChange={(e) => setCurrentSemester(e.target.value)}
+                                    className="w-full bg-paper border-2 border-ink focus:bg-gray-50 focus:shadow-[4px_4px_0px_0px_#111111] px-4 py-3 font-mono font-bold text-ink uppercase outline-none transition-all appearance-none cursor-pointer"
+                                >
+                                    <option value="Semester Ganjil">SEMESTER GANJIL</option>
+                                    <option value="Semester Genap">SEMESTER GENAP</option>
+                                </select>
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="flex items-center space-x-2 text-[10px] font-mono font-bold text-ink uppercase tracking-widest px-1">
+                                    <GraduationCap size={16} />
+                                    <span>TAHUN AJARAN</span>
+                                </label>
+                                <input
+                                    required
+                                    type="text"
+                                    className="w-full bg-paper border-2 border-ink focus:bg-gray-50 focus:shadow-[4px_4px_0px_0px_#111111] px-4 py-3 font-mono font-bold text-ink uppercase outline-none transition-all"
+                                    placeholder="CTH: 23/24 ATAU 2023-2024"
+                                    value={currentAcademicYear}
+                                    onChange={(e) => setCurrentAcademicYear(e.target.value)}
+                                />
+                            </div>
                         </div>
 
                         <button

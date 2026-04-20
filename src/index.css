@@ -1,70 +1,49 @@
 @import "tailwindcss";
 
 @theme {
-  --color-paper: #F9F9F7;
-  --color-ink: #111111;
-  --color-divider: #E5E5E0;
-  --color-newsprint-red: #CC0000;
-  --font-serif: "Playfair Display", "Times New Roman", serif;
-  --font-body: "Lora", "Georgia", serif;
-  --font-sans: "Inter", "Helvetica Neue", sans-serif;
-  --font-mono: "JetBrains Mono", "Courier New", monospace;
+  --color-primary-500: #3B82F6;
+  --color-primary-600: #2563EB;
+  --color-secondary-500: #10B981;
+  --color-accent-500: #F59E0B;
+  --color-muted-100: #F3F4F6;
+  --color-ink: #111827;
+  --color-paper: #FFFFFF;
+  --color-divider: #E5E7EB;
+  --color-newsprint-red: #3B82F6;
+  --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Outfit", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Outfit", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 }
 
 :root {
-  --foreground-rgb: 17, 17, 17;
-  --background-start-rgb: 249, 249, 247;
-  --background-end-rgb: 249, 249, 247;
-}
-
-* {
-  border-radius: 0 !important;
+  --foreground-rgb: 17, 24, 39;
+  --background-start-rgb: 255, 255, 255;
+  --background-end-rgb: 255, 255, 255;
 }
 
 body {
   background-color: var(--color-paper);
   color: var(--color-ink);
-  font-family: var(--font-body);
-  /* Add subtle newsprint texture */
-  background-image: 
-    radial-gradient(var(--color-ink) 0.5px, transparent 0.5px),
-    radial-gradient(var(--color-ink) 0.5px, transparent 0.5px);
-  background-size: 20px 20px;
-  background-position: 0 0, 10px 10px;
-  background-attachment: fixed;
+  font-family: var(--font-sans);
   position: relative;
-}
-
-/* Make sure the pseudo element for texture sits behind content */
-body::before {
-  content: "";
-  position: fixed;
-  top: 0; left: 0; width: 100%; height: 100%;
-  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(17,17,17,0.03) 2px, rgba(17,17,17,0.03) 4px);
-  pointer-events: none;
-  z-index: 9999; /* overlay everything with a subtle line pattern */
-  opacity: 0.5;
-}
-
-.newsprint-texture {
-  position: relative;
+  overflow-x: hidden;
 }
 
 ::-webkit-scrollbar {
-  width: 12px;
-  height: 12px;
+  width: 10px;
+  height: 10px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--color-paper);
-  border-left: 2px solid var(--color-ink);
+  background: var(--color-muted-100);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--color-ink);
-  border: 2px solid var(--color-ink);
+  background: #D1D5DB;
+  border-radius: 5px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-newsprint-red);
+  background: #9CA3AF;
 }

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import Toast from '../components/ui/Toast';
 import ConfirmModal from '../components/ui/ConfirmModal';
 
@@ -24,6 +24,18 @@ export const FeedbackProvider = ({ children }) => {
             setConfirm({ show: true, title, message, type, resolve });
         });
     }, []);
+
+    // Override browser native alerts
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            window.alert = (message) => {
+                showToast(message, 'warning');
+            };
+            window.confirm = async (message) => {
+                return await showConfirm('Konfirmasi', message, 'warning');
+            };
+        }
+    }, [showToast, showConfirm]);
 
     const handleConfirm = () => {
         if (confirm.resolve) confirm.resolve(true);
