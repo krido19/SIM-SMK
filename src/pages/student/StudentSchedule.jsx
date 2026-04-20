@@ -17,6 +17,7 @@ export default function StudentSchedule() {
     const [isLoading, setIsLoading] = useState(true);
     const [studentClass, setStudentClass] = useState(null);
     const [schoolStartTime, setSchoolStartTime] = useState("07:15");
+    const [errorMsg, setErrorMsg] = useState('');
 
     const role = localStorage.getItem('userRole') || 'siswa';
     const userId = localStorage.getItem('userId');
@@ -36,33 +37,51 @@ export default function StudentSchedule() {
 
     const fetchData = async () => {
         setIsLoading(true);
+        setErrorMsg('');
         try {
             if (!userId) {
+                setErrorMsg('Sesi tidak ditemukan. Silakan login ulang.');
                 setIsLoading(false);
                 return;
             }
 
             // Get student class
-            const { data: student } = await supabase
+            const { data: student, error: studentError } = await supabase
                 .from('students')
                 .select('class_id, classes(name)')
                 .eq('id', userId)
                 .maybeSingle();
 
-            if (student) {
-                setStudentClass(student.classes?.name);
+            if (studentError) throw studentError;
 
-                // Get schedules for this class
-                const { data: sch } = await supabase
-                    .from('schedules')
-                    .select('*')
-                    .eq('class_id', student.class_id)
-                    .order('jam_ke', { ascending: true });
+            if (!student) {
+                setErrorMsg('Data siswa tidak ditemukan. Hubungi admin.');
+                return;
+            }
 
-                setSchedules(sch || []);
+            setStudentClass(student.classes?.name);
+
+            if (!student.class_id) {
+                setErrorMsg('Kamu belum terdaftar di kelas manapun. Hubungi admin untuk mengatur kelas.');
+                return;
+            }
+
+            // Get schedules for this class
+            const { data: sch, error: schError } = await supabase
+                .from('schedules')
+                .select('*')
+                .eq('class_id', student.class_id)
+                .order('jam_ke', { ascending: true });
+
+            if (schError) throw schError;
+            setSchedules(sch || []);
+
+            if ((sch || []).length === 0) {
+                setErrorMsg('Belum ada jadwal untuk kelasmu. Hubungi admin.');
             }
         } catch (error) {
             console.error('Error fetching student schedule:', error);
+            setErrorMsg('Gagal memuat jadwal: ' + error.message);
         } finally {
             setIsLoading(false);
         }
@@ -100,7 +119,10 @@ export default function StudentSchedule() {
     }, [schoolStartTime]);
 
     const filteredSchedules = schedules.filter(s => {
-        return s.day === selectedDay && s.week_type === selectedWeek;
+        const dayMatch = s.day === selectedDay;
+        // Tampilkan juga jadwal yang week_type-nya null/kosong (hasil import PDF)
+        const weekMatch = !s.week_type || s.week_type === selectedWeek;
+        return dayMatch && weekMatch;
     });
 
     if (isLoading) {
@@ -111,6 +133,21 @@ export default function StudentSchedule() {
             </div>
         );
     }
+
+    if (errorMsg && schedules.length === 0) {
+        return (
+            <div className="py-24 text-center max-w-md mx-auto">
+                <div className="bg-yellow-50 border border-yellow-200 rounded-2xl p-8">
+                    <div className="w-14 h-14 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <Info size={28} className="text-yellow-600" strokeWidth={2} />
+                    </div>
+                    <h2 className="font-sans text-lg font-black text-gray-900 mb-2">Jadwal Belum Tersedia</h2>
+                    <p className="font-sans text-sm text-gray-600 leading-relaxed">{errorMsg}</p>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="space-y-8 animate-in fade-in duration-500 max-w-5xl mx-auto pb-12">
             {/* Header */}
@@ -168,7 +205,7 @@ export default function StudentSchedule() {
             <div className="grid grid-cols-1 gap-3 relative mt-6">
                 <div className="absolute left-[39px] top-0 bottom-0 w-px bg-gray-200 hidden md:block" />
                 {timeSlots.map((slot) => {
-                    const entry = filteredSchedules.find(s => s.jam_ke === slot.id);
+                    const entry = filteredSchedules.find(s => parseInt(s.jam_ke) === slot.id);
 
                     if (slot.type === 'break') {
                         return (
