@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useFeedback } from '../../context/FeedbackContext';
 import * as XLSX from 'xlsx';
+import PDFScheduleImporter from '../../components/schedule/PDFScheduleImporter';
 import {
     Plus,
     Calendar,
@@ -24,7 +25,10 @@ import {
     AlertCircle,
     CheckCircle2,
     XCircle,
-    Loader2
+    Loader2,
+    FileText,
+    History,
+    RotateCcw
 } from 'lucide-react';
 
 const Days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
@@ -114,6 +118,12 @@ export default function Schedule() {
     const [schoolStartTime, setSchoolStartTime] = useState(SCHOOL_START_TIME);
     const [currentWeekType, setCurrentWeekType] = useState('Minggu Ganjil');
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+    const [isPdfImporterOpen, setIsPdfImporterOpen] = useState(false);
+    const [isBackupModalOpen, setIsBackupModalOpen] = useState(false);
+    const [backupList, setBackupList] = useState(() => {
+        try { return JSON.parse(localStorage.getItem('schedule_backups') || '[]'); }
+        catch { return []; }
+    });
 
     const userRole = localStorage.getItem('userRole') || 'admin';
     const canManage = userRole === 'admin';
@@ -165,6 +175,91 @@ export default function Schedule() {
         }
         setIsLoading(false);
     };
+
+    // ── Backup System ────────────────────────────────────────
+    const BACKUP_KEY = 'schedule_backups';
+    const MAX_BACKUPS = 5; // simpan max 5 backup terakhir
+
+    const saveBackup = (label = 'Import') => {
+        if (!schedules || schedules.length === 0) return;
+        try {
+            const existing = JSON.parse(localStorage.getItem(BACKUP_KEY) || '[]');
+            const newBackup = {
+                id: Date.now(),
+                label,
+                created_at: new Date().toISOString(),
+                count: schedules.length,
+                data: schedules,
+            };
+            // Simpan max 5, buang yang paling tua
+            const updated = [newBackup, ...existing].slice(0, MAX_BACKUPS);
+            localStorage.setItem(BACKUP_KEY, JSON.stringify(updated));
+            setBackupList(updated);
+            return newBackup.id;
+        } catch (err) {
+            console.warn('Backup gagal (mungkin storage penuh):', err);
+        }
+    };
+
+    const deleteBackup = (id) => {
+        try {
+            const updated = backupList.filter(b => b.id !== id);
+            localStorage.setItem(BACKUP_KEY, JSON.stringify(updated));
+            setBackupList(updated);
+            showToast('Backup dihapus', 'success');
+        } catch { /* ignore */ }
+    };
+
+    const restoreBackup = async (backup) => {
+        const confirmed = await showConfirm(
+            'Pulihkan Backup',
+            `Ini akan MENGHAPUS semua jadwal saat ini (${schedules.length} entri) dan menggantinya dengan backup "${backup.label}" (${backup.count} entri). Lanjutkan?`,
+            'danger'
+        );
+        if (!confirmed) return;
+
+        setIsLoading(true);
+        try {
+            // Hapus semua jadwal yang ada
+            const { error: delErr } = await supabase.from('schedules').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+            if (delErr) throw delErr;
+
+            // Insert dari backup (hapus kolom id agar auto-generated)
+            const toInsert = backup.data.map(({ id, created_at, ...rest }) => rest);
+            if (toInsert.length > 0) {
+                const { error: insErr } = await supabase.from('schedules').insert(toInsert);
+                if (insErr) throw insErr;
+            }
+
+            await fetchData();
+            setIsBackupModalOpen(false);
+            showToast(`✓ Backup "${backup.label}" berhasil dipulihkan (${backup.count} entri)`, 'success');
+        } catch (err) {
+            showToast('Gagal memulihkan backup: ' + err.message, 'error');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const downloadBackupAsExcel = (backup) => {
+        const sheetData = backup.data.map(s => ({
+            'Hari': s.day,
+            'Jam Ke': s.jam_ke,
+            'Waktu Mulai': s.start_time,
+            'Waktu Selesai': s.end_time,
+            'Kelas': s.class_name,
+            'Mata Pelajaran': s.subject_name,
+            'Guru': s.teacher_name,
+            'Minggu': s.week_type,
+        }));
+        const ws = XLSX.utils.json_to_sheet(sheetData);
+        ws['!cols'] = [{ wch: 10 }, { wch: 8 }, { wch: 12 }, { wch: 15 }, { wch: 15 }, { wch: 30 }, { wch: 30 }, { wch: 15 }];
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Backup Jadwal');
+        const dateStr = new Date(backup.created_at).toLocaleString('id-ID').replace(/[/:,\s]/g, '-');
+        XLSX.writeFile(wb, `Backup_Jadwal_${dateStr}.xlsx`);
+    };
+    // ─────────────────────────────────────────────────────────
 
     const updateTimesFromJam = (jam) => {
         const slot = timeSlots.find(s => s.id === parseInt(jam));
@@ -225,6 +320,34 @@ export default function Schedule() {
             } else {
                 showToast('Gagal menghapus: ' + error.message, 'error');
             }
+        }
+    };
+
+    const handleDeleteAll = async () => {
+        if (schedules.length === 0) {
+            showToast('Tidak ada jadwal untuk dihapus', 'warning');
+            return;
+        }
+        const confirmed = await showConfirm(
+            'HAPUS SEMUA JADWAL',
+            `Tindakan ini akan PERMANEN menghapus SEMUA ${schedules.length} jadwal dari database. Backup otomatis akan dibuat terlebih dahulu. Apakah Anda yakin?`,
+            'danger'
+        );
+        if (!confirmed) return;
+
+        // Auto backup sebelum hapus semua
+        saveBackup(`Sebelum hapus semua (${schedules.length} entri)`);
+
+        setIsLoading(true);
+        try {
+            const { error } = await supabase.from('schedules').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+            if (error) throw error;
+            showToast(`✓ Semua jadwal (${schedules.length} entri) berhasil dihapus`, 'success');
+            await fetchData();
+        } catch (err) {
+            showToast('Gagal menghapus semua jadwal: ' + err.message, 'error');
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -336,17 +459,50 @@ export default function Schedule() {
         XLSX.writeFile(wb, "Template_Jadwal_SIM_SMK.xlsx");
     };
 
+    // Helper: Konversi nilai waktu Excel (desimal/Date/string) ke format "HH:MM"
+    const excelTimeToString = (val) => {
+        if (!val && val !== 0) return '';
+        // Jika sudah string dengan format HH:MM atau H:MM, langsung kembalikan
+        if (typeof val === 'string') {
+            const trimmed = val.trim();
+            if (/^\d{1,2}:\d{2}$/.test(trimmed)) return trimmed.padStart(5, '0').substring(0, 5);
+            // Format "HH:MM:SS"
+            if (/^\d{1,2}:\d{2}:\d{2}$/.test(trimmed)) return trimmed.substring(0, 5).padStart(5, '0');
+            return trimmed;
+        }
+        // Jika Date object (dari cellDates: true)
+        if (val instanceof Date) {
+            const h = String(val.getUTCHours()).padStart(2, '0');
+            const m = String(val.getUTCMinutes()).padStart(2, '0');
+            return `${h}:${m}`;
+        }
+        // Jika angka desimal Excel (0..1 = 00:00..23:59)
+        if (typeof val === 'number') {
+            const totalMinutes = Math.round(val * 24 * 60);
+            const h = String(Math.floor(totalMinutes / 60)).padStart(2, '0');
+            const m = String(totalMinutes % 60).padStart(2, '0');
+            return `${h}:${m}`;
+        }
+        return String(val);
+    };
+
     const handleImportSubmit = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
 
+        // ── AUTO BACKUP sebelum import ──
+        saveBackup(`Sebelum import Excel: ${file.name}`);
+
         setIsLoading(true);
         try {
             const data = await file.arrayBuffer();
-            const workbook = XLSX.read(data);
+            // cellDates: true agar kolom waktu ter-parse sebagai Date object
+            // raw: false agar angka/waktu tetap terformat
+            const workbook = XLSX.read(data, { cellDates: true, cellNF: false, cellText: false });
             const sheetName = workbook.SheetNames[0];
             const worksheet = workbook.Sheets[sheetName];
-            const json = XLSX.utils.sheet_to_json(worksheet);
+            // raw: false untuk memastikan nilai waktu tidak ter-parse ulang sebagai angka
+            const json = XLSX.utils.sheet_to_json(worksheet, { raw: false, defval: '' });
 
             if (json.length === 0) {
                 showToast('File Excel kosong', 'error');
@@ -356,28 +512,44 @@ export default function Schedule() {
             let successCount = 0;
             let errorCount = 0;
             const newSchedules = [];
+            const errors = [];
 
             for (const row of json) {
-                const matchedClass = dbClasses.find(c => c.name.toLowerCase() === String(row['Kelas'] || '').toLowerCase());
-                const matchedTeacher = dbTeachers.find(t => t.name.toLowerCase() === String(row['Guru'] || '').toLowerCase());
+                const kelasRaw = String(row['Kelas'] || '').trim();
+                const guruRaw = String(row['Guru'] || '').trim();
                 const subjectName = String(row['Mata Pelajaran'] || '').trim();
+                const hariRaw = String(row['Hari'] || '').trim();
+                const minggRaw = String(row['Minggu'] || '').trim();
 
-                if (!matchedClass || !subjectName) {
+                const matchedClass = dbClasses.find(c => c.name.toLowerCase() === kelasRaw.toLowerCase());
+                const matchedTeacher = dbTeachers.find(t => t.name.toLowerCase() === guruRaw.toLowerCase());
+
+                if (!matchedClass) {
                     errorCount++;
-                    continue; // Skip invalid rows
+                    errors.push(`Kelas "${kelasRaw}" tidak ditemukan`);
+                    continue;
                 }
+                if (!subjectName) {
+                    errorCount++;
+                    errors.push(`Mata pelajaran kosong di baris dengan kelas "${kelasRaw}"`);
+                    continue;
+                }
+
+                // Parse waktu — handle angka desimal Excel, Date, atau string
+                const waktuMulai = excelTimeToString(row['Waktu Mulai']);
+                const waktuSelesai = excelTimeToString(row['Waktu Selesai']);
 
                 newSchedules.push({
                     class_id: matchedClass.id,
                     class_name: matchedClass.name,
                     subject_name: subjectName,
                     teacher_id: matchedTeacher ? matchedTeacher.id : null,
-                    teacher_name: matchedTeacher ? matchedTeacher.name : String(row['Guru'] || '').trim(),
-                    day: row['Hari'] || 'Senin',
-                    week_type: row['Minggu'] || currentWeekType,
+                    teacher_name: matchedTeacher ? matchedTeacher.name : guruRaw,
+                    day: hariRaw || 'Senin',
+                    week_type: minggRaw || currentWeekType,
                     jam_ke: parseInt(row['Jam Ke']) || 1,
-                    start_time: row['Waktu Mulai'] || '',
-                    end_time: row['Waktu Selesai'] || ''
+                    start_time: waktuMulai,
+                    end_time: waktuSelesai
                 });
             }
 
@@ -387,11 +559,15 @@ export default function Schedule() {
                 successCount = newSchedules.length;
             }
 
-            showToast(`Import Selesai: ${successCount} berhasil, ${errorCount} gagal/dilewati.`, successCount > 0 ? 'success' : 'error');
+            if (errors.length > 0) console.warn('Import errors:', errors);
+            showToast(
+                `Import Selesai: ${successCount} berhasil, ${errorCount} gagal/dilewati.`,
+                successCount > 0 ? 'success' : 'error'
+            );
             fetchData();
         } catch (error) {
             console.error('Import error:', error);
-            showToast('Gagal memproses file Excel', 'error');
+            showToast('Gagal memproses file Excel: ' + error.message, 'error');
         } finally {
             setIsLoading(false);
             if (fileInputRef.current) fileInputRef.current.value = '';
@@ -415,6 +591,26 @@ export default function Schedule() {
     );
 
     const selectedClass = dbClasses.find(c => c.id === selectedClassId);
+
+    // ── Handler PDF Import ────────────────────────────────────
+    const handlePdfImport = async (scheduleList) => {
+        if (!scheduleList || scheduleList.length === 0) {
+            showToast('Tidak ada data untuk diimport', 'warning');
+            return;
+        }
+        // ── AUTO BACKUP sebelum import ──
+        saveBackup(`Sebelum import PDF (${scheduleList.length} entri baru)`);
+
+        try {
+            const { error } = await supabase.from('schedules').insert(scheduleList);
+            if (error) throw error;
+            showToast(`✓ ${scheduleList.length} jadwal dari PDF berhasil diimport!`, 'success');
+            await fetchData();
+        } catch (err) {
+            showToast('Gagal import dari PDF: ' + err.message, 'error');
+            throw err;
+        }
+    };
 
     return (
         <div className="space-y-6 animate-in fade-in duration-500 max-w-7xl mx-auto relative">
@@ -505,6 +701,7 @@ export default function Schedule() {
 
                     {canManage && (
                         <div className="flex gap-2">
+                            {/* Tombol Download Template Excel */}
                             <button
                                 onClick={handleDownloadTemplate}
                                 className="p-3 bg-paper border-2 border-ink text-ink hover:bg-ink hover:text-paper transition-all shadow-[2px_2px_0px_0px_#111111]"
@@ -512,11 +709,12 @@ export default function Schedule() {
                             >
                                 <Download size={20} strokeWidth={2.5} />
                             </button>
+                            {/* Tombol Import via Excel */}
                             <div className="relative group flex">
                                 <button
                                     type="button"
                                     className="p-3 bg-paper border-2 border-ink text-ink group-hover:bg-ink group-hover:text-paper transition-all shadow-[2px_2px_0px_0px_#111111]"
-                                    title="TUMPUK VIA EXCEL (IMPORT)"
+                                    title="IMPORT VIA EXCEL"
                                 >
                                     {isLoading && fileInputRef.current?.value ? <Loader2 className="animate-spin" size={20} /> : <Upload size={20} strokeWidth={2.5} />}
                                 </button>
@@ -530,6 +728,25 @@ export default function Schedule() {
                                     title="IMPORT EXCEL"
                                 />
                             </div>
+                            {/* Tombol Import via PDF */}
+                            <button
+                                onClick={() => setIsPdfImporterOpen(true)}
+                                className="p-3 bg-paper border-2 border-ink text-ink hover:bg-ink hover:text-paper transition-all shadow-[2px_2px_0px_0px_#111111]"
+                                title="IMPORT JADWAL DARI PDF (aSc Timetables)"
+                            >
+                                <FileText size={20} strokeWidth={2.5} />
+                            </button>
+                            {/* Tombol Hapus Semua */}
+                            <button
+                                onClick={handleDeleteAll}
+                                disabled={isLoading || schedules.length === 0}
+                                className="flex items-center justify-center space-x-2 bg-paper text-editorial px-4 py-3 font-mono font-bold uppercase tracking-widest transition-all border-2 border-editorial shadow-[4px_4px_0px_0px_#CC0000] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none hover:bg-editorial hover:text-paper disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none disabled:translate-x-0 disabled:translate-y-0"
+                                title={`HAPUS SEMUA JADWAL (${schedules.length} entri)`}
+                            >
+                                {isLoading ? <Loader2 size={20} className="animate-spin" /> : <Trash2 size={20} strokeWidth={2.5} />}
+                                <span className="text-xs hidden md:inline">HAPUS SEMUA</span>
+                            </button>
+                            {/* Tombol Tambah Manual */}
                             <button
                                 onClick={handleOpenAdd}
                                 className="flex items-center justify-center space-x-2 bg-ink text-paper px-6 py-3 font-mono font-bold uppercase tracking-widest transition-all border-2 border-ink shadow-[4px_4px_0px_0px_#111111] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none hover:bg-paper hover:text-ink ml-2"
@@ -907,6 +1124,18 @@ export default function Schedule() {
                     </button>
                 </div>
             </Modal>
+
+            {/* PDF Schedule Importer Modal */}
+            {isPdfImporterOpen && (
+                <PDFScheduleImporter
+                    dbClasses={dbClasses}
+                    dbTeachers={dbTeachers}
+                    dbSubjects={dbSubjects}
+                    currentWeekType={currentWeekType}
+                    onImport={handlePdfImport}
+                    onClose={() => setIsPdfImporterOpen(false)}
+                />
+            )}
         </div>
     );
 }
