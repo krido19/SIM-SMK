@@ -23,7 +23,8 @@ import {
     Upload,
     AlertCircle,
     CheckCircle2,
-    XCircle
+    XCircle,
+    Loader2
 } from 'lucide-react';
 
 const Days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
@@ -503,13 +504,40 @@ export default function Schedule() {
                     </div>
 
                     {canManage && (
-                        <button
-                            onClick={handleOpenAdd}
-                            className="flex items-center justify-center space-x-2 bg-ink text-paper px-6 py-3 font-mono font-bold uppercase tracking-widest transition-all border-2 border-ink shadow-[4px_4px_0px_0px_#111111] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none hover:bg-paper hover:text-ink"
-                        >
-                            <Plus size={20} strokeWidth={3} />
-                            <span className="text-xs">TAMBAH</span>
-                        </button>
+                        <div className="flex gap-2">
+                            <button
+                                onClick={handleDownloadTemplate}
+                                className="p-3 bg-paper border-2 border-ink text-ink hover:bg-ink hover:text-paper transition-all shadow-[2px_2px_0px_0px_#111111]"
+                                title="DOWNLOAD TEMPLATE EXCEL"
+                            >
+                                <Download size={20} strokeWidth={2.5} />
+                            </button>
+                            <div className="relative group flex">
+                                <button
+                                    type="button"
+                                    className="p-3 bg-paper border-2 border-ink text-ink group-hover:bg-ink group-hover:text-paper transition-all shadow-[2px_2px_0px_0px_#111111]"
+                                    title="TUMPUK VIA EXCEL (IMPORT)"
+                                >
+                                    {isLoading && fileInputRef.current?.value ? <Loader2 className="animate-spin" size={20} /> : <Upload size={20} strokeWidth={2.5} />}
+                                </button>
+                                <input 
+                                    type="file" 
+                                    accept=".xlsx,.xls"
+                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                                    onChange={handleImportSubmit}
+                                    ref={fileInputRef}
+                                    disabled={isLoading}
+                                    title="IMPORT EXCEL"
+                                />
+                            </div>
+                            <button
+                                onClick={handleOpenAdd}
+                                className="flex items-center justify-center space-x-2 bg-ink text-paper px-6 py-3 font-mono font-bold uppercase tracking-widest transition-all border-2 border-ink shadow-[4px_4px_0px_0px_#111111] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none hover:bg-paper hover:text-ink ml-2"
+                            >
+                                <Plus size={20} strokeWidth={3} />
+                                <span className="text-xs hidden md:inline">TAMBAH</span>
+                            </button>
+                        </div>
                     )}
                 </div>
             </div>

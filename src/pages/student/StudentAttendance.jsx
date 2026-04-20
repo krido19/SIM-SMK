@@ -100,31 +100,40 @@ export default function StudentAttendance() {
     ];
 
     if (loading) {
-        return <div className="p-8 text-center font-mono text-[10px] uppercase tracking-widest bg-paper border-2 border-ink shadow-[4px_4px_0px_0px_#111111] animate-pulse font-bold text-ink">Memuat data absensi...</div>;
+        return (
+            <div className="py-24 text-center">
+                 <div className="w-12 h-12 border-4 border-gray-200 border-t-indigo-600 rounded-full animate-spin mx-auto mb-4"></div>
+                 <p className="font-sans text-sm font-bold text-gray-500 uppercase tracking-widest">Memuat data absensi...</p>
+            </div>
+        );
     }
 
     return (
-        <div className="space-y-8 animate-in fade-in duration-500 max-w-7xl mx-auto pb-10">
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b-4 border-ink pb-6">
+        <div className="space-y-8 animate-in fade-in duration-500 max-w-7xl mx-auto pb-12">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-gray-100">
                 <div>
-                    <h1 className="text-4xl font-serif font-black text-ink uppercase tracking-tighter leading-none mb-1">Rekap Kehadiran</h1>
-                    <p className="font-mono text-[10px] uppercase tracking-widest opacity-60 mt-2">Catatan Kehadiran Resmi</p>
+                     <div className="inline-flex items-center gap-2 mb-4 bg-indigo-50 px-3 py-1.5 rounded-full">
+                        <span className="bg-indigo-600 text-white text-[10px] font-sans font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
+                            Akademik
+                        </span>
+                    </div>
+                    <h1 className="text-4xl font-sans font-black text-gray-900 tracking-tight leading-none mb-2">Rekap Kehadiran</h1>
+                    <p className="font-sans text-sm text-gray-500 font-medium mt-2">Catatan kehadiran resmi siswa</p>
                 </div>
 
-                <div className="flex border-2 border-ink p-1 bg-white self-start shadow-[4px_4px_0px_0px_rgba(17,17,17,1)]">
+                <div className="flex bg-gray-50 p-1 rounded-xl self-start md:self-auto border border-gray-100">
                     <button
                         onClick={() => setViewMode('calendar')}
-                        className={`flex items-center space-x-2 px-4 py-2 text-[10px] font-mono font-bold uppercase tracking-widest transition-colors ${viewMode === 'calendar' ? 'bg-ink text-paper' : 'text-ink/60 hover:bg-neutral-100 hover:text-ink'}`}
+                        className={`flex items-center space-x-2 px-4 py-2.5 rounded-lg text-xs font-sans font-bold uppercase tracking-widest transition-all ${viewMode === 'calendar' ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'}`}
                     >
-                        <CalendarDays size={14} strokeWidth={2} />
+                        <CalendarDays size={16} strokeWidth={2.5} />
                         <span>Kalender</span>
                     </button>
-                    <div className="w-0.5 bg-ink/20 mx-1"></div>
                     <button
                         onClick={() => setViewMode('list')}
-                        className={`flex items-center space-x-2 px-4 py-2 text-[10px] font-mono font-bold uppercase tracking-widest transition-colors ${viewMode === 'list' ? 'bg-ink text-paper' : 'text-ink/60 hover:bg-neutral-100 hover:text-ink'}`}
+                        className={`flex items-center space-x-2 px-4 py-2.5 rounded-lg text-xs font-sans font-bold uppercase tracking-widest transition-all ${viewMode === 'list' ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'}`}
                     >
-                        <PieChart size={14} strokeWidth={2} />
+                        <BarChart3 size={16} strokeWidth={2.5} />
                         <span>Daftar</span>
                     </button>
                 </div>
@@ -133,18 +142,18 @@ export default function StudentAttendance() {
             {/* Stats Overview */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                 {[
-                    { label: 'Hadir', value: stats.hadir, bgClass: 'bg-green-100', dotClass: 'bg-green-600', textClass: 'text-green-800' },
-                    { label: 'Sakit', value: stats.sakit, bgClass: 'bg-amber-100', dotClass: 'bg-amber-600', textClass: 'text-amber-800' },
-                    { label: 'Izin', value: stats.izin, bgClass: 'bg-blue-100', dotClass: 'bg-blue-600', textClass: 'text-blue-800' },
-                    { label: 'Alpa', value: stats.alpa, bgClass: 'bg-newsprint-red', dotClass: 'bg-ink', textClass: 'text-white' },
+                    { label: 'Hadir', value: stats.hadir, bgClass: 'bg-emerald-50', dotClass: 'bg-emerald-500', textClass: 'text-emerald-700' },
+                    { label: 'Sakit', value: stats.sakit, bgClass: 'bg-amber-50', dotClass: 'bg-amber-500', textClass: 'text-amber-700' },
+                    { label: 'Izin', value: stats.izin, bgClass: 'bg-blue-50', dotClass: 'bg-blue-500', textClass: 'text-blue-700' },
+                    { label: 'Alpa', value: stats.alpa, bgClass: 'bg-rose-50', dotClass: 'bg-rose-500', textClass: 'text-rose-700' },
                 ].map((stat) => (
-                    <div key={stat.label} className={`border-2 border-ink p-6 shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] flex flex-col justify-between ${stat.bgClass}`}>
-                        <div className="flex items-center space-x-2 mb-4">
-                            <div className={`h-2 w-2 rounded-none border border-ink ${stat.dotClass}`} />
-                            <span className={`text-[10px] font-mono font-bold uppercase tracking-widest ${stat.textClass}`}>{stat.label}</span>
+                    <div key={stat.label} className={`rounded-3xl p-6 md:p-8 flex flex-col justify-between transition-transform hover:-translate-y-1 ${stat.bgClass}`}>
+                        <div className="flex items-center space-x-3 mb-6">
+                            <div className={`h-3 w-3 rounded-full ${stat.dotClass} shadow-sm`} />
+                            <span className={`text-[10px] font-sans font-black uppercase tracking-widest ${stat.textClass}`}>{stat.label}</span>
                         </div>
-                        <h2 className={`text-5xl font-mono font-black tracking-tighter ${stat.textClass}`}>{stat.value}</h2>
-                        <p className={`text-[9px] font-mono font-bold uppercase tracking-[0.2em] mt-4 pt-2 border-t-2 border-ink/20 ${stat.textClass}`}>Total Hari</p>
+                        <h2 className={`text-5xl font-sans font-black tracking-tight ${stat.textClass}`}>{stat.value}</h2>
+                        <p className={`text-[10px] font-sans font-bold uppercase tracking-widest mt-6 pt-4 border-t border-black/10 ${stat.textClass} opacity-80`}>Total Hari</p>
                     </div>
                 ))}
             </div>
@@ -153,63 +162,63 @@ export default function StudentAttendance() {
                 {/* Visual Section */}
                 <div className="lg:col-span-2 space-y-8">
                     {viewMode === 'calendar' ? (
-                        <div className="bg-white p-8 border-2 border-ink shadow-[8px_8px_0px_0px_rgba(17,17,17,1)] relative overflow-hidden newsprint-texture">
-                            <div className="flex items-center justify-between mb-8 border-b-2 border-ink pb-4">
-                                <h3 className="text-2xl font-serif font-black text-ink uppercase tracking-tight">Kalender Akademik</h3>
-                                <div className="flex items-center space-x-4 border-2 border-ink p-1 bg-paper">
-                                    <button onClick={prevMonth} className="px-3 py-1 hover:bg-neutral-200 transition-colors">
-                                        <Clock size={16} strokeWidth={2} className="rotate-180 text-ink" />
+                        <div className="bg-white rounded-3xl p-6 md:p-8 border border-gray-100 shadow-sm relative overflow-hidden">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+                                <h3 className="text-2xl font-sans font-black text-gray-900 tracking-tight">Kalender Akademik</h3>
+                                <div className="flex items-center gap-1 bg-gray-50 rounded-xl p-1 w-max border border-gray-100">
+                                    <button onClick={prevMonth} className="p-2 rounded-lg hover:bg-white hover:text-indigo-600 text-gray-500 hover:shadow-sm transition-all">
+                                        <Clock size={16} strokeWidth={2.5} className="rotate-180" />
                                     </button>
-                                    <span className="text-xs font-mono font-bold uppercase tracking-widest text-ink">
-                                        {currentMonth.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}
+                                    <span className="text-sm font-sans font-bold text-gray-900 px-4 min-w-[140px] text-center">
+                                        {currentMonth.toLocaleDateString('id-ID', { month: 'short', year: 'numeric' })}
                                     </span>
-                                    <button onClick={nextMonth} className="px-3 py-1 hover:bg-neutral-200 transition-colors">
-                                        <Clock size={16} strokeWidth={2} className="text-ink" />
+                                    <button onClick={nextMonth} className="p-2 rounded-lg hover:bg-white hover:text-indigo-600 text-gray-500 hover:shadow-sm transition-all">
+                                        <Clock size={16} strokeWidth={2.5} />
                                     </button>
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-7 gap-px bg-ink mb-1 border-2 border-ink">
+                            <div className="grid grid-cols-7 gap-1 mb-2">
                                 {['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'].map(day => (
-                                    <div key={day} className="text-center font-mono text-[10px] bg-paper font-black text-ink uppercase tracking-widest py-3">
+                                    <div key={day} className="text-center font-sans text-[11px] font-bold text-gray-400 uppercase tracking-widest py-2">
                                         {day}
                                     </div>
                                 ))}
                             </div>
 
-                            <div className="grid grid-cols-7 gap-px bg-ink border-2 border-ink">
+                            <div className="grid grid-cols-7 gap-2">
                                 {getDaysInMonth(currentMonth).map((date, i) => {
                                     const att = getAttendanceStatus(date);
                                     const isToday = date && date.toDateString() === new Date().toDateString();
 
-                                    if (!date) return <div key={`empty-${i}`} className="h-20 bg-neutral-100" />;
+                                    if (!date) return <div key={`empty-${i}`} className="h-14 sm:h-20" />;
 
-                                    let bgClass = 'bg-white';
-                                    let textClass = 'text-ink';
+                                    let bgClass = 'bg-gray-50 hover:bg-gray-100 text-gray-400';
+                                    let textClass = 'text-gray-400';
                                     let markerClass = '';
 
                                     if (att) {
-                                        if (att.status === 'Hadir') { bgClass = 'bg-green-50'; textClass = 'text-green-900'; markerClass = 'bg-green-600'; }
-                                        else if (att.status === 'Sakit') { bgClass = 'bg-amber-50'; textClass = 'text-amber-900'; markerClass = 'bg-amber-600'; }
-                                        else if (att.status === 'Izin') { bgClass = 'bg-blue-50'; textClass = 'text-blue-900'; markerClass = 'bg-blue-600'; }
-                                        else { bgClass = 'bg-newsprint-red/10'; textClass = 'text-newsprint-red'; markerClass = 'bg-newsprint-red'; }
+                                        if (att.status === 'Hadir') { bgClass = 'bg-emerald-50 hover:bg-emerald-100'; textClass = 'text-emerald-700'; markerClass = 'bg-emerald-500'; }
+                                        else if (att.status === 'Sakit') { bgClass = 'bg-amber-50 hover:bg-amber-100'; textClass = 'text-amber-700'; markerClass = 'bg-amber-500'; }
+                                        else if (att.status === 'Izin') { bgClass = 'bg-blue-50 hover:bg-blue-100'; textClass = 'text-blue-700'; markerClass = 'bg-blue-500'; }
+                                        else { bgClass = 'bg-rose-50 hover:bg-rose-100'; textClass = 'text-rose-700'; markerClass = 'bg-rose-500'; }
                                     }
 
                                     return (
                                         <div
                                             key={date.toISOString()}
-                                            className={`h-20 relative p-2 ${bgClass} ${isToday ? 'ring-inset ring-4 ring-ink z-10' : ''} group`}
+                                            className={`h-14 sm:h-20 rounded-xl sm:rounded-2xl relative p-2 transition-colors ${bgClass} cursor-default ${isToday ? 'ring-2 ring-indigo-500 ring-offset-2 z-10' : ''} group`}
                                         >
-                                            <span className={`font-mono text-sm font-bold ${textClass}`}>{date.getDate()}</span>
+                                            <span className={`font-sans text-xs sm:text-sm font-black ${textClass}`}>{date.getDate()}</span>
                                             {att && (
-                                                <div className="absolute top-2 right-2">
-                                                    <div className={`w-2 h-2 border border-ink ${markerClass}`} />
+                                                <div className="absolute top-2 right-2 sm:top-3 sm:right-3">
+                                                    <div className={`w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full ${markerClass}`} />
                                                 </div>
                                             )}
                                             {/* Tooltip-like Info */}
                                             {att?.notes && (
-                                                <div className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity z-20 pointer-events-none w-max max-w-xs">
-                                                    <div className="bg-ink text-paper font-mono text-[9px] font-bold px-2 py-1 border border-ink shadow-[2px_2px_0px_0px_rgba(204,0,0,1)] whitespace-normal text-left uppercase tracking-wider">
+                                                <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity z-20 pointer-events-none w-max max-w-xs">
+                                                    <div className="bg-gray-900 text-white rounded-lg font-sans text-[10px] font-bold px-3 py-2 shadow-lg whitespace-normal text-left max-w-[200px] leading-tight">
                                                         Catatan: {att.notes}
                                                     </div>
                                                 </div>
@@ -219,54 +228,57 @@ export default function StudentAttendance() {
                                 })}
                             </div>
 
-                            <div className="mt-8 flex items-center justify-center space-x-6 border-t-2 border-ink pt-6">
-                                <div className="flex items-center space-x-2">
-                                    <div className="w-2 h-2 border border-ink bg-green-600" />
-                                    <span className="text-[9px] font-mono font-black uppercase tracking-widest text-ink">Hadir</span>
+                            <div className="mt-8 flex flex-wrap items-center justify-center gap-4 sm:gap-6 border-t border-gray-100 pt-6">
+                                <div className="flex items-center space-x-2 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100">
+                                    <div className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
+                                    <span className="text-[10px] font-sans font-bold uppercase tracking-widest text-gray-500">Hadir</span>
                                 </div>
-                                <div className="flex items-center space-x-2">
-                                    <div className="w-2 h-2 border border-ink bg-amber-600" />
-                                    <span className="text-[9px] font-mono font-black uppercase tracking-widest text-ink">Izin/Sakit</span>
+                                <div className="flex items-center space-x-2 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100">
+                                    <div className="w-2.5 h-2.5 rounded-full bg-amber-500" />
+                                    <span className="text-[10px] font-sans font-bold uppercase tracking-widest text-gray-500">Izin/Sakit</span>
                                 </div>
-                                <div className="flex items-center space-x-2">
-                                    <div className="w-2 h-2 border border-ink bg-newsprint-red" />
-                                    <span className="text-[9px] font-mono font-black uppercase tracking-widest text-ink">Alpa</span>
+                                <div className="flex items-center space-x-2 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100">
+                                    <div className="w-2.5 h-2.5 rounded-full bg-rose-500" />
+                                    <span className="text-[10px] font-sans font-bold uppercase tracking-widest text-gray-500">Alpa</span>
                                 </div>
                             </div>
                         </div>
                     ) : (
-                        <div className="bg-white p-8 border-2 border-ink shadow-[8px_8px_0px_0px_rgba(17,17,17,1)] overflow-hidden relative newsprint-texture">
-                            <div className="flex items-center justify-between mb-8 border-b-2 border-ink pb-4">
-                                <h3 className="text-2xl font-serif font-black text-ink uppercase tracking-tight">Riwayat Kehadiran</h3>
-                                <div className="p-2 border-2 border-ink bg-neutral-100">
-                                    <BarChart3 size={16} strokeWidth={2} className="text-ink" />
+                        <div className="bg-white rounded-3xl p-6 md:p-8 border border-gray-100 shadow-sm overflow-hidden relative">
+                            <div className="flex items-center justify-between mb-8 pb-4">
+                                <h3 className="text-2xl font-sans font-black text-gray-900 tracking-tight">Riwayat Kehadiran</h3>
+                                <div className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-gray-400">
+                                    <BarChart3 size={20} strokeWidth={2.5} />
                                 </div>
                             </div>
                             <div className="space-y-4">
                                 {attendance.length === 0 ? (
-                                    <div className="py-20 text-center">
-                                        <XCircle size={48} strokeWidth={1} className="mx-auto text-ink/20 border-newsprint-red mb-4" />
-                                        <p className="font-mono text-ink/60 font-bold uppercase tracking-widest text-xs">Tidak ada data ditemukan</p>
+                                    <div className="py-24 text-center rounded-2xl bg-gray-50 border border-gray-100 border-dashed">
+                                        <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm text-gray-300">
+                                            <CalendarDays size={24} strokeWidth={2.5} />
+                                        </div>
+                                        <p className="font-sans text-gray-500 font-bold uppercase tracking-widest text-xs">Belum ada riwayat kehadiran</p>
                                     </div>
                                 ) : (
                                     attendance.map((item) => (
-                                        <div key={item.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-paper border-2 border-ink hover:bg-neutral-50 transition-colors group shadow-[4px_4px_0px_0px_rgba(17,17,17,0.1)] hover:shadow-[4px_4px_0px_0px_rgba(17,17,17,1)]">
+                                        <div key={item.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-5 bg-white border border-gray-100 rounded-2xl hover:bg-gray-50 hover:shadow-sm transition-all group">
                                             <div className="flex items-center space-x-4 mb-4 sm:mb-0">
-                                                <div className="h-10 w-10 border-2 border-ink flex items-center justify-center bg-white group-hover:bg-ink group-hover:text-paper transition-colors">
-                                                    {item.status === 'Hadir' ? <CheckCircle2 size={20} strokeWidth={2} /> : <AlertCircle size={20} strokeWidth={2} />}
+                                                <div className={`h-12 w-12 rounded-xl flex items-center justify-center transition-colors shadow-sm ${item.status === 'Hadir' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-rose-50 text-rose-600 border border-rose-100'}`}>
+                                                    {item.status === 'Hadir' ? <CheckCircle2 size={24} strokeWidth={2.5} /> : <AlertCircle size={24} strokeWidth={2.5} />}
                                                 </div>
                                                 <div>
-                                                    <p className="font-serif text-lg font-black text-ink leading-tight">{new Date(item.date).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' })}</p>
-                                                    <p className="font-mono text-[9px] font-bold text-ink/60 uppercase tracking-widest mt-1">
+                                                    <p className="font-sans text-lg font-black text-gray-900 tracking-tight leading-tight">{new Date(item.date).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' })}</p>
+                                                    <p className="font-sans text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1.5 flex items-center gap-1.5">
+                                                        <Clock size={12} />
                                                         {item.notes ? `Catatan: ${item.notes}` : 'Catatan Harian'}
                                                     </p>
                                                 </div>
                                             </div>
                                             <div className="flex items-center justify-end">
-                                                <span className={`px-4 py-1.5 text-[10px] font-mono font-black uppercase tracking-widest border-2 border-ink shadow-[2px_2px_0px_0px_rgba(17,17,17,1)] ${item.status === 'Hadir' ? 'bg-green-100 text-green-800' :
-                                                    item.status === 'Sakit' ? 'bg-amber-100 text-amber-800' :
-                                                        item.status === 'Izin' ? 'bg-blue-100 text-blue-800' :
-                                                            'bg-newsprint-red text-white border-transparent shadow-[2px_2px_0px_0px_rgba(17,17,17,0.5)]'
+                                                <span className={`px-4 py-2 rounded-lg text-xs font-sans font-bold uppercase tracking-widest ${item.status === 'Hadir' ? 'bg-emerald-50 text-emerald-600 border border-emerald-200' :
+                                                    item.status === 'Sakit' ? 'bg-amber-50 text-amber-600 border border-amber-200' :
+                                                        item.status === 'Izin' ? 'bg-blue-50 text-blue-600 border border-blue-200' :
+                                                            'bg-rose-50 text-rose-600 border border-rose-200'
                                                     }`}>
                                                     {item.status}
                                                 </span>
@@ -282,61 +294,65 @@ export default function StudentAttendance() {
                 {/* Ringkasan & Grafik */}
                 <div className="space-y-8">
                     {/* Attendance Percentage Card */}
-                    <div className="bg-white p-8 border-2 border-ink shadow-[8px_8px_0px_0px_rgba(17,17,17,1)] flex flex-col items-center justify-center relative overflow-hidden group">
+                    <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm flex flex-col items-center justify-center relative overflow-hidden group">
                         <div className="text-center relative z-10 w-full mb-6">
-                            <h3 className="text-3xl font-serif font-black text-ink tracking-tight uppercase">
+                            <h3 className="text-2xl font-sans font-black text-gray-900 tracking-tight">
                                 Rincian Metrik
                             </h3>
-                            <p className="font-mono text-[9px] font-bold text-ink/60 mt-1 uppercase tracking-widest border-b-2 border-ink pb-4">
-                                Rekap Kumulatif
+                            <p className="font-sans text-[10px] font-bold text-gray-400 mt-1 uppercase tracking-widest">
+                                Rekap Kumulatif Total
                             </p>
                         </div>
 
-                        <div className="relative h-40 w-40 my-4">
+                        <div className="relative h-44 w-44 my-4">
                             <svg className="h-full w-full rotate-[-90deg]" viewBox="0 0 36 36">
                                 <circle
                                     cx="18" cy="18" r="15.9155"
-                                    className="stroke-neutral-200 fill-none"
-                                    strokeWidth="2"
+                                    className="stroke-gray-100 fill-none"
+                                    strokeWidth="3.5"
                                 />
                                 <circle
                                     cx="18" cy="18" r="15.9155"
-                                    className="stroke-ink fill-none transition-all duration-1000"
-                                    strokeWidth="4"
+                                    className="stroke-indigo-600 fill-none transition-all duration-1000 ease-out"
+                                    strokeWidth="3.5"
                                     strokeDasharray={`${stats.totalRate}, 100`}
+                                    strokeLinecap="round"
                                 />
                             </svg>
-                            <div className="absolute inset-0 flex flex-col items-center justify-center bg-white m-3 rounded-full border-2 border-ink">
-                                <span className="text-4xl font-serif font-black text-ink tracking-tighter leading-none">{stats.totalRate}<span className="text-xl">%</span></span>
-                                <span className="font-mono text-[8px] font-black text-ink/60 uppercase tracking-[0.2em] mt-1">Aktif</span>
+                            <div className="absolute inset-0 flex flex-col items-center justify-center bg-white m-4 rounded-full shadow-sm border border-gray-50">
+                                <span className="text-4xl font-sans font-black text-gray-900 tracking-tight leading-none">{stats.totalRate}<span className="text-lg text-gray-400 font-bold ml-0.5">%</span></span>
+                                <span className="font-sans text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-1">Kehadiran</span>
                             </div>
                         </div>
 
-                        <div className="w-full pt-6 border-t-2 border-ink grid grid-cols-2 mt-4 relative">
-                            <div className="text-center border-r-2 border-ink">
-                                <span className="text-3xl font-mono font-black text-ink">{attendance.length}</span>
-                                <p className="font-mono text-[9px] font-bold text-ink/60 uppercase tracking-widest mt-1">Hari Tercatat</p>
+                        <div className="w-full pt-6 border-t border-gray-100 grid grid-cols-2 mt-6 gap-4">
+                            <div className="text-center bg-gray-50 rounded-xl p-4">
+                                <span className="text-2xl font-sans font-black text-gray-900">{attendance.length}</span>
+                                <p className="font-sans text-[9px] font-bold text-gray-500 uppercase tracking-widest mt-1">Hari Dicatat</p>
                             </div>
-                            <div className="text-center bg-ink text-paper -m-8 ml-0 -mt-0 py-6 pr-6 pl-4 flex flex-col justify-center items-center">
-                                <span className="text-3xl font-mono font-black">{stats.hadir}</span>
-                                <p className="font-mono text-[9px] font-bold uppercase tracking-widest mt-1 opacity-80">Hadir</p>
+                            <div className="text-center bg-emerald-50 rounded-xl p-4">
+                                <span className="text-2xl font-sans font-black text-emerald-600">{stats.hadir}</span>
+                                <p className="font-sans text-[9px] font-bold uppercase tracking-widest mt-1 text-emerald-600/80">Hadir</p>
                             </div>
                         </div>
                     </div>
 
                     {/* Info Card */}
-                    <div className="bg-newsprint-red p-8 border-2 border-ink shadow-[8px_8px_0px_0px_rgba(17,17,17,1)] text-white relative">
+                    <div className="bg-gradient-to-br from-indigo-500 to-blue-600 p-8 rounded-3xl border border-indigo-400/30 shadow-md text-white relative overflow-hidden group">
+                        <div className="absolute -right-4 -bottom-4 text-white/10 group-hover:scale-110 transition-transform duration-500">
+                             <AlertCircle size={120} strokeWidth={1} />
+                        </div>
                         <div className="relative z-10">
-                            <div className="flex items-center justify-between border-b-2 border-ink/30 pb-4 mb-6">
-                                <h4 className="font-serif text-2xl font-black uppercase tracking-tight">Laporkan Ketidakhadiran</h4>
-                                <div className="border-2 border-ink bg-white p-2">
-                                    <Clock size={16} strokeWidth={2} className="text-ink" />
+                            <div className="flex items-center justify-between pb-6 mb-6 border-b border-indigo-400/30">
+                                <h4 className="font-sans text-xl font-black tracking-tight leading-tight max-w-[150px]">Laporkan Ketidakhadiran</h4>
+                                <div className="bg-white/20 p-3 rounded-2xl backdrop-blur-sm border border-white/20">
+                                    <Clock size={20} strokeWidth={2.5} className="text-white" />
                                 </div>
                             </div>
-                            <p className="font-mono text-xs font-bold leading-relaxed mb-8 opacity-90 border-l-2 border-white pl-4 uppercase tracking-widest">
-                                Wajib menghubungi koordinator sebelum pukul 08:00 WIB untuk status izin yang sah.
+                            <p className="font-sans text-sm font-medium leading-relaxed mb-8 opacity-90">
+                                Wajib menghubungi wali kelas sebelum pukul 08:00 WIB untuk status izin atau sakit yang sah.
                             </p>
-                            <button className="w-full border-2 border-ink bg-white text-ink hover:bg-ink hover:text-white font-mono font-black py-4 shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] hover:shadow-none active:translate-y-[4px] active:translate-x-[4px] transition-all uppercase tracking-widest text-[10px]">
+                            <button className="w-full bg-white text-indigo-600 hover:bg-indigo-50 font-sans font-bold py-4 rounded-xl shadow-sm hover:shadow-md transition-all uppercase tracking-widest text-xs flex items-center justify-center gap-2">
                                 Hubungi Koordinator
                             </button>
                         </div>

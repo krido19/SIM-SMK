@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Bell } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import StatCard from '../components/dashboard/StatCard';
 import ScheduleNotification from '../components/dashboard/ScheduleNotification';
@@ -94,51 +95,61 @@ export default function Dashboard() {
 
     return (
         <div className="space-y-12 animate-in fade-in duration-500">
-            {/* Editorial Header */}
-            <div className="border-b-4 border-ink pb-8 flex flex-col md:flex-row md:items-end justify-between gap-6">
+            {/* Modern Header */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div>
-                    <div className="flex items-center gap-2 mb-4">
-                        <span className="bg-newsprint-red text-white text-[10px] font-mono font-bold px-2 py-1 uppercase tracking-widest animate-pulse">
-                            Buletin Harian
+                    <div className="flex items-center gap-2 mb-2">
+                        <span className="bg-blue-600 text-white text-[10px] font-sans font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
+                            Pusat Informasi
                         </span>
-                        <span className="text-[10px] font-mono uppercase tracking-[0.2em] opacity-40">
-                            Ref: SMK-SIM/DAILY/{new Date().getFullYear()}
+                        <span className="text-[10px] font-sans font-medium text-gray-400 uppercase tracking-widest">
+                            {new Date().getFullYear()} • AKADEMIK
                         </span>
                     </div>
-                    <h1 className="text-6xl lg:text-8xl font-serif font-black text-ink tracking-tighter leading-[0.85]">
-                        Beranda Utama
+                    <h1 className="text-4xl font-sans font-black text-gray-900 tracking-tight">
+                        Dashboard Utama
                     </h1>
-                    <p className="font-body text-xl text-ink/70 mt-4 max-w-2xl leading-relaxed">
-                        Selamat datang, <span className="text-ink font-black underline decoration-newsprint-red decoration-2 underline-offset-4">{userName}</span>.
-                        Ringkasan harian dan informasi terkini sudah siap.
+                    <p className="font-sans text-gray-500 mt-2 max-w-2xl">
+                        Selamat datang kembali, <span className="text-blue-600 font-bold">{userName}</span>. Berikut ringkasan aktivitas akademik Anda hari ini.
                     </p>
                 </div>
-                <div className="shrink-0 flex flex-col items-end gap-2">
-                    <div className="border-2 border-ink p-4 bg-white shadow-[4px_4px_0px_0px_rgba(17,17,17,1)]">
-                        <p className="text-[10px] font-mono font-bold uppercase tracking-widest border-b border-ink/10 pb-2 mb-2">Siklus Akademik</p>
-                        <p className="text-sm font-serif font-bold italic">{currentWeekType}</p>
-                        <p className="text-[11px] font-mono opacity-60 mt-1 uppercase">{academicPeriod}</p>
+                <div className="shrink-0">
+                    <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm min-w-[200px]">
+                        <p className="text-[10px] font-sans font-bold uppercase tracking-wider text-gray-400 mb-3 flex items-center gap-2">
+                            <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+                            Sistem Aktif
+                        </p>
+                        <p className="text-base font-sans font-bold text-gray-800">{currentWeekType}</p>
+                        <p className="text-xs font-sans text-gray-500 mt-1">{academicPeriod}</p>
                     </div>
                 </div>
             </div>
 
             {/* Next Class Notification (Guru & Siswa only) */}
-            <ScheduleNotification nextClass={nextClass} role={role} />
+            <div className="rounded-2xl overflow-hidden shadow-sm border border-blue-100">
+                <ScheduleNotification nextClass={nextClass} role={role} />
+            </div>
 
-            {/* Role-Specific Dashboard Content */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-                <div className="lg:col-span-8 border-r-2 border-ink lg:pr-12 last:border-0 last:pr-0">
+            {/* Main Content Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+                <div className="lg:col-span-8">
                     {role === 'admin' && <AdminDashboard />}
                     {role === 'guru' && <TeacherDashboard userName={userName} />}
                     {(role === 'siswa' || role === 'parent') && <StudentDashboard userName={userName} />}
                 </div>
 
-                {/* Shared Right Sidebar */}
+                {/* Right Sidebar - Announcements */}
                 <div className="lg:col-span-4">
-                    <div className="sticky top-24">
-                        <h2 className="text-3xl font-serif font-black underline decoration-ink/10 underline-offset-8 mb-8 pb-2 border-b-2 border-ink uppercase tracking-tight">
-                            Pengumuman
-                        </h2>
+                    <div className="sticky top-24 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+                        <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-50">
+                            <h2 className="text-lg font-sans font-bold text-gray-900 flex items-center gap-2">
+                                <span className="p-1.5 bg-blue-50 text-blue-600 rounded-lg">
+                                    <Bell size={18} />
+                                </span>
+                                Pengumuman
+                            </h2>
+                            <button className="text-xs font-bold text-blue-600 hover:underline">Lihat Semua</button>
+                        </div>
                         <Announcements announcements={announcements} />
                     </div>
                 </div>

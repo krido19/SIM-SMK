@@ -31,107 +31,117 @@ export default function StudentAnnouncements() {
 
     if (isLoading) {
         return (
-            <div className="p-8 text-center font-mono text-[10px] uppercase tracking-widest bg-paper border-2 border-ink shadow-[4px_4px_0px_0px_#111111] animate-pulse font-bold text-ink">
-                Memuat pengumuman...
+            <div className="py-24 text-center">
+                 <div className="w-12 h-12 border-4 border-gray-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
+                 <p className="font-sans text-sm font-bold text-gray-500 uppercase tracking-widest">Memuat pengumuman...</p>
             </div>
         );
     }
 
     return (
-        <div className="space-y-6 animate-in fade-in duration-500">
-            <div className="border-b-4 border-ink pb-6">
-                <h1 className="text-4xl font-serif font-black text-ink uppercase tracking-tighter leading-none mb-1">PENGUMUMAN</h1>
-                <p className="font-mono text-[10px] uppercase tracking-widest opacity-60 mt-2">Informasi dan berita terbaru dari sekolah.</p>
+        <div className="space-y-8 animate-in fade-in duration-500 pb-12">
+            <div className="border-b border-gray-100 pb-6 text-center sm:text-left">
+                <div className="inline-flex items-center gap-2 mb-4 bg-indigo-50 px-3 py-1.5 rounded-full">
+                    <span className="bg-indigo-600 text-white text-[10px] font-sans font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
+                        Informasi
+                    </span>
+                 </div>
+                <h1 className="text-4xl font-sans font-black text-gray-900 tracking-tight leading-none mb-2">PENGUMUMAN</h1>
+                <p className="font-sans text-sm font-medium text-gray-500 mt-2">Informasi dan berita terbaru dari sekolah.</p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {announcements.length > 0 ? announcements.map((ann) => (
                     <div
                         key={ann.id}
                         onClick={() => setViewAnnouncement(ann)}
-                        className="bg-paper border-2 border-ink shadow-[4px_4px_0px_0px_#111111] hover:shadow-[8px_8px_0px_0px_#111111] hover:-translate-y-0.5 transition-all group relative overflow-hidden flex flex-col cursor-pointer"
+                        className="bg-white border flex flex-col border-gray-100 rounded-3xl shadow-sm hover:shadow-md transition-all duration-300 group relative overflow-hidden cursor-pointer"
                     >
                         {ann.image_url && (
-                            <div className="w-full h-48 overflow-hidden relative border-b-2 border-ink">
+                            <div className="w-full h-48 overflow-hidden relative border-b border-gray-100 bg-gray-50 flex-shrink-0">
                                 <img src={ann.image_url} alt={ann.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                             </div>
                         )}
-                        <div className="p-6 flex-1">
+                        <div className="p-6 flex-1 flex flex-col">
                             <div className="flex items-start justify-between mb-4">
-                                <div className="p-3 bg-ink text-paper border-2 border-ink">
-                                    <Megaphone size={20} strokeWidth={2.5} />
+                                <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center border border-indigo-100 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                                    <Megaphone size={18} strokeWidth={2.5} />
                                 </div>
                             </div>
 
-                            <div className="space-y-3">
+                            <div className="space-y-3 flex-1 flex flex-col">
                                 <div>
-                                    <span className="px-2 py-1 bg-ink text-paper text-[9px] font-mono font-bold uppercase tracking-widest border border-ink">
+                                    <span className="px-3 py-1 bg-gray-50 text-gray-500 rounded-lg text-[10px] font-sans font-bold uppercase tracking-widest border border-gray-200 shadow-sm w-max">
                                         {ann.category}
                                     </span>
-                                    <h3 className="text-xl font-black text-ink mt-2 tracking-tight font-serif uppercase">{ann.title}</h3>
+                                    <h3 className="text-xl font-black text-gray-900 mt-4 tracking-tight font-sans leading-tight line-clamp-2 group-hover:text-indigo-600 transition-colors">{ann.title}</h3>
                                 </div>
-                                <p className="text-ink/70 text-sm font-mono leading-relaxed line-clamp-3">{ann.content}</p>
-                                <div className="pt-3 border-t-2 border-ink flex items-center text-[9px] font-mono font-bold text-ink/50 uppercase tracking-widest">
-                                    <Calendar size={12} className="mr-2" strokeWidth={2.5} />
-                                    DIPOSTING: {ann.date}
+                                <p className="text-gray-500 text-sm font-sans flex-1 line-clamp-3 leading-relaxed mt-2">{ann.content}</p>
+                                <div className="pt-4 mt-auto border-t border-gray-100 flex items-center text-[10px] font-sans font-bold text-gray-400 uppercase tracking-widest bg-gray-50 rounded-lg px-3 py-2 w-max">
+                                    <Calendar size={14} className="mr-2 text-gray-500" strokeWidth={2.5} />
+                                    {ann.date}
                                 </div>
                             </div>
                         </div>
                     </div>
                 )) : (
-                    <div className="col-span-full py-20 text-center border-2 border-dashed border-ink/20 bg-paper">
-                        <Newspaper size={48} className="mx-auto text-ink/20 mb-4" strokeWidth={1} />
-                        <h3 className="text-lg font-serif font-black text-ink/40 uppercase">Belum Ada Pengumuman</h3>
-                        <p className="text-sm font-mono text-ink/30 uppercase tracking-widest mt-2">Pengumuman dari sekolah akan ditampilkan di sini.</p>
+                    <div className="col-span-full py-24 flex flex-col items-center justify-center text-center bg-gray-50 rounded-3xl border border-dashed border-gray-200">
+                        <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-sm mb-6">
+                             <Newspaper size={32} className="text-gray-300" strokeWidth={2} />
+                        </div>
+                        <h3 className="text-xl font-sans font-black text-gray-900 tracking-tight">Belum Ada Pengumuman</h3>
+                        <p className="text-sm font-sans font-medium text-gray-500 mt-2 max-w-md">Pengumuman dari sekolah akan ditampilkan di sini saat tersedia.</p>
                     </div>
                 )}
             </div>
 
             {/* View Detail Modal */}
             {viewAnnouncement && (
-                <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-300">
-                    <div className="bg-paper border-4 border-ink shadow-[16px_16px_0px_0px_#111111] w-full max-w-2xl overflow-hidden animate-in zoom-in-95 duration-300 max-h-[90vh] flex flex-col">
-                        <div className="relative">
+                <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-md animate-in fade-in duration-300">
+                    <div className="bg-white rounded-3xl shadow-2xl border border-white/20 w-full max-w-2xl overflow-hidden animate-in zoom-in-95 duration-300 max-h-[90vh] flex flex-col">
+                        <div className="relative shrink-0">
                             {viewAnnouncement.image_url ? (
-                                <img src={viewAnnouncement.image_url} className="w-full h-64 object-cover border-b-4 border-ink" />
+                                <img src={viewAnnouncement.image_url} className="w-full h-80 object-cover" />
                             ) : (
-                                <div className="w-full h-20 bg-ink" />
+                                <div className="w-full h-24 bg-gradient-to-r from-indigo-500 to-blue-600" />
                             )}
                             <button
                                 onClick={() => setViewAnnouncement(null)}
-                                className="absolute top-4 right-4 p-2 bg-paper border-2 border-ink text-ink hover:bg-ink hover:text-paper transition-all"
+                                className="absolute top-4 right-4 p-2 bg-white/20 backdrop-blur-sm border border-white/40 text-white hover:bg-white hover:text-gray-900 rounded-xl transition-all shadow-sm"
                             >
-                                <X size={20} strokeWidth={3} />
+                                <X size={20} strokeWidth={2.5} />
                             </button>
-                            <div className="absolute bottom-4 left-6">
-                                <span className="px-3 py-1 bg-ink text-paper text-[9px] font-mono font-bold uppercase tracking-widest border border-paper">
+                            <div className="absolute -bottom-4 left-8">
+                                <span className="px-4 py-2 bg-indigo-600 text-white shadow-lg text-[10px] font-sans font-bold uppercase tracking-widest rounded-xl border-4 border-white">
                                     {viewAnnouncement.category}
                                 </span>
                             </div>
                         </div>
 
-                        <div className="p-8 overflow-y-auto space-y-4">
-                            <div className="flex items-center space-x-2 text-[9px] font-mono font-bold text-ink/50 uppercase tracking-widest">
-                                <Calendar size={12} strokeWidth={2.5} />
-                                <span>DIPUBLIKASIKAN: {viewAnnouncement.date}</span>
+                        <div className="p-8 pt-10 overflow-y-auto space-y-6 flex-1 custom-scrollbar">
+                            <div className="flex items-center space-x-2 text-[10px] font-sans font-bold text-gray-500 uppercase tracking-widest bg-gray-50 border border-gray-100 px-4 py-2 rounded-xl w-max">
+                                <Calendar size={14} strokeWidth={2.5} className="text-gray-400" />
+                                <span>Dipublikasikan: {viewAnnouncement.date}</span>
                             </div>
 
-                            <h2 className="text-3xl font-black text-ink tracking-tight leading-tight font-serif uppercase">
+                            <h2 className="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight leading-tight font-sans">
                                 {viewAnnouncement.title}
                             </h2>
 
-                            <div className="border-t-2 border-ink pt-4">
-                                <p className="text-ink/80 text-base font-mono leading-relaxed whitespace-pre-wrap">
+                            <div className="border-t border-gray-100 pt-6">
+                                <p className="text-gray-600 text-base font-sans leading-relaxed whitespace-pre-wrap">
                                     {viewAnnouncement.content}
                                 </p>
                             </div>
 
-                            <button
-                                onClick={() => setViewAnnouncement(null)}
-                                className="w-full bg-paper border-2 border-ink hover:bg-ink hover:text-paper text-ink font-mono font-bold py-4 transition-all flex items-center justify-center space-x-2 text-xs uppercase tracking-widest mt-4 shadow-[4px_4px_0px_0px_#111111] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px]"
-                            >
-                                TUTUP PENGUMUMAN
-                            </button>
+                            <div className="pt-8 mt-auto">
+                                <button
+                                    onClick={() => setViewAnnouncement(null)}
+                                    className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-sans font-bold py-4 rounded-xl transition-all flex items-center justify-center space-x-2 text-xs uppercase tracking-widest"
+                                >
+                                    Tutup Pengumuman
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>

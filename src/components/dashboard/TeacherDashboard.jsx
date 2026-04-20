@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
-import { Hash, Users, ClipboardList, TrendingUp, ChevronRight, AlertCircle, X, BookOpen } from 'lucide-react';
+import { Hash, Users, ClipboardList, TrendingUp, ChevronRight, AlertCircle, X, BookOpen, Clock, CheckCircle2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import StatCard from './StatCard';
 
@@ -14,7 +14,7 @@ const TeacherDashboard = ({ userName }) => {
     const [classDetails, setClassDetails] = useState([]);
     const [studentDetails, setStudentDetails] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [showDetail, setShowDetail] = useState(null); // 'classes' | 'students' | null
+    const [showDetail, setShowDetail] = useState(null);
 
     useEffect(() => {
         fetchData();
@@ -25,7 +25,6 @@ const TeacherDashboard = ({ userName }) => {
         const userNIP = localStorage.getItem('userNIP');
 
         try {
-            // Fallback 1: Try NIP
             if (!userId && userNIP) {
                 const { data: teacher } = await supabase.from('teachers').select('id').eq('nip', userNIP).maybeSingle();
                 if (teacher) {
@@ -34,7 +33,6 @@ const TeacherDashboard = ({ userName }) => {
                 }
             }
 
-            // Fallback 2: Try Name
             if (!userId && userName) {
                 const { data: teacher } = await supabase.from('teachers').select('id').eq('name', userName).maybeSingle();
                 if (teacher) {
@@ -44,17 +42,14 @@ const TeacherDashboard = ({ userName }) => {
             }
 
             if (userId) {
-                // Get classes taught - use two queries to avoid .or() issues
                 let allScheduleClassIds = [];
 
-                // Query 1: Match by teacher_id (most reliable)
                 const { data: schedById } = await supabase
                     .from('schedules')
                     .select('class_id, class_name, subject_name')
                     .eq('teacher_id', userId);
                 if (schedById) allScheduleClassIds.push(...schedById);
 
-                // Query 2: Match by teacher_name (fallback for older data)
                 if (userName) {
                     const { data: schedByName } = await supabase
                         .from('schedules')
@@ -63,7 +58,6 @@ const TeacherDashboard = ({ userName }) => {
                     if (schedByName) allScheduleClassIds.push(...schedByName);
                 }
 
-                // Deduplicate by class_id
                 const classMap = {};
                 allScheduleClassIds.filter(s => s.class_id).forEach(s => {
                     if (!classMap[s.class_id]) {
@@ -78,7 +72,6 @@ const TeacherDashboard = ({ userName }) => {
                 const uniqueClassIds = uniqueClasses.map(c => c.id);
                 setClassDetails(uniqueClasses);
 
-                // Count students & get details
                 let studentCount = 0;
                 let studentIds = [];
                 if (uniqueClassIds.length > 0) {
@@ -89,7 +82,6 @@ const TeacherDashboard = ({ userName }) => {
                     studentCount = count || 0;
                     studentIds = students?.map(s => s.id) || [];
 
-                    // Map students with class names
                     const studentsWithClass = (students || []).map(s => ({
                         ...s,
                         className: classMap[s.class_id]?.name || '-'
@@ -97,7 +89,6 @@ const TeacherDashboard = ({ userName }) => {
                     setStudentDetails(studentsWithClass);
                 }
 
-                // Calculate Attendance
                 let attendancePercentage = 0;
                 if (studentIds.length > 0) {
                     const todayStr = new Date().toISOString().split('T')[0];
@@ -113,7 +104,6 @@ const TeacherDashboard = ({ userName }) => {
                     }
                 }
 
-                // Get assignments count
                 const { count: taskCount } = await supabase
                     .from('assignments')
                     .select('*', { count: 'exact', head: true })
@@ -133,43 +123,61 @@ const TeacherDashboard = ({ userName }) => {
         }
     };
 
-    if (isLoading) return <div className="animate-pulse font-mono text-[10px] uppercase">Memuat Data...</div>;
+    if (isLoading) return (
+        <div className="flex items-center gap-2 font-sans text-xs font-bold text-gray-400 uppercase tracking-widest animate-pulse">
+            <div className="w-4 h-4 rounded-full border-2 border-blue-600 border-t-transparent animate-spin"></div>
+            Memuat Dashboard...
+        </div>
+    );
 
     return (
-        <div className="space-y-12">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                <button onClick={() => setShowDetail('classes')} className="text-left">
-                    <StatCard title="Kelas Diampu" value={stats.classesTaught?.toString() || "0"} icon={Hash} />
-                </button>
-                <button onClick={() => setShowDetail('students')} className="text-left">
-                    <StatCard title="Jumlah Siswa" value={stats.totalStudents?.toString() || "0"} icon={Users} />
-                </button>
-                <StatCard title="Tugas Diterbitkan" value={stats.pendingTasks?.toString() || "0"} icon={ClipboardList} trend={stats.pendingTasks > 0 ? "- Perlu Ditinjau" : ""} to="/teacher/assignments" />
-                <StatCard title="Kehadiran Hari Ini" value={stats.attendance} icon={TrendingUp} />
+        <div className="space-y-10 animate-in fade-in duration-500">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <StatCard title="Kelas Diampu" value={stats.classesTaught?.toString() || "0"} icon={Hash} color="blue" onClick={() => setShowDetail('classes')} />
+                <StatCard title="Jumlah Siswa" value={stats.totalStudents?.toString() || "0"} icon={Users} color="emerald" onClick={() => setShowDetail('students')} />
+                <StatCard title="Tugas Diterbitkan" value={stats.pendingTasks?.toString() || "0"} icon={ClipboardList} color="purple" to="/teacher/assignments" />
+                <StatCard title="Kehadiran Hari Ini" value={stats.attendance} icon={TrendingUp} color="amber" />
             </div>
 
-            <div className="bg-paper p-8 border-2 border-ink shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] relative newsprint-texture">
-                <div className="flex items-center justify-between mb-8 border-b-2 border-ink pb-4">
+            <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm">
+                <div className="flex items-center justify-between mb-8 pb-4 border-b border-gray-50">
                     <div className="flex items-center gap-3">
-                        <AlertCircle size={24} className="text-newsprint-red" strokeWidth={1.5} />
-                        <h3 className="text-2xl font-serif font-black text-ink uppercase tracking-tight">Tindakan Diperlukan</h3>
+                        <div className="p-2 bg-blue-50 text-blue-600 rounded-xl">
+                            <AlertCircle size={20} strokeWidth={2.5} />
+                        </div>
+                        <div>
+                            <h3 className="text-xl font-sans font-black text-gray-900 leading-none">Tindakan Diperlukan</h3>
+                            <p className="text-xs font-sans font-medium text-gray-400 mt-1 uppercase tracking-widest">Tugas Utama Pengajar Hari Ini</p>
+                        </div>
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div className="border border-ink/20 p-6 hover:bg-ink hover:text-paper transition-colors group">
-                        <h4 className="font-serif font-bold text-xl mb-2">Catat Kehadiran Harian</h4>
-                        <p className="font-body text-sm mb-6 opacity-70">Daftar kehadiran untuk kelas aktif Anda perlu diisi untuk sesi hari ini.</p>
-                        <Link to="/teacher/attendance" className="inline-flex items-center text-[10px] font-mono font-bold uppercase tracking-widest border-b border-current pb-1 group-hover:text-newsprint-red">
-                            Buka Absensi <ChevronRight size={14} className="ml-1" />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="bg-gray-50/50 rounded-2xl p-6 border border-gray-100 hover:border-blue-200 hover:bg-white hover:shadow-md transition-all duration-300 group">
+                        <div className="flex items-start justify-between mb-4">
+                            <div className="w-12 h-12 rounded-xl bg-white border border-gray-100 flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors duration-300 shadow-sm">
+                                <Clock size={24} />
+                            </div>
+                            <span className="px-2 py-1 bg-amber-100 text-amber-700 text-[10px] font-bold rounded-full uppercase">Penting</span>
+                        </div>
+                        <h4 className="text-lg font-sans font-black text-gray-900 mb-2">Catat Kehadiran Harian</h4>
+                        <p className="text-sm font-sans font-medium text-gray-500 mb-6 leading-relaxed">Pastikan seluruh siswa di kelas Anda hari ini telah tercatat status kehadirannya dalam sistem.</p>
+                        <Link to="/teacher/attendance" className="inline-flex items-center gap-2 text-xs font-bold text-blue-600 hover:underline">
+                            Buka Panel Absensi <ChevronRight size={14} />
                         </Link>
                     </div>
 
-                    <div className="border border-ink/20 p-6 hover:bg-ink hover:text-paper transition-colors group">
-                        <h4 className="font-serif font-bold text-xl mb-2">Nilai Tugas Siswa</h4>
-                        <p className="font-body text-sm mb-6 opacity-70">Ada tugas siswa yang menunggu peninjauan dan penilaian Anda.</p>
-                        <Link to="/teacher/assignments" className="inline-flex items-center text-[10px] font-mono font-bold uppercase tracking-widest border-b border-current pb-1 group-hover:text-newsprint-red">
-                            Buka Penilaian <ChevronRight size={14} className="ml-1" />
+                    <div className="bg-gray-50/50 rounded-2xl p-6 border border-gray-100 hover:border-emerald-200 hover:bg-white hover:shadow-md transition-all duration-300 group">
+                        <div className="flex items-start justify-between mb-4">
+                            <div className="w-12 h-12 rounded-xl bg-white border border-gray-100 flex items-center justify-center text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-colors duration-300 shadow-sm">
+                                <CheckCircle2 size={24} />
+                            </div>
+                            <span className="px-2 py-1 bg-blue-100 text-blue-700 text-[10px] font-bold rounded-full uppercase">Update</span>
+                        </div>
+                        <h4 className="text-lg font-sans font-black text-gray-900 mb-2">Nilai Tugas & Ujian</h4>
+                        <p className="text-sm font-sans font-medium text-gray-500 mb-6 leading-relaxed">Tinjau hasil pekerjaan siswa dan berikan penilaian langsung dari dashboard evaluasi akademik.</p>
+                        <Link to="/teacher/assignments" className="inline-flex items-center gap-2 text-xs font-bold text-emerald-600 hover:underline">
+                            Buka Evaluasi Nilai <ChevronRight size={14} />
                         </Link>
                     </div>
                 </div>
@@ -177,35 +185,40 @@ const TeacherDashboard = ({ userName }) => {
 
             {/* Detail Modal */}
             {showDetail && (
-                <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-300">
-                    <div className="bg-paper border-4 border-ink shadow-[16px_16px_0px_0px_#111111] w-full max-w-2xl overflow-hidden animate-in zoom-in-95 duration-300 max-h-[85vh] flex flex-col">
-                        <div className="bg-ink text-paper px-6 py-4 flex justify-between items-center">
-                            <h3 className="font-mono font-black uppercase tracking-widest text-sm">
-                                {showDetail === 'classes' ? 'DAFTAR KELAS DIAMPU' : 'DAFTAR SISWA'}
-                            </h3>
-                            <button onClick={() => setShowDetail(null)} className="p-1 hover:bg-paper/10 transition-colors">
+                <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-md animate-in fade-in duration-300">
+                    <div className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden animate-in zoom-in-95 duration-300 max-h-[85vh] flex flex-col">
+                        <div className="px-8 py-6 flex justify-between items-center border-b border-gray-50 bg-gray-50/30">
+                            <div>
+                                <h3 className="text-xl font-sans font-black text-gray-900">
+                                    {showDetail === 'classes' ? 'Daftar Kelas Diampu' : 'Daftar Siswa Aktif'}
+                                </h3>
+                                <p className="text-xs font-sans font-medium text-gray-400 mt-1 uppercase tracking-widest leading-none">
+                                    {showDetail === 'classes' ? `${classDetails.length} Kelas` : `${studentDetails.length} Siswa Terdaftar`}
+                                </p>
+                            </div>
+                            <button onClick={() => setShowDetail(null)} className="p-2 bg-gray-100 hover:bg-gray-200 text-gray-500 rounded-xl transition-all">
                                 <X size={20} strokeWidth={2.5} />
                             </button>
                         </div>
 
-                        <div className="p-6 overflow-y-auto">
+                        <div className="p-6 overflow-y-auto custom-scrollbar">
                             {showDetail === 'classes' ? (
-                                <div className="space-y-4">
+                                <div className="space-y-4 p-2">
                                     {classDetails.length > 0 ? classDetails.map((cls, i) => (
-                                        <div key={cls.id} className="border-2 border-ink p-5 shadow-[4px_4px_0px_0px_#111111] hover:shadow-[6px_6px_0px_0px_#111111] transition-all">
-                                            <div className="flex items-center justify-between mb-3">
-                                                <h4 className="text-xl font-serif font-black text-ink uppercase tracking-tight">{cls.name}</h4>
-                                                <span className="bg-ink text-paper px-3 py-1 text-[9px] font-mono font-bold uppercase tracking-widest">
+                                        <div key={cls.id} className="p-6 rounded-2xl border border-gray-100 bg-white hover:border-blue-100 hover:shadow-sm transition-all group">
+                                            <div className="flex items-center justify-between mb-4">
+                                                <h4 className="text-lg font-sans font-black text-gray-900">{cls.name}</h4>
+                                                <span className="bg-blue-50 text-blue-600 px-3 py-1 text-[10px] font-bold rounded-full uppercase">
                                                     Kelas #{i + 1}
                                                 </span>
                                             </div>
                                             {cls.subjects.length > 0 && (
-                                                <div className="border-t-2 border-ink/10 pt-3">
-                                                    <p className="text-[9px] font-mono font-bold text-ink/40 uppercase tracking-widest mb-2">Mata Pelajaran:</p>
+                                                <div className="pt-4 border-t border-gray-50">
+                                                    <p className="text-[10px] font-sans font-bold text-gray-400 uppercase tracking-widest mb-3">Mata Pelajaran Diampu:</p>
                                                     <div className="flex flex-wrap gap-2">
                                                         {cls.subjects.map(subj => (
-                                                            <span key={subj} className="px-3 py-1 border-2 border-ink text-[10px] font-mono font-bold text-ink uppercase tracking-widest flex items-center">
-                                                                <BookOpen size={10} className="mr-2" />
+                                                            <span key={subj} className="px-3 py-1.5 bg-gray-50 rounded-lg text-xs font-sans font-bold text-gray-700 flex items-center shadow-sm">
+                                                                <BookOpen size={12} className="mr-2 text-blue-600" />
                                                                 {subj}
                                                             </span>
                                                         ))}
@@ -214,46 +227,51 @@ const TeacherDashboard = ({ userName }) => {
                                             )}
                                         </div>
                                     )) : (
-                                        <div className="py-12 text-center border-2 border-dashed border-ink/20">
-                                            <p className="text-ink/30 font-serif italic text-sm">Belum ada kelas yang diampu.</p>
-                                            <p className="text-[10px] font-mono text-ink/20 uppercase tracking-widest mt-2">Hubungi admin untuk mengatur jadwal.</p>
+                                        <div className="py-20 text-center border-2 border-dashed border-gray-100 rounded-3xl">
+                                            <p className="text-gray-400 font-medium italic">Belum ada kelas yang diampu.</p>
                                         </div>
                                     )}
                                 </div>
                             ) : (
-                                <div className="space-y-1">
+                                <div className="p-2">
                                     {studentDetails.length > 0 ? (
-                                        <>
-                                            <div className="grid grid-cols-12 gap-2 px-4 py-2 bg-ink text-paper text-[9px] font-mono font-bold uppercase tracking-widest mb-2">
-                                                <span className="col-span-1">No</span>
-                                                <span className="col-span-3">NIS</span>
-                                                <span className="col-span-5">Nama Siswa</span>
-                                                <span className="col-span-3">Kelas</span>
-                                            </div>
-                                            {studentDetails.map((std, i) => (
-                                                <div key={std.id} className="grid grid-cols-12 gap-2 px-4 py-3 border-b border-ink/10 hover:bg-neutral-50 transition-colors text-sm">
-                                                    <span className="col-span-1 font-mono font-bold text-ink/40">{i + 1}</span>
-                                                    <span className="col-span-3 font-mono font-bold text-ink">{std.nis}</span>
-                                                    <span className="col-span-5 font-serif font-bold text-ink">{std.full_name}</span>
-                                                    <span className="col-span-3 font-mono text-[10px] font-bold text-ink/60 uppercase">{std.className}</span>
-                                                </div>
-                                            ))}
-                                        </>
+                                        <div className="overflow-hidden rounded-2xl border border-gray-100 shadow-sm">
+                                            <table className="w-full text-left">
+                                                <thead className="bg-gray-50 text-[10px] uppercase font-sans font-bold text-gray-400 tracking-widest border-b border-gray-100">
+                                                    <tr>
+                                                        <th className="p-4 w-12 text-center">#</th>
+                                                        <th className="p-4">NIS</th>
+                                                        <th className="p-4">Nama Siswa</th>
+                                                        <th className="p-4">Kelas</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody className="text-sm">
+                                                    {studentDetails.map((std, i) => (
+                                                        <tr key={std.id} className="border-b border-gray-50 hover:bg-blue-50/20 transition-colors">
+                                                            <td className="p-4 text-center font-bold text-gray-300">{i + 1}</td>
+                                                            <td className="p-4 font-bold text-blue-600">{std.nis}</td>
+                                                            <td className="p-4 font-bold text-gray-800">{std.full_name}</td>
+                                                            <td className="p-4"><span className="px-2 py-1 bg-gray-100 rounded-md text-[10px] font-bold text-gray-500 uppercase">{std.className}</span></td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
                                     ) : (
-                                        <div className="py-12 text-center border-2 border-dashed border-ink/20">
-                                            <p className="text-ink/30 font-serif italic text-sm">Belum ada siswa di kelas yang diampu.</p>
+                                        <div className="py-20 text-center border-2 border-dashed border-gray-100 rounded-3xl">
+                                            <p className="text-gray-400 font-medium italic">Belum ada siswa di kelas Anda.</p>
                                         </div>
                                     )}
                                 </div>
                             )}
                         </div>
 
-                        <div className="border-t-4 border-ink p-4">
+                        <div className="px-8 py-6 bg-gray-50/30 border-t border-gray-100 flex justify-end">
                             <button
                                 onClick={() => setShowDetail(null)}
-                                className="w-full bg-paper border-2 border-ink hover:bg-ink hover:text-paper text-ink font-mono font-bold py-3 transition-all text-xs uppercase tracking-widest shadow-[4px_4px_0px_0px_#111111] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px]"
+                                className="px-8 py-3 bg-blue-600 text-white font-sans font-bold rounded-2xl shadow-lg shadow-blue-600/20 active:scale-95 transition-all text-xs uppercase tracking-widest"
                             >
-                                TUTUP
+                                Tutup Panel
                             </button>
                         </div>
                     </div>

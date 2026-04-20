@@ -102,112 +102,133 @@ export default function TeacherSchedule() {
 
     if (isLoading) {
         return (
-            <div className="p-8 text-center font-mono text-[10px] uppercase tracking-widest bg-paper border-2 border-ink shadow-[4px_4px_0px_0px_#111111] animate-pulse font-bold text-ink">
+            <div className="p-8 text-center font-sans text-xs font-bold uppercase tracking-widest bg-gray-50 rounded-3xl border border-gray-100 shadow-sm animate-pulse text-gray-500">
                 Memuat jadwal mengajar...
             </div>
         );
     }
 
     return (
-        <div className="space-y-6 animate-in fade-in duration-500">
+        <div className="space-y-8 animate-in fade-in duration-500 pb-12">
             {/* Header */}
-            <div className="border-b-4 border-ink pb-6">
-                <h1 className="text-4xl font-serif font-black text-ink uppercase tracking-tighter leading-none">JADWAL MENGAJAR</h1>
-                <p className="font-mono text-[10px] uppercase tracking-widest opacity-60 mt-2">
-                    Jadwal mengajar resmi · Siklus aktif: {currentWeekType}
-                </p>
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 pb-6 border-b border-gray-100">
+                <div>
+                     <div className="flex items-center gap-2 mb-2">
+                        <span className="bg-blue-600 text-white text-[10px] font-sans font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
+                            Akademik
+                        </span>
+                    </div>
+                    <h1 className="text-4xl font-sans font-black text-gray-900 tracking-tight leading-none">Jadwal Mengajar</h1>
+                    <p className="font-sans text-sm font-medium text-gray-500 mt-2">
+                        Jadwal mengajar resmi · Siklus aktif: <span className="font-bold text-gray-700">{currentWeekType}</span>
+                    </p>
+                </div>
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="bg-paper border-2 border-ink p-4 shadow-[3px_3px_0px_0px_#111111]">
-                    <p className="text-[9px] font-mono font-bold text-ink/40 uppercase tracking-widest">Total Kelas</p>
-                    <p className="text-3xl font-serif font-black text-ink">{totalClasses}</p>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
+                <div className="bg-white rounded-3xl border border-gray-100 p-6 shadow-sm flex flex-col gap-2 hover:shadow-md transition-shadow">
+                    <div className="p-3 bg-blue-50 text-blue-600 rounded-2xl w-max self-start">
+                        <BookOpen size={20} strokeWidth={2.5} />
+                    </div>
+                    <p className="text-[10px] font-sans font-black text-gray-400 uppercase tracking-widest mt-2">Total Kelas</p>
+                    <p className="text-3xl font-sans font-black text-gray-900">{totalClasses}</p>
                 </div>
-                <div className="bg-paper border-2 border-ink p-4 shadow-[3px_3px_0px_0px_#111111]">
-                    <p className="text-[9px] font-mono font-bold text-ink/40 uppercase tracking-widest">Mata Pelajaran</p>
-                    <p className="text-3xl font-serif font-black text-ink">{totalSubjects}</p>
+                <div className="bg-white rounded-3xl border border-gray-100 p-6 shadow-sm flex flex-col gap-2 hover:shadow-md transition-shadow">
+                    <div className="p-3 bg-indigo-50 text-indigo-600 rounded-2xl w-max self-start">
+                        <Calendar size={20} strokeWidth={2.5} />
+                    </div>
+                    <p className="text-[10px] font-sans font-black text-gray-400 uppercase tracking-widest mt-2">Mata Pelajaran</p>
+                    <p className="text-3xl font-sans font-black text-gray-900">{totalSubjects}</p>
                 </div>
-                <div className="bg-paper border-2 border-ink p-4 shadow-[3px_3px_0px_0px_#111111]">
-                    <p className="text-[9px] font-mono font-bold text-ink/40 uppercase tracking-widest">Jadwal Hari Ini</p>
-                    <p className="text-3xl font-serif font-black text-ink">
+                <div className="bg-white rounded-3xl border border-gray-100 p-6 shadow-sm flex flex-col gap-2 hover:shadow-md transition-shadow">
+                    <div className="p-3 bg-fuchsia-50 text-fuchsia-600 rounded-2xl w-max self-start">
+                        <Clock size={20} strokeWidth={2.5} />
+                    </div>
+                    <p className="text-[10px] font-sans font-black text-gray-400 uppercase tracking-widest mt-2">Jadwal Hari Ini</p>
+                    <p className="text-3xl font-sans font-black text-gray-900">
                         {schedules.filter(s => s.day === todayName && s.week_type === currentWeekType).length}
                     </p>
                 </div>
-                <div className="bg-paper border-2 border-ink p-4 shadow-[3px_3px_0px_0px_#111111]">
-                    <p className="text-[9px] font-mono font-bold text-ink/40 uppercase tracking-widest">Total Sesi/Minggu</p>
-                    <p className="text-3xl font-serif font-black text-ink">
+                <div className="bg-white rounded-3xl border border-gray-100 p-6 shadow-sm flex flex-col gap-2 hover:shadow-md transition-shadow">
+                    <div className="p-3 bg-emerald-50 text-emerald-600 rounded-2xl w-max self-start">
+                        <Filter size={20} strokeWidth={2.5} />
+                    </div>
+                    <p className="text-[10px] font-sans font-black text-gray-400 uppercase tracking-widest mt-2">Total Sesi/Minggu</p>
+                    <p className="text-3xl font-sans font-black text-gray-900">
                         {schedules.filter(s => s.week_type === currentWeekType).length}
                     </p>
                 </div>
             </div>
 
             {/* Filters */}
-            <div className="flex flex-wrap gap-4 items-center bg-paper border-2 border-ink p-4 shadow-[4px_4px_0px_0px_#111111]">
-                <Filter size={16} className="text-ink" strokeWidth={2.5} />
-                <div className="relative">
+            <div className="flex flex-wrap gap-4 items-center bg-white rounded-2xl border border-gray-100 p-4 shadow-sm">
+                <div className="hidden sm:flex p-3 bg-gray-50 rounded-xl">
+                    <Filter size={20} className="text-gray-400" strokeWidth={2.5} />
+                </div>
+                <div className="relative flex-1 min-w-[200px]">
                     <select
                         value={selectedWeekType}
                         onChange={e => setSelectedWeekType(e.target.value)}
-                        className="bg-paper border-2 border-ink px-4 py-2 pr-8 font-mono font-bold text-[10px] text-ink uppercase tracking-widest outline-none appearance-none cursor-pointer"
+                        className="w-full bg-gray-50 border border-transparent rounded-xl px-5 py-3.5 pr-10 font-sans font-bold text-xs text-gray-700 uppercase tracking-widest outline-none focus:bg-white focus:border-blue-200 focus:ring-4 focus:ring-blue-50 transition-all appearance-none cursor-pointer"
                     >
                         {WeekTypes.map(w => (
                             <option key={w} value={w}>{w.toUpperCase()}</option>
                         ))}
                     </select>
-                    <ChevronDown size={12} className="absolute right-2 top-1/2 -translate-y-1/2 text-ink pointer-events-none" />
+                    <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
                 </div>
-                <div className="relative">
+                <div className="relative flex-1 min-w-[200px]">
                     <select
                         value={selectedDay}
                         onChange={e => setSelectedDay(e.target.value)}
-                        className="bg-paper border-2 border-ink px-4 py-2 pr-8 font-mono font-bold text-[10px] text-ink uppercase tracking-widest outline-none appearance-none cursor-pointer"
+                        className="w-full bg-gray-50 border border-transparent rounded-xl px-5 py-3.5 pr-10 font-sans font-bold text-xs text-gray-700 uppercase tracking-widest outline-none focus:bg-white focus:border-blue-200 focus:ring-4 focus:ring-blue-50 transition-all appearance-none cursor-pointer"
                     >
                         <option value="">SEMUA HARI</option>
                         {Days.map(d => (
                             <option key={d} value={d}>{d.toUpperCase()}</option>
                         ))}
                     </select>
-                    <ChevronDown size={12} className="absolute right-2 top-1/2 -translate-y-1/2 text-ink pointer-events-none" />
+                    <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
                 </div>
             </div>
 
             {/* Schedule Grid */}
             {Object.keys(groupedByDay).length > 0 ? (
-                <div className="space-y-8">
+                <div className="space-y-6">
                     {Days.filter(day => groupedByDay[day]).map(day => (
-                        <div key={day} className="bg-paper border-2 border-ink shadow-[4px_4px_0px_0px_#111111] overflow-hidden newsprint-texture">
+                        <div key={day} className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden flex flex-col group hover:shadow-md hover:-translate-y-0.5 transition-all">
                             {/* Day Header */}
-                            <div className={`px-6 py-4 border-b-4 border-ink flex items-center justify-between ${day === todayName ? 'bg-ink text-paper' : 'bg-gray-50'}`}>
+                            <div className={`px-6 py-5 border-b border-gray-100 flex items-center justify-between ${day === todayName ? 'bg-blue-600 text-white' : 'bg-gray-50'}`}>
                                 <div className="flex items-center gap-3">
-                                    <Calendar size={18} strokeWidth={2.5} />
-                                    <h3 className="text-lg font-serif font-black uppercase tracking-tight">{day}</h3>
+                                    <Calendar size={20} strokeWidth={2.5} className={day === todayName ? 'text-blue-100' : 'text-gray-400'} />
+                                    <h3 className={`text-xl font-sans font-black uppercase tracking-tight ${day === todayName ? 'text-white' : 'text-gray-900'}`}>{day}</h3>
                                     {day === todayName && (
-                                        <span className="px-2 py-0.5 bg-newsprint-red text-white text-[8px] font-mono font-bold uppercase tracking-widest animate-pulse">
+                                        <span className="px-2 py-1 bg-white text-blue-600 text-[10px] font-sans font-black uppercase tracking-widest rounded-full shadow-sm ml-2">
                                             HARI INI
                                         </span>
                                     )}
                                 </div>
-                                <span className="text-[9px] font-mono font-bold uppercase tracking-widest opacity-60">
+                                <span className={`text-[10px] font-sans font-black uppercase tracking-widest ${day === todayName ? 'text-blue-100' : 'text-gray-400'}`}>
                                     {groupedByDay[day].length} Sesi
                                 </span>
                             </div>
 
                             {/* Sessions */}
-                            <div className="divide-y-2 divide-ink/10">
+                            <div className="divide-y divide-gray-50 flex-1 flex flex-col">
                                 {groupedByDay[day].map((sched, i) => (
-                                    <div key={sched.id} className="px-6 py-4 flex flex-col md:flex-row md:items-center gap-4 hover:bg-neutral-50 transition-colors">
+                                    <div key={sched.id} className="px-6 py-5 flex flex-col md:flex-row md:items-center gap-4 hover:bg-blue-50/30 transition-colors flex-1">
                                         {/* Time */}
-                                        <div className="flex items-center gap-3 md:w-44 shrink-0">
-                                            <div className="p-2 border-2 border-ink bg-white">
-                                                <Clock size={14} className="text-ink" strokeWidth={2.5} />
+                                        <div className="flex items-center gap-4 md:w-52 shrink-0">
+                                            <div className="p-3 bg-gray-50 text-gray-400 rounded-xl group-hover:bg-white group-hover:text-blue-600 group-hover:shadow-sm transition-all border border-gray-100">
+                                                <Clock size={16} strokeWidth={2.5} />
                                             </div>
                                             <div>
-                                                <p className="font-mono font-black text-ink text-sm">
+                                                <p className="font-sans font-black text-gray-900 text-sm tracking-tight">
                                                     {sched.start_time?.substring(0, 5)} — {sched.end_time?.substring(0, 5)}
                                                 </p>
                                                 {sched.jam_ke && (
-                                                    <p className="text-[9px] font-mono font-bold text-ink/40 uppercase tracking-widest">
+                                                    <p className="text-[10px] font-sans font-bold text-gray-400 uppercase tracking-widest mt-1">
                                                         Jam ke-{sched.jam_ke}
                                                     </p>
                                                 )}
@@ -217,16 +238,15 @@ export default function TeacherSchedule() {
                                         {/* Subject */}
                                         <div className="flex-1">
                                             <div className="flex items-center gap-2 mb-1">
-                                                <BookOpen size={12} className="text-ink/50" strokeWidth={2} />
-                                                <h4 className="font-serif font-black text-ink uppercase tracking-tight">
+                                                <h4 className="font-sans font-black text-gray-900 text-lg uppercase tracking-tight">
                                                     {sched.subject_name || '-'}
                                                 </h4>
                                             </div>
                                         </div>
 
                                         {/* Class */}
-                                        <div className="shrink-0">
-                                            <span className="px-4 py-2 bg-ink text-paper text-[10px] font-mono font-bold uppercase tracking-widest border-2 border-ink">
+                                        <div className="shrink-0 flex items-center gap-3">
+                                            <span className="px-4 py-2 bg-gray-100 text-gray-600 rounded-xl text-[10px] font-sans font-black uppercase tracking-widest border border-gray-200">
                                                 {sched.class_name || '-'}
                                             </span>
                                         </div>
@@ -237,11 +257,13 @@ export default function TeacherSchedule() {
                     ))}
                 </div>
             ) : (
-                <div className="py-20 text-center border-2 border-dashed border-ink/20 bg-paper">
-                    <Calendar size={48} className="mx-auto text-ink/20 mb-4" strokeWidth={1} />
-                    <h3 className="text-lg font-serif font-black text-ink/40 uppercase">Tidak Ada Jadwal</h3>
-                    <p className="text-sm font-mono text-ink/30 uppercase tracking-widest mt-2">
-                        {selectedDay ? `Tidak ada jadwal untuk hari ${selectedDay}` : 'Jadwal mengajar belum tersedia.'}
+                <div className="py-24 flex flex-col items-center justify-center text-center bg-gray-50 rounded-3xl border border-dashed border-gray-200">
+                    <div className="h-20 w-20 bg-white rounded-full flex items-center justify-center shadow-sm mb-6">
+                         <Calendar size={32} className="text-gray-300" strokeWidth={2} />
+                    </div>
+                    <h3 className="text-xl font-sans font-black text-gray-900 tracking-tight">Tidak Ada Jadwal</h3>
+                    <p className="text-sm font-sans font-medium text-gray-500 mt-2 max-w-sm">
+                        {selectedDay ? `Tidak ada jadwal mengajar yang dimuat untuk hari ${selectedDay}` : 'Jadwal mengajar Anda belum tersedia untuk siklus ini.'}
                     </p>
                 </div>
             )}

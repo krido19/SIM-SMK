@@ -22,7 +22,9 @@ import {
     Database,
     Settings,
     Sun,
-    Moon
+    Moon,
+    TrendingUp,
+    Printer
 } from 'lucide-react';
 
 const SidebarLink = ({ to, icon: Icon, children }) => (
@@ -107,6 +109,12 @@ export default function DashboardLayout() {
                     { to: '/admin/classes', icon: Hash, label: 'Kelas' },
                     { to: '/admin/subjects', icon: BookOpen, label: 'Mata Pelajaran' },
                     { to: '/admin/schedule', icon: Calendar, label: 'Jadwal Pelajaran' }
+                ]
+            },
+            {
+                category: "Laporan & Lanjutan", items: [
+                    { to: '/admin/analytics', icon: TrendingUp, label: 'Executive Dashboard' },
+                    { to: '/admin/documents', icon: Printer, label: 'Cetak Dokumen' }
                 ]
             },
             {

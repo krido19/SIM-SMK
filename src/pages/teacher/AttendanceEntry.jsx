@@ -128,110 +128,117 @@ export default function AttendanceEntry() {
     };
 
     return (
-        <div className="space-y-6">
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b-4 border-ink pb-6">
-                <div>
-                    <h1 className="text-4xl font-serif font-black text-ink uppercase tracking-tighter leading-none mb-1">Daftar Kehadiran</h1>
-                    <p className="font-mono text-[10px] uppercase tracking-widest opacity-60">Absensi Harian Resmi</p>
-
-                    <div className="flex items-center space-x-4 mt-6">
-                        <div className="border-2 border-ink p-1 bg-white relative">
-                            <span className="absolute -top-2 left-2 bg-paper px-1 text-[8px] font-mono font-bold uppercase tracking-widest text-ink">Section</span>
-                            <select
-                                className="appearance-none bg-transparent px-4 py-1 pr-8 text-xs font-bold font-mono uppercase tracking-widest text-ink focus:outline-none cursor-pointer"
-                                value={selectedClassId}
-                                onChange={(e) => setSelectedClassId(e.target.value)}
-                            >
-                                {dbClasses.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                            </select>
-                            <ChevronDown size={14} className="absolute right-2 top-1/2 -translate-y-1/2 text-ink pointer-events-none" strokeWidth={3} />
+        <div className="space-y-8 animate-in fade-in duration-500 pb-12">
+            <div className="flex flex-col xl:flex-row xl:items-end justify-between gap-6 pb-6 border-b border-gray-100">
+                <div className="space-y-6 flex-1">
+                    <div>
+                        <div className="flex items-center gap-2 mb-2">
+                            <span className="bg-blue-600 text-white text-[10px] font-sans font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
+                                Kehadiran
+                            </span>
                         </div>
-                        <div className="border-2 border-ink p-1 bg-white relative">
-                            <span className="absolute -top-2 left-2 bg-paper px-1 text-[8px] font-mono font-bold uppercase tracking-widest text-ink">Date</span>
+                        <h1 className="text-4xl font-sans font-black text-gray-900 tracking-tight leading-none mb-2">Daftar Kehadiran</h1>
+                        <p className="font-sans text-sm font-medium text-gray-500">Absensi Harian Resmi</p>
+                    </div>
+
+                    <div className="flex flex-wrap gap-4">
+                        <div className="relative min-w-[200px]">
+                            <span className="absolute -top-2.5 left-3 bg-white px-1 text-[10px] font-sans font-black uppercase tracking-widest text-blue-600">Section</span>
+                            <div className="relative">
+                                <select
+                                    className="w-full bg-gray-50 border border-transparent px-4 py-3 pr-8 rounded-xl text-sm font-sans font-bold text-gray-900 focus:outline-none focus:bg-white focus:border-blue-200 focus:ring-4 focus:ring-blue-50 transition-all appearance-none cursor-pointer tracking-tight"
+                                    value={selectedClassId}
+                                    onChange={(e) => setSelectedClassId(e.target.value)}
+                                >
+                                    {dbClasses.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                                </select>
+                                <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" strokeWidth={2.5} />
+                            </div>
+                        </div>
+                        <div className="relative min-w-[200px]">
+                            <span className="absolute -top-2.5 left-3 bg-white px-1 text-[10px] font-sans font-black uppercase tracking-widest text-blue-600">Date</span>
                             <input
                                 type="date"
-                                className="bg-transparent border-none focus:outline-none px-2 py-1 text-xs font-bold font-mono uppercase tracking-widest text-ink"
+                                className="w-full bg-gray-50 border border-transparent px-4 py-3 rounded-xl text-sm font-sans font-bold text-gray-900 focus:outline-none focus:bg-white focus:border-blue-200 focus:ring-4 focus:ring-blue-50 transition-all tracking-tight"
                                 value={selectedDate}
                                 onChange={(e) => setSelectedDate(e.target.value)}
                             />
                         </div>
                     </div>
                 </div>
-                <div className="flex items-center space-x-4">
-                    <div className="text-right">
-                        <p className="font-mono text-[10px] font-bold uppercase tracking-widest">{attendance.filter(a => a.status === 'Hadir').length}/{attendance.length} PRESENT</p>
+                <div className="flex flex-col sm:flex-row items-center gap-4 w-full xl:w-auto mt-6 xl:mt-0">
+                    <div className="flex flex-col items-center sm:items-end w-full sm:w-auto px-4">
+                         <span className="text-[10px] font-sans font-bold uppercase tracking-widest text-gray-400 mb-1">Tingkat Kehadiran</span>
+                        <p className="font-sans text-xl font-black text-gray-900 tracking-tight">
+                            {attendance.filter(a => a.status === 'Hadir').length} <span className="text-sm font-bold text-gray-400">/ {attendance.length}</span>
+                        </p>
                     </div>
                     <button
                         onClick={handleSave}
-                        className="flex items-center space-x-2 border-2 border-ink bg-ink text-paper hover:bg-newsprint-red hover:border-newsprint-red hover:text-white px-6 py-3 font-mono text-[10px] font-bold uppercase tracking-widest transition-colors shadow-[4px_4px_0px_0px_rgba(204,0,0,0.2)] hover:shadow-none active:translate-y-[2px] active:translate-x-[2px]"
+                        className="w-full sm:w-auto flex items-center justify-center space-x-3 bg-blue-600 text-white hover:bg-blue-700 px-8 py-3.5 rounded-xl font-sans text-xs font-bold uppercase tracking-widest transition-all shadow-lg shadow-blue-600/20 active:scale-95 disabled:opacity-50 disabled:active:scale-100"
                     >
-                        <Save size={16} strokeWidth={2} />
+                        <Save size={18} strokeWidth={2.5} />
                         <span>Simpan Absensi</span>
                     </button>
                 </div>
             </div>
 
             {isLoading ? (
-                <div className="py-20 text-center font-mono text-[10px] uppercase tracking-widest">Memuat Data Kehadiran...</div>
+                <div className="py-24 flex flex-col items-center justify-center space-y-4">
+                     <div className="w-12 h-12 border-4 border-gray-200 border-t-blue-600 rounded-full animate-spin"></div>
+                    <div className="font-sans text-sm font-bold text-gray-500 uppercase tracking-widest">Memuat Data Kehadiran...</div>
+                </div>
             ) : (
-                <div className="border-2 border-ink bg-white overflow-hidden shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] relative newsprint-texture">
+                <div className="bg-white rounded-[2.5rem] border border-gray-100 overflow-hidden shadow-sm hover:shadow-md transition-shadow relative">
                     <div className="overflow-x-auto">
-                        <table className="w-full text-left border-collapse">
+                        <table className="w-full text-left">
                             <thead>
-                                <tr className="bg-ink text-paper font-mono text-[10px] uppercase tracking-widest border-b-2 border-ink">
-                                    <th className="p-3 border-r border-paper/20 w-16 text-center">No</th>
-                                    <th className="p-3 border-r border-paper/20">Student Record</th>
-                                    <th className="p-0 border-r border-paper/20 text-center" colSpan="4">
-                                        <div className="border-b border-paper/20 py-1">Daily Status</div>
-                                        <div className="grid grid-cols-4 divide-x divide-paper/20">
-                                            <div className="py-1">Present</div>
-                                            <div className="py-1">Sick</div>
-                                            <div className="py-1">Excused</div>
-                                            <div className="py-1">Absent</div>
-                                        </div>
-                                    </th>
+                                <tr className="bg-gray-50 text-gray-500 font-sans text-[10px] uppercase tracking-widest border-b border-gray-100">
+                                    <th className="px-6 py-5 w-16 text-center font-bold">No</th>
+                                    <th className="px-6 py-5 font-bold">Student Record</th>
+                                    <th className="px-6 py-5 text-center font-bold">Hadir</th>
+                                    <th className="px-6 py-5 text-center font-bold">Sakit</th>
+                                    <th className="px-6 py-5 text-center font-bold">Izin</th>
+                                    <th className="px-6 py-5 text-center font-bold">Alpa</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y-2 divide-ink">
+                            <tbody className="divide-y divide-gray-50">
                                 {attendance.map((student, index) => (
-                                    <tr key={student.id} className="hover:bg-neutral-50 transition-colors">
-                                        <td className="p-3 border-r border-ink text-center font-mono text-xs text-ink/60">{index + 1}</td>
-                                        <td className="p-3 border-r border-ink">
+                                    <tr key={student.id} className="hover:bg-blue-50/30 transition-colors group">
+                                        <td className="px-6 py-5 text-center font-sans text-xs font-bold text-gray-400">{index + 1}</td>
+                                        <td className="px-6 py-5">
                                             <div>
-                                                <p className="font-serif font-black text-ink">{student.name}</p>
-                                                <p className="font-mono text-[9px] uppercase tracking-widest text-ink/60">ID: {student.nis}</p>
+                                                <p className="font-sans font-black text-gray-900 tracking-tight">{student.name}</p>
+                                                <p className="font-sans text-[10px] font-bold uppercase tracking-widest text-gray-400 mt-0.5">ID: {student.nis}</p>
                                             </div>
                                         </td>
-                                        <td className="p-0" colSpan="4">
-                                            <div className="grid grid-cols-4 h-full divide-x-2 divide-ink/20">
-                                                {[
-                                                    { label: 'Hadir', val: 'Hadir', activeClass: 'bg-green-100 text-green-800 border-b-2 border-green-800' },
-                                                    { label: 'Sakit', val: 'Sakit', activeClass: 'bg-amber-100 text-amber-800 border-b-2 border-amber-800' },
-                                                    { label: 'Izin', val: 'Izin', activeClass: 'bg-blue-100 text-blue-800 border-b-2 border-blue-800' },
-                                                    { label: 'Alpa', val: 'Alpa', activeClass: 'bg-newsprint-red text-white border-b-2 border-newsprint-red' }
-                                                ].map((opt) => (
-                                                    <button
-                                                        key={opt.val}
-                                                        onClick={() => setStatus(student.id, opt.val)}
-                                                        className={`h-full w-full py-4 text-[10px] font-mono font-bold uppercase tracking-widest transition-colors
-                                                            ${student.status === opt.val
-                                                                ? opt.activeClass
-                                                                : 'text-ink/40 hover:bg-neutral-100 hover:text-ink border-b-2 border-transparent'
-                                                            }
-                                                        `}
-                                                    >
-                                                        {student.status === opt.val && <Check size={12} className="inline-block mr-1" strokeWidth={3} />}
-                                                        {opt.label}
-                                                    </button>
-                                                ))}
-                                            </div>
-                                        </td>
+                                        {[
+                                            { label: 'Hadir', val: 'Hadir', activeBg: 'bg-emerald-50 text-emerald-600 ring-2 ring-emerald-500/20' },
+                                            { label: 'Sakit', val: 'Sakit', activeBg: 'bg-amber-50 text-amber-600 ring-2 ring-amber-500/20' },
+                                            { label: 'Izin', val: 'Izin', activeBg: 'bg-blue-50 text-blue-600 ring-2 ring-blue-500/20' },
+                                            { label: 'Alpa', val: 'Alpa', activeBg: 'bg-rose-50 text-rose-600 ring-2 ring-rose-500/20' }
+                                        ].map((opt) => (
+                                            <td key={opt.val} className="px-2 py-3 text-center w-24">
+                                                <button
+                                                    onClick={() => setStatus(student.id, opt.val)}
+                                                    className={`w-full py-3 mx-auto rounded-xl flex flex-col items-center justify-center gap-1.5 transition-all
+                                                        ${student.status === opt.val
+                                                            ? opt.activeBg
+                                                            : 'bg-gray-50 text-gray-400 hover:bg-gray-100 hover:text-gray-600'
+                                                        }
+                                                    `}
+                                                >
+                                                    {student.status === opt.val && <Check size={16} strokeWidth={3} className="mb-0.5" />}
+                                                    <span className="text-[10px] font-sans font-bold uppercase tracking-widest">{opt.label}</span>
+                                                </button>
+                                            </td>
+                                        ))}
                                     </tr>
                                 ))}
                                 {attendance.length === 0 && (
                                     <tr>
-                                        <td colSpan="6" className="p-8 text-center font-serif italic text-ink/60">
-                                            No student records found in this section.
+                                        <td colSpan="6" className="p-12 text-center font-sans font-medium text-gray-400">
+                                            Tidak ada data siswa untuk kelas ini.
                                         </td>
                                     </tr>
                                 )}

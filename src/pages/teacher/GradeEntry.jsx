@@ -19,15 +19,15 @@ import {
 const Modal = ({ isOpen, onClose, title, children, maxWidth = "max-w-md" }) => {
     if (!isOpen) return null;
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-300">
-            <div className={`bg-paper border-4 border-ink shadow-[12px_12px_0px_0px_#111111] w-full ${maxWidth} max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-300`}>
-                <div className="px-6 py-4 border-b-4 border-ink flex items-center justify-between bg-gray-50 flex-shrink-0">
-                    <h3 className="text-xl font-black text-ink uppercase tracking-widest font-serif">{title}</h3>
-                    <button onClick={onClose} className="p-2 border-2 border-transparent hover:border-ink text-ink transition-all">
-                        <X size={24} strokeWidth={3} />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-md animate-in fade-in duration-300">
+            <div className={`bg-white rounded-3xl shadow-2xl border border-white/20 w-full ${maxWidth} max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-300`}>
+                <div className="px-8 py-5 border-b border-gray-100 flex items-center justify-between bg-gray-50/50 flex-shrink-0">
+                    <h3 className="text-xl font-sans font-black text-gray-900 tracking-tight">{title}</h3>
+                    <button onClick={onClose} className="p-2 bg-gray-100 hover:bg-gray-200 text-gray-500 rounded-xl transition-all">
+                        <X size={20} strokeWidth={2.5} />
                     </button>
                 </div>
-                <div className="p-6 overflow-y-auto">
+                <div className="p-8 overflow-y-auto custom-scrollbar">
                     {children}
                 </div>
             </div>
@@ -342,88 +342,103 @@ export default function GradeEntry() {
     };
 
     return (
-        <div className="space-y-6">
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b-4 border-ink pb-6">
-                <div>
-                    <h1 className="text-4xl font-serif font-black text-ink uppercase tracking-tighter leading-none mb-1">Buku Nilai</h1>
-                    <p className="font-mono text-[10px] uppercase tracking-widest opacity-60">Entri Data Nilai Resmi</p>
+        <div className="space-y-8 animate-in fade-in duration-500 pb-12">
+            <div className="flex flex-col xl:flex-row xl:items-end justify-between gap-6 pb-6 border-b border-gray-100">
+                <div className="space-y-6 flex-1">
+                    <div>
+                         <div className="flex items-center gap-2 mb-2">
+                            <span className="bg-blue-600 text-white text-[10px] font-sans font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
+                                Akademik
+                            </span>
+                        </div>
+                        <h1 className="text-4xl font-sans font-black text-gray-900 tracking-tight leading-none mb-2">Buku Nilai</h1>
+                        <p className="font-sans text-sm font-medium text-gray-500">Entri Data Nilai Resmi</p>
+                    </div>
 
-                    <div className="flex flex-wrap gap-4 mt-6">
-                        <div className="border-2 border-ink p-1 bg-white relative">
-                            <span className="absolute -top-2 left-2 bg-paper px-1 text-[8px] font-mono font-bold uppercase tracking-widest text-ink">Section</span>
-                            <select
-                                className="appearance-none bg-transparent px-4 py-1 pr-8 text-xs font-bold font-mono uppercase tracking-widest text-ink focus:outline-none cursor-pointer"
-                                value={selectedClassId}
-                                onChange={(e) => setSelectedClassId(e.target.value)}
-                            >
-                                {dbClasses.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                            </select>
-                            <ChevronDown size={14} className="absolute right-2 top-1/2 -translate-y-1/2 text-ink pointer-events-none" strokeWidth={3} />
+                    <div className="flex flex-wrap gap-4">
+                        <div className="relative min-w-[160px]">
+                            <span className="absolute -top-2.5 left-3 bg-white px-1 text-[10px] font-sans font-black uppercase tracking-widest text-blue-600">Section</span>
+                            <div className="relative">
+                                <select
+                                    className="w-full bg-gray-50 border border-transparent px-4 py-3 pr-8 rounded-xl text-sm font-sans font-bold text-gray-900 focus:outline-none focus:bg-white focus:border-blue-200 focus:ring-4 focus:ring-blue-50 transition-all appearance-none cursor-pointer tracking-tight"
+                                    value={selectedClassId}
+                                    onChange={(e) => setSelectedClassId(e.target.value)}
+                                >
+                                    {dbClasses.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                                </select>
+                                <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" strokeWidth={2.5} />
+                            </div>
                         </div>
-                        <div className="border-2 border-ink p-1 bg-white relative">
-                            <span className="absolute -top-2 left-2 bg-paper px-1 text-[8px] font-mono font-bold uppercase tracking-widest text-ink">Subject</span>
-                            <select
-                                className="appearance-none bg-transparent px-4 py-1 pr-8 text-xs font-bold font-mono uppercase tracking-widest text-ink focus:outline-none cursor-pointer"
-                                value={selectedSubjectId}
-                                onChange={(e) => setSelectedSubjectId(e.target.value)}
-                            >
-                                {dbSubjects.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-                            </select>
-                            <ChevronDown size={14} className="absolute right-2 top-1/2 -translate-y-1/2 text-ink pointer-events-none" strokeWidth={3} />
+                        <div className="relative min-w-[200px]">
+                            <span className="absolute -top-2.5 left-3 bg-white px-1 text-[10px] font-sans font-black uppercase tracking-widest text-blue-600">Subject</span>
+                            <div className="relative">
+                                <select
+                                    className="w-full bg-gray-50 border border-transparent px-4 py-3 pr-8 rounded-xl text-sm font-sans font-bold text-gray-900 focus:outline-none focus:bg-white focus:border-blue-200 focus:ring-4 focus:ring-blue-50 transition-all appearance-none cursor-pointer tracking-tight"
+                                    value={selectedSubjectId}
+                                    onChange={(e) => setSelectedSubjectId(e.target.value)}
+                                >
+                                    {dbSubjects.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                                </select>
+                                <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" strokeWidth={2.5} />
+                            </div>
                         </div>
-                        <div className="border-2 border-ink p-1 bg-white relative">
-                            <span className="absolute -top-2 left-2 bg-paper px-1 text-[8px] font-mono font-bold uppercase tracking-widest text-ink">Term</span>
-                            <select
-                                className="appearance-none bg-transparent px-4 py-1 pr-8 text-xs font-bold font-mono uppercase tracking-widest text-ink focus:outline-none cursor-pointer"
-                                value={selectedSemester}
-                                onChange={(e) => setSelectedSemester(parseInt(e.target.value))}
-                            >
-                                <option value={1}>TERM I</option>
-                                <option value={2}>TERM II</option>
-                            </select>
-                            <ChevronDown size={14} className="absolute right-2 top-1/2 -translate-y-1/2 text-ink pointer-events-none" strokeWidth={3} />
+                        <div className="relative min-w-[140px]">
+                            <span className="absolute -top-2.5 left-3 bg-white px-1 text-[10px] font-sans font-black uppercase tracking-widest text-blue-600">Term</span>
+                            <div className="relative">
+                                <select
+                                    className="w-full bg-gray-50 border border-transparent px-4 py-3 pr-8 rounded-xl text-sm font-sans font-bold text-gray-900 focus:outline-none focus:bg-white focus:border-blue-200 focus:ring-4 focus:ring-blue-50 transition-all appearance-none cursor-pointer tracking-tight"
+                                    value={selectedSemester}
+                                    onChange={(e) => setSelectedSemester(parseInt(e.target.value))}
+                                >
+                                    <option value={1}>Term I</option>
+                                    <option value={2}>Term II</option>
+                                </select>
+                                <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" strokeWidth={2.5} />
+                            </div>
                         </div>
-                        <div className="border-2 border-ink p-1 bg-white relative">
-                            <span className="absolute -top-2 left-2 bg-paper px-1 text-[8px] font-mono font-bold uppercase tracking-widest text-ink">Tahun Ajaran</span>
-                            <select
-                                className="appearance-none bg-transparent px-4 py-1 pr-8 text-xs font-bold font-mono uppercase tracking-widest text-ink focus:outline-none cursor-pointer"
-                                value={selectedAcademicYear}
-                                onChange={(e) => setSelectedAcademicYear(e.target.value)}
-                            >
-                                {[2025,2024,2023,2022,2021].map(y => (
-                                    <option key={y} value={`${y}/${y+1}`}>{y}/{y+1}</option>
-                                ))}
-                            </select>
-                            <ChevronDown size={14} className="absolute right-2 top-1/2 -translate-y-1/2 text-ink pointer-events-none" strokeWidth={3} />
+                        <div className="relative min-w-[140px]">
+                            <span className="absolute -top-2.5 left-3 bg-white px-1 text-[10px] font-sans font-black uppercase tracking-widest text-blue-600">Tahun Ajaran</span>
+                            <div className="relative">
+                                <select
+                                    className="w-full bg-gray-50 border border-transparent px-4 py-3 pr-8 rounded-xl text-sm font-sans font-bold text-gray-900 focus:outline-none focus:bg-white focus:border-blue-200 focus:ring-4 focus:ring-blue-50 transition-all appearance-none cursor-pointer tracking-tight"
+                                    value={selectedAcademicYear}
+                                    onChange={(e) => setSelectedAcademicYear(e.target.value)}
+                                >
+                                    {[2025,2024,2023,2022,2021].map(y => (
+                                        <option key={y} value={`${y}/${y+1}`}>{y}/{y+1}</option>
+                                    ))}
+                                </select>
+                                <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" strokeWidth={2.5} />
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div className="flex flex-col md:flex-row items-end space-y-3 md:space-y-0 md:space-x-3 mt-4 md:mt-0">
+                <div className="flex flex-col sm:flex-row items-end gap-3 w-full xl:w-auto">
                     <button 
                         onClick={handleDownloadTemplate}
-                        className="flex items-center justify-center space-x-2 border-2 border-ink bg-paper text-ink hover:bg-ink hover:text-paper px-4 py-2 font-mono text-[10px] font-bold uppercase tracking-widest transition-colors shadow-[2px_2px_0px_0px_rgba(17,17,17,1)] active:shadow-none active:translate-y-[2px] active:translate-x-[2px] w-full md:w-auto"
+                        className="flex items-center justify-center space-x-2 bg-gray-50 text-gray-600 hover:bg-gray-100 hover:text-gray-900 px-5 py-3 rounded-xl font-sans text-xs font-bold uppercase tracking-widest transition-all w-full sm:w-auto"
                     >
-                        <FileSpreadsheet size={14} strokeWidth={2} />
+                        <FileSpreadsheet size={16} strokeWidth={2.5} />
                         <span className="hidden sm:inline">Unduh Template</span>
                     </button>
-                    <label className="flex items-center justify-center space-x-2 border-2 border-ink bg-white hover:bg-ink hover:text-paper px-4 py-2 font-mono text-[10px] font-bold uppercase tracking-widest transition-colors shadow-[2px_2px_0px_0px_rgba(17,17,17,1)] active:shadow-none active:translate-y-[2px] active:translate-x-[2px] cursor-pointer w-full md:w-auto">
-                        <Upload size={14} strokeWidth={2} />
+                    <label className="flex items-center justify-center space-x-2 bg-gray-50 text-gray-600 hover:bg-gray-100 hover:text-gray-900 px-5 py-3 rounded-xl font-sans text-xs font-bold uppercase tracking-widest transition-all cursor-pointer w-full sm:w-auto">
+                        <Upload size={16} strokeWidth={2.5} />
                         <span className="hidden sm:inline">Import Excel</span>
                         <input type="file" className="hidden" accept=".xlsx,.xls,.csv" onChange={handleFileUpload} />
                     </label>
                     <button
                         onClick={handleSave}
                         disabled={isSaving}
-                        className="flex items-center space-x-2 border-2 border-ink bg-newsprint-red text-white hover:bg-ink hover:text-paper px-6 py-2 font-mono text-[10px] font-bold uppercase tracking-widest transition-colors shadow-[2px_2px_0px_0px_rgba(17,17,17,1)] active:shadow-none active:translate-y-[2px] active:translate-x-[2px] disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="flex items-center justify-center space-x-3 bg-blue-600 text-white hover:bg-blue-700 px-6 py-3 rounded-xl font-sans text-xs font-bold uppercase tracking-widest transition-all shadow-lg shadow-blue-600/20 active:scale-95 disabled:opacity-50 disabled:active:scale-100 w-full sm:w-auto"
                     >
                         {isSaving ? (
                             <span className="flex items-center space-x-2">
-                                <div className="w-3 h-3 border-2 border-ink/30 border-t-ink rounded-full animate-spin" />
-                                <span>Commit Tally...</span>
+                                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                <span>Menyimpan...</span>
                             </span>
                         ) : (
                             <span className="flex items-center space-x-2">
-                                <Save size={14} strokeWidth={2} />
+                                <Save size={16} strokeWidth={2.5} />
                                 <span>Simpan Nilai</span>
                             </span>
                         )}
@@ -432,79 +447,81 @@ export default function GradeEntry() {
             </div>
 
             {lastSaved && (
-                <div className="border-2 border-ink bg-white font-mono text-[10px] uppercase tracking-widest px-4 py-2 font-bold flex items-center shadow-[4px_4px_0px_0px_rgba(17,17,17,1)]">
-                    <CheckCircle2 size={14} className="mr-2 text-newsprint-red" />
+                <div className="bg-emerald-50 border border-emerald-100 text-emerald-600 font-sans text-xs uppercase tracking-widest px-5 py-3 font-bold flex items-center rounded-2xl shadow-sm">
+                    <CheckCircle2 size={16} className="mr-3" strokeWidth={2.5} />
                     Nilai berhasil disimpan pada {lastSaved}
                 </div>
             )}
 
             {/* Ledger Table */}
             {isLoading ? (
-                <div className="py-20 text-center font-mono text-[10px] uppercase tracking-widest">Memuat Data Nilai...</div>
+                <div className="py-24 text-center">
+                     <Loader2 size={32} className="mx-auto animate-spin text-blue-600 mb-4" />
+                     <p className="font-sans text-sm font-bold text-gray-500 uppercase tracking-widest">Memuat Data Nilai...</p>
+                </div>
             ) : (
-                <div className="border-2 border-ink bg-white overflow-hidden shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] relative newsprint-texture">
+                <div className="bg-white rounded-[2.5rem] border border-gray-100 overflow-hidden shadow-sm relative">
                     <div className="overflow-x-auto">
-                        <table className="w-full text-left border-collapse">
+                        <table className="w-full text-left">
                             <thead>
-                                <tr className="bg-ink text-paper font-mono text-[10px] uppercase tracking-widest border-b-2 border-ink">
-                                    <th className="p-3 border-r border-paper/20 w-16 text-center">No</th>
-                                    <th className="p-3 border-r border-paper/20">Student Name</th>
-                                    <th className="p-3 border-r border-paper/20 w-32 text-center text-newsprint-red">Tugas</th>
-                                    <th className="p-3 border-r border-paper/20 w-32 text-center text-newsprint-red">UTS</th>
-                                    <th className="p-3 border-r border-paper/20 w-32 text-center text-newsprint-red">UAS</th>
-                                    <th className="p-3 border-r border-paper/20 w-32 text-center bg-paper text-ink">Final</th>
-                                    <th className="p-3 w-40 text-center">Status</th>
+                                <tr className="bg-gray-50 text-gray-500 font-sans text-[10px] uppercase tracking-widest border-b border-gray-100">
+                                    <th className="px-6 py-4 w-16 text-center font-bold">No</th>
+                                    <th className="px-6 py-4 font-bold">Student Name</th>
+                                    <th className="px-6 py-4 w-32 text-center text-blue-600 font-black">Tugas</th>
+                                    <th className="px-6 py-4 w-32 text-center text-blue-600 font-black">UTS</th>
+                                    <th className="px-6 py-4 w-32 text-center text-blue-600 font-black">UAS</th>
+                                    <th className="px-6 py-4 w-32 text-center bg-blue-50/50 text-blue-800 font-black">Final</th>
+                                    <th className="px-6 py-4 w-40 text-center font-bold">Status</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y-2 divide-ink">
+                            <tbody className="divide-y divide-gray-50">
                                 {students.map((student, index) => {
                                     const final = calculateFinal(student);
                                     return (
-                                        <tr key={student.id} className="hover:bg-neutral-100 transition-colors">
-                                            <td className="p-3 border-r border-ink text-center font-mono text-xs text-ink/60">{index + 1}</td>
-                                            <td className="p-3 border-r border-ink">
+                                        <tr key={student.id} className="hover:bg-blue-50/30 transition-colors group">
+                                            <td className="px-6 py-4 text-center font-sans text-xs font-bold text-gray-400">{index + 1}</td>
+                                            <td className="px-6 py-4">
                                                 <div>
-                                                    <p className="font-serif font-black text-ink">{student.name}</p>
-                                                    <p className="font-mono text-[9px] uppercase tracking-widest text-ink/60">ID: {student.nis}</p>
+                                                    <p className="font-sans font-black text-gray-900 tracking-tight">{student.name}</p>
+                                                    <p className="font-sans mt-0.5 text-[10px] font-bold uppercase tracking-widest text-gray-400">ID: {student.nis}</p>
                                                 </div>
                                             </td>
-                                            <td className="p-2 border-r border-ink bg-neutral-50/50">
+                                            <td className="px-4 py-3">
                                                 <input
                                                     type="number"
-                                                    className="w-full bg-transparent border-b-2 border-dashed border-ink/30 focus:border-solid focus:border-newsprint-red outline-none py-2 text-center font-mono font-bold text-lg text-ink transition-all"
+                                                    className="w-full bg-gray-50 border border-transparent focus:bg-white focus:border-blue-200 focus:ring-4 focus:ring-blue-50 rounded-xl outline-none py-2 text-center font-sans font-black text-lg text-gray-900 transition-all placeholder:text-gray-300"
                                                     value={student.tugas}
                                                     onChange={(e) => handleScoreChange(student.id, 'tugas', e.target.value)}
                                                 />
                                             </td>
-                                            <td className="p-2 border-r border-ink bg-neutral-50/50">
+                                            <td className="px-4 py-3">
                                                 <input
                                                     type="number"
-                                                    className="w-full bg-transparent border-b-2 border-dashed border-ink/30 focus:border-solid focus:border-newsprint-red outline-none py-2 text-center font-mono font-bold text-lg text-ink transition-all"
+                                                    className="w-full bg-gray-50 border border-transparent focus:bg-white focus:border-blue-200 focus:ring-4 focus:ring-blue-50 rounded-xl outline-none py-2 text-center font-sans font-black text-lg text-gray-900 transition-all placeholder:text-gray-300"
                                                     value={student.uts}
                                                     onChange={(e) => handleScoreChange(student.id, 'uts', e.target.value)}
                                                 />
                                             </td>
-                                            <td className="p-2 border-r border-ink bg-neutral-50/50">
+                                            <td className="px-4 py-3">
                                                 <input
                                                     type="number"
-                                                    className="w-full bg-transparent border-b-2 border-dashed border-ink/30 focus:border-solid focus:border-newsprint-red outline-none py-2 text-center font-mono font-bold text-lg text-ink transition-all"
+                                                    className="w-full bg-gray-50 border border-transparent focus:bg-white focus:border-blue-200 focus:ring-4 focus:ring-blue-50 rounded-xl outline-none py-2 text-center font-sans font-black text-lg text-gray-900 transition-all placeholder:text-gray-300"
                                                     value={student.uas}
                                                     onChange={(e) => handleScoreChange(student.id, 'uas', e.target.value)}
                                                 />
                                             </td>
-                                            <td className="p-3 border-r border-ink text-center bg-neutral-100">
-                                                <span className={`font-mono text-2xl font-black ${final < 75 ? 'text-newsprint-red' : 'text-ink'}`}>
+                                            <td className="px-4 py-3 text-center bg-blue-50/20 group-hover:bg-blue-50/50 transition-colors">
+                                                <span className={`font-sans text-2xl tracking-tight font-black ${final < 75 ? 'text-rose-600' : 'text-gray-900'}`}>
                                                     {final}
                                                 </span>
                                             </td>
-                                            <td className="p-3 text-center">
+                                            <td className="px-6 py-4 text-center">
                                                 {final < 75 ? (
-                                                    <span className="inline-flex items-center px-2 py-1 bg-newsprint-red text-white text-[9px] font-mono font-bold uppercase tracking-widest border border-ink">
-                                                        <AlertCircle size={10} className="mr-1" strokeWidth={3} />
+                                                    <span className="inline-flex items-center px-3 py-1 bg-rose-50 text-rose-600 text-[10px] font-sans font-black uppercase tracking-widest rounded-lg">
                                                         FAIL
                                                     </span>
                                                 ) : (
-                                                    <span className="inline-flex items-center px-2 py-1 bg-white text-ink text-[9px] font-mono font-bold uppercase tracking-widest border border-ink">
+                                                    <span className="inline-flex items-center px-3 py-1 bg-emerald-50 text-emerald-600 text-[10px] font-sans font-black uppercase tracking-widest rounded-lg">
                                                         PASS
                                                     </span>
                                                 )}
@@ -514,8 +531,8 @@ export default function GradeEntry() {
                                 })}
                                 {students.length === 0 && (
                                     <tr>
-                                        <td colSpan="7" className="p-8 text-center font-serif italic text-ink/60">
-                                            No student records found in this section.
+                                        <td colSpan="7" className="p-12 text-center font-sans font-medium text-gray-400">
+                                            Tidak ada siswa di kelas ini.
                                         </td>
                                     </tr>
                                 )}
@@ -533,55 +550,56 @@ export default function GradeEntry() {
                 maxWidth="max-w-2xl"
             >
                 {importLoading ? (
-                    <div className="py-20 flex flex-col items-center justify-center">
-                        <Loader2 size={48} className="animate-spin mb-4 text-ink" />
-                        <p className="font-mono text-xs font-bold uppercase tracking-widest">Membaca Data Excel...</p>
+                    <div className="py-24 flex flex-col items-center justify-center">
+                        <Loader2 size={48} className="animate-spin text-blue-600 mb-6" strokeWidth={2.5} />
+                        <p className="font-sans text-xs font-bold text-gray-500 uppercase tracking-widest">Membaca Data Excel...</p>
                     </div>
                 ) : (
                     <div className="space-y-6">
-                        <div className="bg-gray-50 border-2 border-ink p-4 shadow-[4px_4px_0px_0px_#111111]">
-                            <p className="text-xs font-mono text-ink tracking-widest font-bold uppercase leading-relaxed">
-                                Sila pastikan kolom Excel yang memuat angka sesuai dengan komponen nilai untuk <span className="text-newsprint-red underline">{dbSubjects.find(s => s.id === selectedSubjectId)?.name || 'Mata Pelajaran ini'}</span>.
+                        <div className="bg-blue-50/50 border border-blue-100 p-5 rounded-2xl flex items-start space-x-3">
+                            <AlertCircle size={18} className="text-blue-600 shrink-0 mt-0.5" strokeWidth={2.5} />
+                            <p className="text-xs font-sans text-blue-800 font-medium leading-relaxed">
+                                Sila pastikan kolom Excel yang memuat angka sesuai dengan komponen nilai untuk <strong className="font-black underline mx-1">{dbSubjects.find(s => s.id === selectedSubjectId)?.name || 'Mata Pelajaran ini'}</strong>.
                             </p>
                         </div>
                         
-                        <div className="space-y-4 max-h-[50vh] overflow-y-auto pr-2 pb-4">
+                        <div className="space-y-4">
                             {['tugas', 'uts', 'uas'].map((part) => (
-                                <div key={part} className="border-2 border-ink bg-white p-4 flex items-center justify-between shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] transition-transform hover:-translate-y-1">
-                                    <label className="text-sm font-black uppercase tracking-widest text-ink w-1/3">
-                                        NILAI <span className="text-newsprint-red">{part}</span>
+                                <div key={part} className="bg-gray-50 border border-gray-100 rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                    <label className="text-sm font-sans font-black uppercase tracking-widest text-gray-900 w-full sm:w-1/3 text-left">
+                                        NILAI <span className="text-blue-600 ml-1">{part}</span>
                                     </label>
-                                    <div className="relative w-2/3">
+                                    <div className="relative w-full sm:w-2/3">
                                         <select
-                                            className="w-full bg-gray-50 border-2 border-ink px-3 py-2 text-xs font-mono font-bold text-ink uppercase focus:outline-none focus:border-newsprint-red appearance-none cursor-pointer"
+                                            className="w-full bg-white border border-transparent focus:border-blue-200 focus:ring-4 focus:ring-blue-50 rounded-xl px-4 py-3 text-xs font-sans font-bold text-gray-900 uppercase transition-all appearance-none cursor-pointer shadow-sm"
                                             value={columnMap[part] || ''}
                                             onChange={(e) => setColumnMap({...columnMap, [part]: e.target.value})}
                                         >
-                                            <option value="" className="text-gray-400">-- KOSONGKAN (JADI 0) --</option>
+                                            <option value="" className="text-gray-400">--- KOSONGKAN (JADI 0) ---</option>
                                             {importHeaders.map(h => (
                                                 <option key={h} value={h}>KOLOM: {h}</option>
                                             ))}
                                         </select>
-                                        <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-ink pointer-events-none" strokeWidth={3} />
+                                        <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" strokeWidth={2.5} />
                                     </div>
                                 </div>
                             ))}
                         </div>
 
-                        <div className="pt-4 border-t-4 border-ink flex justify-end space-x-4">
+                        <div className="pt-6 flex flex-col sm:flex-row justify-end gap-3">
                             <button 
                                 onClick={() => setIsImportModalOpen(false)}
-                                className="px-6 py-3 border-2 border-ink bg-white hover:bg-gray-100 font-mono text-xs font-bold uppercase tracking-widest shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] active:shadow-none active:translate-y-[4px] active:translate-x-[4px] transition-all"
+                                className="px-6 py-3 w-full sm:w-auto bg-gray-100 hover:bg-gray-200 text-gray-500 font-sans text-xs font-bold uppercase tracking-widest rounded-xl transition-all"
                             >
                                 Batal
                             </button>
                             <button 
                                 onClick={handleExecuteImport}
                                 disabled={isSaving}
-                                className="px-6 py-3 bg-ink text-paper border-2 border-ink hover:bg-neutral-800 font-mono text-xs font-bold uppercase tracking-widest flex items-center space-x-2 shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] active:shadow-none active:translate-y-[4px] active:translate-x-[4px] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="px-6 py-3 w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-sans text-xs font-bold uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-blue-600/20 active:scale-95 disabled:opacity-50 flex items-center justify-center space-x-3"
                             >
-                                {isSaving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
-                                <span>EKSEKUSI IMPORT ({importData.length} BARIS)</span>
+                                {isSaving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} strokeWidth={2.5} />}
+                                <span>EKSEKUSI DATA ({importData.length} BARIS)</span>
                             </button>
                         </div>
                     </div>

@@ -20,6 +20,8 @@ const Announcements = lazy(() => import('./pages/admin/Announcements'))
 const FonnteSettings = lazy(() => import('./pages/admin/FonnteSettings'))
 const DatabaseBackup = lazy(() => import('./pages/admin/DatabaseBackup'))
 const GeneralSettings = lazy(() => import('./pages/admin/GeneralSettings'))
+const AnalyticsDashboard = lazy(() => import('./pages/admin/AnalyticsDashboard'))
+const DocumentGenerator = lazy(() => import('./pages/admin/DocumentGenerator'))
 const GradeEntry = lazy(() => import('./pages/teacher/GradeEntry'))
 const AttendanceEntry = lazy(() => import('./pages/teacher/AttendanceEntry'))
 const StudentGrades = lazy(() => import('./pages/student/StudentGrades'))
@@ -72,6 +74,8 @@ function App() {
                   <Route path="/admin/fonnte" element={<FonnteSettings />} />
                   <Route path="/admin/backup" element={<DatabaseBackup />} />
                   <Route path="/admin/settings" element={<GeneralSettings />} />
+                  <Route path="/admin/analytics" element={<AnalyticsDashboard />} />
+                  <Route path="/admin/documents" element={<DocumentGenerator />} />
 
                   {/* Teacher Routes */}
                   <Route path="/teacher/grades" element={<GradeEntry />} />
