@@ -116,6 +116,10 @@ export default function GradeEntry() {
                 setDbSubjects(teacherSubjects);
                 if (teacherClasses.length > 0) setSelectedClassId(teacherClasses[0].id);
                 if (teacherSubjects.length > 0) setSelectedSubjectId(teacherSubjects[0].id);
+
+                if (teacherClasses.length === 0 || teacherSubjects.length === 0) {
+                    setIsLoading(false);
+                }
             } else {
                 // Admin: show all
                 const { data: clsData } = await supabase.from('classes').select('id, name');
@@ -124,6 +128,10 @@ export default function GradeEntry() {
                 if (subData) setDbSubjects(subData);
                 if (clsData?.length > 0) setSelectedClassId(clsData[0].id);
                 if (subData?.length > 0) setSelectedSubjectId(subData[0].id);
+
+                if (!clsData || clsData.length === 0 || !subData || subData.length === 0) {
+                    setIsLoading(false);
+                }
             }
         };
         fetchInitialData();
@@ -225,24 +233,24 @@ export default function GradeEntry() {
                 const bstr = evt.target.result;
                 const wb = XLSX.read(bstr, { type: 'binary' });
                 const ws = wb.Sheets[wb.SheetNames[0]];
-                
+
                 const data = XLSX.utils.sheet_to_json(ws);
                 if (data.length === 0) throw new Error("File kosong");
 
                 const headers = Object.keys(data[0]);
                 setImportHeaders(headers);
                 setImportData(data);
-                
+
                 // Auto-match for Tugas, UTS, UAS
                 const initMap = { tugas: '', uts: '', uas: '' };
                 const tugasCol = headers.find(h => h.toLowerCase().includes('tugas'));
                 const utsCol = headers.find(h => h.toLowerCase().includes('uts') || h.toLowerCase().includes('tengah'));
                 const uasCol = headers.find(h => h.toLowerCase().includes('uas') || h.toLowerCase().includes('akhir'));
-                
+
                 if (tugasCol) initMap.tugas = tugasCol;
                 if (utsCol) initMap.uts = utsCol;
                 if (uasCol) initMap.uas = uasCol;
-                
+
                 setColumnMap(initMap);
             } catch (error) {
                 showToast('Gagal membaca Excel: ' + error.message, 'error');
@@ -279,11 +287,11 @@ export default function GradeEntry() {
             const tugasScore = columnMap.tugas ? parseFloat(row[columnMap.tugas]) : 0;
             const utsScore = columnMap.uts ? parseFloat(row[columnMap.uts]) : 0;
             const uasScore = columnMap.uas ? parseFloat(row[columnMap.uas]) : 0;
-            
+
             const t = isNaN(tugasScore) ? 0 : Math.round(tugasScore);
             const ut = isNaN(utsScore) ? 0 : Math.round(utsScore);
             const ua = isNaN(uasScore) ? 0 : Math.round(uasScore);
-            
+
             const score = Math.round((t + ut + ua) / 3);
 
             upsertPayloads.push({
@@ -333,7 +341,7 @@ export default function GradeEntry() {
         const ws = XLSX.utils.json_to_sheet(templateData);
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, 'Template Nilai');
-        
+
         // Auto-size columns loosely
         const colWidths = [{ wch: 5 }, { wch: 15 }, { wch: 40 }, { wch: 10 }, { wch: 10 }, { wch: 10 }];
         ws['!cols'] = colWidths;
@@ -346,7 +354,7 @@ export default function GradeEntry() {
             <div className="flex flex-col xl:flex-row xl:items-end justify-between gap-6 pb-6 border-b border-gray-100">
                 <div className="space-y-6 flex-1">
                     <div>
-                         <div className="flex items-center gap-2 mb-2">
+                        <div className="flex items-center gap-2 mb-2">
                             <span className="bg-blue-600 text-white text-[10px] font-sans font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
                                 Akademik
                             </span>
@@ -404,8 +412,8 @@ export default function GradeEntry() {
                                     value={selectedAcademicYear}
                                     onChange={(e) => setSelectedAcademicYear(e.target.value)}
                                 >
-                                    {[2025,2024,2023,2022,2021].map(y => (
-                                        <option key={y} value={`${y}/${y+1}`}>{y}/{y+1}</option>
+                                    {[2025, 2024, 2023, 2022, 2021].map(y => (
+                                        <option key={y} value={`${y}/${y + 1}`}>{y}/{y + 1}</option>
                                     ))}
                                 </select>
                                 <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" strokeWidth={2.5} />
@@ -414,7 +422,7 @@ export default function GradeEntry() {
                     </div>
                 </div>
                 <div className="flex flex-col sm:flex-row items-end gap-3 w-full xl:w-auto">
-                    <button 
+                    <button
                         onClick={handleDownloadTemplate}
                         className="flex items-center justify-center space-x-2 bg-gray-50 text-gray-600 hover:bg-gray-100 hover:text-gray-900 px-5 py-3 rounded-xl font-sans text-xs font-bold uppercase tracking-widest transition-all w-full sm:w-auto"
                     >
@@ -456,8 +464,8 @@ export default function GradeEntry() {
             {/* Ledger Table */}
             {isLoading ? (
                 <div className="py-24 text-center">
-                     <Loader2 size={32} className="mx-auto animate-spin text-blue-600 mb-4" />
-                     <p className="font-sans text-sm font-bold text-gray-500 uppercase tracking-widest">Memuat Data Nilai...</p>
+                    <Loader2 size={32} className="mx-auto animate-spin text-blue-600 mb-4" />
+                    <p className="font-sans text-sm font-bold text-gray-500 uppercase tracking-widest">Memuat Data Nilai...</p>
                 </div>
             ) : (
                 <div className="bg-white rounded-[2.5rem] border border-gray-100 overflow-hidden shadow-sm relative">
@@ -562,7 +570,7 @@ export default function GradeEntry() {
                                 Sila pastikan kolom Excel yang memuat angka sesuai dengan komponen nilai untuk <strong className="font-black underline mx-1">{dbSubjects.find(s => s.id === selectedSubjectId)?.name || 'Mata Pelajaran ini'}</strong>.
                             </p>
                         </div>
-                        
+
                         <div className="space-y-4">
                             {['tugas', 'uts', 'uas'].map((part) => (
                                 <div key={part} className="bg-gray-50 border border-gray-100 rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -573,7 +581,7 @@ export default function GradeEntry() {
                                         <select
                                             className="w-full bg-white border border-transparent focus:border-blue-200 focus:ring-4 focus:ring-blue-50 rounded-xl px-4 py-3 text-xs font-sans font-bold text-gray-900 uppercase transition-all appearance-none cursor-pointer shadow-sm"
                                             value={columnMap[part] || ''}
-                                            onChange={(e) => setColumnMap({...columnMap, [part]: e.target.value})}
+                                            onChange={(e) => setColumnMap({ ...columnMap, [part]: e.target.value })}
                                         >
                                             <option value="" className="text-gray-400">--- KOSONGKAN (JADI 0) ---</option>
                                             {importHeaders.map(h => (
@@ -587,13 +595,13 @@ export default function GradeEntry() {
                         </div>
 
                         <div className="pt-6 flex flex-col sm:flex-row justify-end gap-3">
-                            <button 
+                            <button
                                 onClick={() => setIsImportModalOpen(false)}
                                 className="px-6 py-3 w-full sm:w-auto bg-gray-100 hover:bg-gray-200 text-gray-500 font-sans text-xs font-bold uppercase tracking-widest rounded-xl transition-all"
                             >
                                 Batal
                             </button>
-                            <button 
+                            <button
                                 onClick={handleExecuteImport}
                                 disabled={isSaving}
                                 className="px-6 py-3 w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-sans text-xs font-bold uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-blue-600/20 active:scale-95 disabled:opacity-50 flex items-center justify-center space-x-3"

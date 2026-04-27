@@ -521,8 +521,9 @@ export default function Schedule() {
                 const hariRaw = String(row['Hari'] || '').trim();
                 const minggRaw = String(row['Minggu'] || '').trim();
 
-                const matchedClass = dbClasses.find(c => c.name.toLowerCase() === kelasRaw.toLowerCase());
-                const matchedTeacher = dbTeachers.find(t => t.name.toLowerCase() === guruRaw.toLowerCase());
+                const normalizedDbClass = (name) => name ? name.replace(/[^a-zA-Z0-9]/g, '').toLowerCase() : '';
+                const matchedClass = dbClasses.find(c => normalizedDbClass(c.name) === normalizedDbClass(kelasRaw));
+                const matchedTeacher = dbTeachers.find(t => normalizedDbClass(t.name) === normalizedDbClass(guruRaw));
 
                 if (!matchedClass) {
                     errorCount++;
@@ -718,8 +719,8 @@ export default function Schedule() {
                                 >
                                     {isLoading && fileInputRef.current?.value ? <Loader2 className="animate-spin" size={20} /> : <Upload size={20} strokeWidth={2.5} />}
                                 </button>
-                                <input 
-                                    type="file" 
+                                <input
+                                    type="file"
                                     accept=".xlsx,.xls"
                                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                                     onChange={handleImportSubmit}

@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
-import { Users, UserCircle, BookOpen, TrendingUp, X, Filter, Search, ChevronRight } from 'lucide-react';
+import { Users, UserCircle, BookOpen, TrendingUp, X, Filter, Search, ChevronRight, Activity, Loader2 } from 'lucide-react';
 import StatCard from './StatCard';
 import AnalyticsChart from './AnalyticsChart';
+import { useFeedback } from '../../context/FeedbackContext';
 
 const AdminDashboard = () => {
     const [stats, setStats] = useState({
@@ -20,6 +21,9 @@ const AdminDashboard = () => {
     const [attendanceData, setAttendanceData] = useState([0, 0, 0, 0, 0, 0]);
     const [isLoading, setIsLoading] = useState(true);
     const [showDetail, setShowDetail] = useState(null);
+    const [keepAliveDate, setKeepAliveDate] = useState(null);
+    const [isPinging, setIsPinging] = useState(false);
+    const { showToast } = useFeedback();
 
     useEffect(() => {
         fetchData();
@@ -39,6 +43,15 @@ const AdminDashboard = () => {
             setTeachersList(tea.data || []);
             setSubjectsList(sub.data || []);
             setGradesList(grades.data || []);
+
+            const { data: keepAliveData } = await supabase
+                .from('keep_alives')
+                .select('*')
+                .order('check_time', { ascending: false })
+                .limit(1)
+                .maybeSingle();
+
+            if (keepAliveData) setKeepAliveDate(keepAliveData.check_time);
 
             let exactAvgGrade = 84.2;
             if (grades.data && grades.data.length > 0) {
@@ -106,6 +119,20 @@ const AdminDashboard = () => {
         </div>
     );
 
+    const triggerManualPing = async () => {
+        setIsPinging(true);
+        try {
+            const { error } = await supabase.from('keep_alives').insert({ method: 'manual' });
+            if (error) throw error;
+            showToast('Database berhasil di-ping!', 'success');
+            fetchData();
+        } catch (err) {
+            showToast('Gagal ping database: ' + err.message, 'error');
+        } finally {
+            setIsPinging(false);
+        }
+    };
+
     return (
         <div className="space-y-10 animate-in fade-in duration-500">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -115,13 +142,39 @@ const AdminDashboard = () => {
                 <StatCard title="Rata-Rata Nilai" value={stats.avgGrade.toString()} icon={TrendingUp} trend="+2.4%" color="amber" to="#" onClick={() => setShowDetail('grades')} />
             </div>
 
-            <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm">
-                <AnalyticsChart
-                    title="Kehadiran Seluruh Sistem"
-                    subtitle="Persentase kehadiran harian aktif dari semua kelas"
-                    data={attendanceData}
-                    labels={['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab']}
-                />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="md:col-span-2 bg-white p-8 rounded-3xl border border-gray-100 shadow-sm">
+                    <AnalyticsChart
+                        title="Kehadiran Seluruh Sistem"
+                        subtitle="Persentase kehadiran harian aktif dari semua kelas"
+                        data={attendanceData}
+                        labels={['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab']}
+                    />
+                </div>
+                <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm flex flex-col items-center justify-center text-center">
+                    <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mb-6 relative">
+                        <Activity size={32} />
+                        <span className="absolute top-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-white rounded-full animate-pulse"></span>
+                    </div>
+                    <h3 className="text-xl font-sans font-black text-gray-900 mb-2">Supabase Keep Alive</h3>
+                    <p className="text-xs font-sans text-gray-500 font-medium mb-6">Mencegah database masuk ke fase Paused karena inaktif (Free Tier).</p>
+
+                    <div className="bg-gray-50 rounded-xl w-full py-4 mb-6">
+                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Ping Terakhir</p>
+                        <p className="text-sm font-bold text-gray-800">
+                            {keepAliveDate ? new Date(keepAliveDate).toLocaleString('id-ID') : 'Belum Kueri'}
+                        </p>
+                    </div>
+
+                    <button
+                        onClick={triggerManualPing}
+                        disabled={isPinging}
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-sans text-xs font-bold uppercase tracking-widest py-4 rounded-xl shadow-lg shadow-blue-600/20 transition-all active:scale-95 disabled:opacity-50 disabled:scale-100 flex items-center justify-center gap-2"
+                    >
+                        {isPinging ? <Loader2 size={16} className="animate-spin" /> : <Activity size={16} />}
+                        <span>Ping Sekarang</span>
+                    </button>
+                </div>
             </div>
 
             {/* Detail Modal */}
@@ -142,8 +195,8 @@ const AdminDashboard = () => {
                                     Total {showDetail === 'students' ? studentsList.length : showDetail === 'teachers' ? teachersList.length : showDetail === 'subjects' ? subjectsList.length : gradesList.length} Entri Ditemukan
                                 </p>
                             </div>
-                            <button 
-                                onClick={() => setShowDetail(null)} 
+                            <button
+                                onClick={() => setShowDetail(null)}
                                 className="p-2 bg-gray-100 hover:bg-gray-200 text-gray-500 rounded-xl transition-all"
                             >
                                 <X size={20} strokeWidth={2.5} />
