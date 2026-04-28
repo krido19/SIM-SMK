@@ -155,6 +155,7 @@ export default function GradeEntry() {
                     tugas,
                     uts,
                     uas,
+                    score,
                     subject_id,
                     semester,
                     academic_year
@@ -170,14 +171,18 @@ export default function GradeEntry() {
                     g.subject_id === selectedSubjectId &&
                     g.semester === selectedSemester &&
                     (g.academic_year === selectedAcademicYear || !g.academic_year)
-                ) || { tugas: 0, uts: 0, uas: 0 };
+                ) || { tugas: 0, uts: 0, uas: 0, score: 0 };
+
+                const finalScore = grade.score !== undefined && grade.score !== null ? grade.score : Math.round(((grade.tugas || 0) + (grade.uts || 0) + (grade.uas || 0)) / 3);
+
                 return {
                     id: s.id,
                     name: s.full_name,
                     nis: s.nis,
                     tugas: grade.tugas,
                     uts: grade.uts,
-                    uas: grade.uas
+                    uas: grade.uas,
+                    score: finalScore
                 };
             });
             setStudents(transformed);
@@ -185,14 +190,15 @@ export default function GradeEntry() {
         setIsLoading(false);
     };
 
-    const handleScoreChange = (id, field, value) => {
-        const score = parseInt(value) || 0;
+    const handleScoreChange = (id, value) => {
+        const scoreVal = parseInt(value) || 0;
+        const boundedScore = Math.min(100, Math.max(0, scoreVal));
         setStudents(students.map(s =>
-            s.id === id ? { ...s, [field]: Math.min(100, Math.max(0, score)) } : s
+            s.id === id ? { ...s, score: boundedScore, tugas: boundedScore, uts: boundedScore, uas: boundedScore } : s
         ));
     };
 
-    const calculateFinal = (s) => Math.round((s.tugas + s.uts + s.uas) / 3);
+    const calculateFinal = (s) => s.score || 0;
 
     const handleSave = async () => {
         if (!selectedSubjectId) return;
@@ -204,7 +210,7 @@ export default function GradeEntry() {
             tugas: s.tugas,
             uts: s.uts,
             uas: s.uas,
-            score: Math.round((s.tugas + s.uts + s.uas) / 3),
+            score: s.score,
             semester: selectedSemester,
             academic_year: selectedAcademicYear
         }));
@@ -241,15 +247,11 @@ export default function GradeEntry() {
                 setImportHeaders(headers);
                 setImportData(data);
 
-                // Auto-match for Tugas, UTS, UAS
-                const initMap = { tugas: '', uts: '', uas: '' };
-                const tugasCol = headers.find(h => h.toLowerCase().includes('tugas'));
-                const utsCol = headers.find(h => h.toLowerCase().includes('uts') || h.toLowerCase().includes('tengah'));
-                const uasCol = headers.find(h => h.toLowerCase().includes('uas') || h.toLowerCase().includes('akhir'));
+                // Auto-match for Final
+                const initMap = { score: '' };
+                const finalCol = headers.find(h => h.toLowerCase().includes('final') || h.toLowerCase().includes('nilai') || h.toLowerCase().includes('score'));
 
-                if (tugasCol) initMap.tugas = tugasCol;
-                if (utsCol) initMap.uts = utsCol;
-                if (uasCol) initMap.uas = uasCol;
+                if (finalCol) initMap.score = finalCol;
 
                 setColumnMap(initMap);
             } catch (error) {
@@ -284,15 +286,13 @@ export default function GradeEntry() {
             const stdId = nisToId[nis];
             if (!stdId) continue;
 
-            const tugasScore = columnMap.tugas ? parseFloat(row[columnMap.tugas]) : 0;
-            const utsScore = columnMap.uts ? parseFloat(row[columnMap.uts]) : 0;
-            const uasScore = columnMap.uas ? parseFloat(row[columnMap.uas]) : 0;
+            const finalScoreRaw = columnMap.score ? parseFloat(row[columnMap.score]) : 0;
+            const finalScore = isNaN(finalScoreRaw) ? 0 : Math.round(finalScoreRaw);
+            const score = finalScore;
 
-            const t = isNaN(tugasScore) ? 0 : Math.round(tugasScore);
-            const ut = isNaN(utsScore) ? 0 : Math.round(utsScore);
-            const ua = isNaN(uasScore) ? 0 : Math.round(uasScore);
-
-            const score = Math.round((t + ut + ua) / 3);
+            const t = score;
+            const ut = score;
+            const ua = score;
 
             upsertPayloads.push({
                 student_id: stdId,
@@ -332,9 +332,7 @@ export default function GradeEntry() {
                 'No': idx + 1,
                 'NIS': s.nis,
                 'Nama Lengkap': s.name,
-                'TUGAS': '',
-                'UTS': '',
-                'UAS': ''
+                'NILAI FINAL': ''
             };
         });
 
@@ -343,7 +341,7 @@ export default function GradeEntry() {
         XLSX.utils.book_append_sheet(wb, ws, 'Template Nilai');
 
         // Auto-size columns loosely
-        const colWidths = [{ wch: 5 }, { wch: 15 }, { wch: 40 }, { wch: 10 }, { wch: 10 }, { wch: 10 }];
+        const colWidths = [{ wch: 5 }, { wch: 15 }, { wch: 40 }, { wch: 15 }];
         ws['!cols'] = colWidths;
 
         XLSX.writeFile(wb, `Template_Nilai_${new Date().getTime()}.xlsx`);
@@ -475,10 +473,7 @@ export default function GradeEntry() {
                                 <tr className="bg-gray-50 text-gray-500 font-sans text-[10px] uppercase tracking-widest border-b border-gray-100">
                                     <th className="px-6 py-4 w-16 text-center font-bold">No</th>
                                     <th className="px-6 py-4 font-bold">Student Name</th>
-                                    <th className="px-6 py-4 w-32 text-center text-blue-600 font-black">Tugas</th>
-                                    <th className="px-6 py-4 w-32 text-center text-blue-600 font-black">UTS</th>
-                                    <th className="px-6 py-4 w-32 text-center text-blue-600 font-black">UAS</th>
-                                    <th className="px-6 py-4 w-32 text-center bg-blue-50/50 text-blue-800 font-black">Final</th>
+                                    <th className="px-6 py-4 w-48 text-center bg-blue-50/50 text-blue-800 font-black">Nilai Final</th>
                                     <th className="px-6 py-4 w-40 text-center font-bold">Status</th>
                                 </tr>
                             </thead>
@@ -494,34 +489,16 @@ export default function GradeEntry() {
                                                     <p className="font-sans mt-0.5 text-[10px] font-bold uppercase tracking-widest text-gray-400">ID: {student.nis}</p>
                                                 </div>
                                             </td>
-                                            <td className="px-4 py-3">
-                                                <input
-                                                    type="number"
-                                                    className="w-full bg-gray-50 border border-transparent focus:bg-white focus:border-blue-200 focus:ring-4 focus:ring-blue-50 rounded-xl outline-none py-2 text-center font-sans font-black text-lg text-gray-900 transition-all placeholder:text-gray-300"
-                                                    value={student.tugas}
-                                                    onChange={(e) => handleScoreChange(student.id, 'tugas', e.target.value)}
-                                                />
-                                            </td>
-                                            <td className="px-4 py-3">
-                                                <input
-                                                    type="number"
-                                                    className="w-full bg-gray-50 border border-transparent focus:bg-white focus:border-blue-200 focus:ring-4 focus:ring-blue-50 rounded-xl outline-none py-2 text-center font-sans font-black text-lg text-gray-900 transition-all placeholder:text-gray-300"
-                                                    value={student.uts}
-                                                    onChange={(e) => handleScoreChange(student.id, 'uts', e.target.value)}
-                                                />
-                                            </td>
-                                            <td className="px-4 py-3">
-                                                <input
-                                                    type="number"
-                                                    className="w-full bg-gray-50 border border-transparent focus:bg-white focus:border-blue-200 focus:ring-4 focus:ring-blue-50 rounded-xl outline-none py-2 text-center font-sans font-black text-lg text-gray-900 transition-all placeholder:text-gray-300"
-                                                    value={student.uas}
-                                                    onChange={(e) => handleScoreChange(student.id, 'uas', e.target.value)}
-                                                />
-                                            </td>
-                                            <td className="px-4 py-3 text-center bg-blue-50/20 group-hover:bg-blue-50/50 transition-colors">
-                                                <span className={`font-sans text-2xl tracking-tight font-black ${final < 75 ? 'text-rose-600' : 'text-gray-900'}`}>
-                                                    {final}
-                                                </span>
+                                            <td className="px-4 py-3 bg-blue-50/20 group-hover:bg-blue-50/50 transition-colors">
+                                                <div className="relative w-full max-w-[120px] mx-auto">
+                                                    <input
+                                                        type="number"
+                                                        className={`w-full bg-white border border-transparent focus:border-blue-200 focus:ring-4 focus:ring-blue-50 rounded-xl outline-none py-3 text-center font-sans font-black text-2xl transition-all placeholder:text-gray-300 shadow-sm hover:shadow active:scale-95 ${final < 75 ? 'text-rose-600' : 'text-gray-900'}`}
+                                                        value={student.score === 0 ? '' : student.score}
+                                                        onChange={(e) => handleScoreChange(student.id, e.target.value)}
+                                                        placeholder="0"
+                                                    />
+                                                </div>
                                             </td>
                                             <td className="px-6 py-4 text-center">
                                                 {final < 75 ? (
@@ -572,26 +549,24 @@ export default function GradeEntry() {
                         </div>
 
                         <div className="space-y-4">
-                            {['tugas', 'uts', 'uas'].map((part) => (
-                                <div key={part} className="bg-gray-50 border border-gray-100 rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                                    <label className="text-sm font-sans font-black uppercase tracking-widest text-gray-900 w-full sm:w-1/3 text-left">
-                                        NILAI <span className="text-blue-600 ml-1">{part}</span>
-                                    </label>
-                                    <div className="relative w-full sm:w-2/3">
-                                        <select
-                                            className="w-full bg-white border border-transparent focus:border-blue-200 focus:ring-4 focus:ring-blue-50 rounded-xl px-4 py-3 text-xs font-sans font-bold text-gray-900 uppercase transition-all appearance-none cursor-pointer shadow-sm"
-                                            value={columnMap[part] || ''}
-                                            onChange={(e) => setColumnMap({ ...columnMap, [part]: e.target.value })}
-                                        >
-                                            <option value="" className="text-gray-400">--- KOSONGKAN (JADI 0) ---</option>
-                                            {importHeaders.map(h => (
-                                                <option key={h} value={h}>KOLOM: {h}</option>
-                                            ))}
-                                        </select>
-                                        <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" strokeWidth={2.5} />
-                                    </div>
+                            <div className="bg-gray-50 border border-gray-100 rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                <label className="text-sm font-sans font-black uppercase tracking-widest text-gray-900 w-full sm:w-1/3 text-left">
+                                    NILAI <span className="text-blue-600 ml-1">FINAL</span>
+                                </label>
+                                <div className="relative w-full sm:w-2/3">
+                                    <select
+                                        className="w-full bg-white border border-transparent focus:border-blue-200 focus:ring-4 focus:ring-blue-50 rounded-xl px-4 py-3 text-xs font-sans font-bold text-gray-900 uppercase transition-all appearance-none cursor-pointer shadow-sm"
+                                        value={columnMap['score'] || ''}
+                                        onChange={(e) => setColumnMap({ ...columnMap, score: e.target.value })}
+                                    >
+                                        <option value="" className="text-gray-400">--- KOSONGKAN (JADI 0) ---</option>
+                                        {importHeaders.map(h => (
+                                            <option key={h} value={h}>KOLOM: {h}</option>
+                                        ))}
+                                    </select>
+                                    <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" strokeWidth={2.5} />
                                 </div>
-                            ))}
+                            </div>
                         </div>
 
                         <div className="pt-6 flex flex-col sm:flex-row justify-end gap-3">
