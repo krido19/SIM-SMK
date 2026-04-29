@@ -20,6 +20,12 @@ export default function AttendanceEntry() {
     const [isLoading, setIsLoading] = useState(true);
     const { showToast } = useFeedback();
 
+    // Journal State
+    const [isJournalModalOpen, setIsJournalModalOpen] = useState(false);
+    const [journalData, setJournalData] = useState({ subject: '', jam_ke: '', materi: '', catatan: '' });
+    const [attendanceStats, setAttendanceStats] = useState({ s: 0, i: 0, a: 0 });
+    const [isSaving, setIsSaving] = useState(false);
+
     useEffect(() => {
         const fetchClasses = async () => {
             const role = localStorage.getItem('userRole');
@@ -105,22 +111,67 @@ export default function AttendanceEntry() {
         setIsLoading(false);
     };
 
-    const handleSave = async () => {
+    const handleSave = () => {
+        if (attendance.length === 0) {
+            showToast('Tidak ada data siswa untuk disimpan.', 'warning');
+            return;
+        }
+        
+        const s = attendance.filter(a => a.status === 'Sakit').length;
+        const i = attendance.filter(a => a.status === 'Izin').length;
+        const a = attendance.filter(a => a.status === 'Alpa').length;
+        
+        setAttendanceStats({ s, i, a });
+        setIsJournalModalOpen(true);
+    };
+
+    const submitAttendanceAndJournal = async () => {
+        if (!journalData.subject || !journalData.jam_ke || !journalData.materi) {
+            showToast('Mata Pelajaran, Jam Ke-, dan Materi wajib diisi.', 'warning');
+            return;
+        }
+
+        setIsSaving(true);
         const attendanceToUpsert = attendance.map(a => ({
             student_id: a.id,
             date: selectedDate,
             status: a.status
         }));
 
-        const { error } = await supabase
+        const { error: attError } = await supabase
             .from('attendance')
             .upsert(attendanceToUpsert, { onConflict: 'student_id, date' });
 
-        if (error) {
-            showToast('Gagal menyimpan absensi: ' + error.message, 'error');
-        } else {
-            showToast('Absensi berhasil disimpan!', 'success');
+        if (attError) {
+            showToast('Gagal menyimpan absensi: ' + attError.message, 'error');
+            setIsSaving(false);
+            return;
         }
+
+        const teacherName = localStorage.getItem('userName') || 'Guru';
+        const { error: journalError } = await supabase
+            .from('teaching_journals')
+            .insert({
+                teacher_name: teacherName,
+                class_id: selectedClassId,
+                subject: journalData.subject,
+                date: selectedDate,
+                jam_ke: journalData.jam_ke,
+                materi: journalData.materi,
+                catatan: journalData.catatan || '',
+                absent_s: attendanceStats.s,
+                absent_i: attendanceStats.i,
+                absent_a: attendanceStats.a
+            });
+
+        if (journalError) {
+            showToast('Absensi tersimpan, tapi gagal menyimpan jurnal: ' + journalError.message, 'error');
+        } else {
+            showToast('Absensi & Jurnal berhasil disimpan!', 'success');
+            setIsJournalModalOpen(false);
+            setJournalData({ subject: '', jam_ke: '', materi: '', catatan: '' });
+        }
+        setIsSaving(false);
     };
 
     const setStatus = (id, status) => {
@@ -244,6 +295,97 @@ export default function AttendanceEntry() {
                                 )}
                             </tbody>
                         </table>
+                    </div>
+                </div>
+            )}
+
+            {isJournalModalOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/40 backdrop-blur-sm animate-in fade-in duration-200">
+                    <div className="bg-white w-full max-w-2xl rounded-[2rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+                        <div className="bg-blue-600 px-8 py-6 flex items-center justify-between">
+                            <div>
+                                <h3 className="text-xl font-sans font-black text-white tracking-tight">Jurnal Mengajar</h3>
+                                <p className="text-blue-100 font-sans text-sm mt-1">Lengkapi data jurnal sebelum menyimpan absensi</p>
+                            </div>
+                            <button onClick={() => setIsJournalModalOpen(false)} className="p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-full transition-colors">
+                                <X size={20} strokeWidth={2.5} />
+                            </button>
+                        </div>
+                        <div className="p-8 space-y-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-sans font-bold uppercase tracking-widest text-gray-500">Mata Pelajaran <span className="text-rose-500">*</span></label>
+                                    <input
+                                        type="text"
+                                        placeholder="Contoh: Matematika"
+                                        className="w-full bg-gray-50 border border-transparent px-4 py-3 rounded-xl text-sm font-sans font-bold text-gray-900 focus:outline-none focus:bg-white focus:border-blue-200 focus:ring-4 focus:ring-blue-50 transition-all tracking-tight"
+                                        value={journalData.subject}
+                                        onChange={e => setJournalData({ ...journalData, subject: e.target.value })}
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-sans font-bold uppercase tracking-widest text-gray-500">Jam Ke- <span className="text-rose-500">*</span></label>
+                                    <input
+                                        type="text"
+                                        placeholder="Contoh: 1-2"
+                                        className="w-full bg-gray-50 border border-transparent px-4 py-3 rounded-xl text-sm font-sans font-bold text-gray-900 focus:outline-none focus:bg-white focus:border-blue-200 focus:ring-4 focus:ring-blue-50 transition-all tracking-tight"
+                                        value={journalData.jam_ke}
+                                        onChange={e => setJournalData({ ...journalData, jam_ke: e.target.value })}
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-sans font-bold uppercase tracking-widest text-gray-500">Materi Pembelajaran <span className="text-rose-500">*</span></label>
+                                <textarea
+                                    rows="3"
+                                    placeholder="Deskripsikan materi yang diajarkan..."
+                                    className="w-full bg-gray-50 border border-transparent px-4 py-3 rounded-xl text-sm font-sans font-medium text-gray-900 focus:outline-none focus:bg-white focus:border-blue-200 focus:ring-4 focus:ring-blue-50 transition-all tracking-tight resize-none"
+                                    value={journalData.materi}
+                                    onChange={e => setJournalData({ ...journalData, materi: e.target.value })}
+                                ></textarea>
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-sans font-bold uppercase tracking-widest text-gray-500">Catatan (Opsional)</label>
+                                <textarea
+                                    rows="2"
+                                    placeholder="Catatan tambahan kejadian di kelas..."
+                                    className="w-full bg-gray-50 border border-transparent px-4 py-3 rounded-xl text-sm font-sans font-medium text-gray-900 focus:outline-none focus:bg-white focus:border-blue-200 focus:ring-4 focus:ring-blue-50 transition-all tracking-tight resize-none"
+                                    value={journalData.catatan}
+                                    onChange={e => setJournalData({ ...journalData, catatan: e.target.value })}
+                                ></textarea>
+                            </div>
+
+                            <div className="bg-blue-50/50 p-4 rounded-2xl flex items-center justify-between">
+                                <span className="text-xs font-sans font-bold text-gray-500 uppercase tracking-widest">Rekap Absensi:</span>
+                                <div className="flex gap-4">
+                                    <span className="text-sm font-bold text-amber-600">S: {attendanceStats.s}</span>
+                                    <span className="text-sm font-bold text-blue-600">I: {attendanceStats.i}</span>
+                                    <span className="text-sm font-bold text-rose-600">A: {attendanceStats.a}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="p-6 bg-gray-50 border-t border-gray-100 flex justify-end gap-3">
+                            <button
+                                onClick={() => setIsJournalModalOpen(false)}
+                                className="px-6 py-2.5 rounded-xl font-sans text-xs font-bold uppercase tracking-widest text-gray-500 hover:bg-gray-200 transition-colors"
+                            >
+                                Batal
+                            </button>
+                            <button
+                                onClick={submitAttendanceAndJournal}
+                                disabled={isSaving}
+                                className="flex items-center space-x-2 bg-blue-600 text-white hover:bg-blue-700 px-6 py-2.5 rounded-xl font-sans text-xs font-bold uppercase tracking-widest transition-all shadow-lg shadow-blue-600/20 active:scale-95 disabled:opacity-50 disabled:active:scale-100"
+                            >
+                                {isSaving ? 'Menyimpan...' : (
+                                    <>
+                                        <Save size={16} strokeWidth={2.5} />
+                                        <span>Simpan Absensi & Jurnal</span>
+                                    </>
+                                )}
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}

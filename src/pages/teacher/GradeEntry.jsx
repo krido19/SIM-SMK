@@ -152,6 +152,7 @@ export default function GradeEntry() {
                 full_name,
                 nis,
                 grades (
+                    penilaian_harian,
                     tugas,
                     uts,
                     uas,
@@ -171,18 +172,17 @@ export default function GradeEntry() {
                     g.subject_id === selectedSubjectId &&
                     g.semester === selectedSemester &&
                     (g.academic_year === selectedAcademicYear || !g.academic_year)
-                ) || { tugas: 0, uts: 0, uas: 0, score: 0 };
-
-                const finalScore = grade.score !== undefined && grade.score !== null ? grade.score : Math.round(((grade.tugas || 0) + (grade.uts || 0) + (grade.uas || 0)) / 3);
-
+                ) || { penilaian_harian: 0, tugas: 0, uts: 0, uas: 0, score: 0 };
+                
                 return {
                     id: s.id,
                     name: s.full_name,
                     nis: s.nis,
-                    tugas: grade.tugas,
-                    uts: grade.uts,
-                    uas: grade.uas,
-                    score: finalScore
+                    penilaian_harian: grade.penilaian_harian || 0,
+                    tugas: grade.tugas || 0,
+                    uts: grade.uts || 0,
+                    uas: grade.uas || 0,
+                    score: grade.score || 0
                 };
             });
             setStudents(transformed);
@@ -190,12 +190,21 @@ export default function GradeEntry() {
         setIsLoading(false);
     };
 
-    const handleScoreChange = (id, value) => {
+    const handleScoreChange = (id, field, value) => {
         const scoreVal = parseInt(value) || 0;
         const boundedScore = Math.min(100, Math.max(0, scoreVal));
-        setStudents(students.map(s =>
-            s.id === id ? { ...s, score: boundedScore, tugas: boundedScore, uts: boundedScore, uas: boundedScore } : s
-        ));
+        
+        setStudents(students.map(s => {
+            if (s.id === id) {
+                const updatedStudent = { ...s, [field]: boundedScore };
+                // Auto-calculate final score if any of the components change
+                if (field !== 'score') {
+                    updatedStudent.score = Math.round(((updatedStudent.penilaian_harian || 0) + (updatedStudent.tugas || 0) + (updatedStudent.uts || 0) + (updatedStudent.uas || 0)) / 4);
+                }
+                return updatedStudent;
+            }
+            return s;
+        }));
     };
 
     const calculateFinal = (s) => s.score || 0;
@@ -207,6 +216,7 @@ export default function GradeEntry() {
         const gradesToUpsert = students.map(s => ({
             student_id: s.id,
             subject_id: selectedSubjectId,
+            penilaian_harian: s.penilaian_harian,
             tugas: s.tugas,
             uts: s.uts,
             uas: s.uas,
@@ -240,17 +250,32 @@ export default function GradeEntry() {
                 const wb = XLSX.read(bstr, { type: 'binary' });
                 const ws = wb.Sheets[wb.SheetNames[0]];
 
-                const data = XLSX.utils.sheet_to_json(ws);
+                // Auto-detect header row by finding 'NAMA' or 'NISN'
+                const rawData = XLSX.utils.sheet_to_json(ws, { header: 1 });
+                let headerIdx = rawData.findIndex(row => row.some(cell => cell && String(cell).toUpperCase().includes('NAMA')));
+                
+                // If it's the complex merged header, the main headers are at headerIdx, but data starts at headerIdx + 2
+                const dataRange = headerIdx !== -1 ? headerIdx : 0;
+                
+                const data = XLSX.utils.sheet_to_json(ws, { range: dataRange });
                 if (data.length === 0) throw new Error("File kosong");
 
                 const headers = Object.keys(data[0]);
                 setImportHeaders(headers);
                 setImportData(data);
 
-                // Auto-match for Final
-                const initMap = { score: '' };
-                const finalCol = headers.find(h => h.toLowerCase().includes('final') || h.toLowerCase().includes('nilai') || h.toLowerCase().includes('score'));
+                // Auto-match for all 5 columns
+                const initMap = { penilaian_harian: '', tugas: '', uts: '', uas: '', score: '' };
+                const phCol = headers.find(h => h.toLowerCase().includes('harian') || h.toLowerCase().includes('ph'));
+                const tugasCol = headers.find(h => h.toLowerCase().includes('tugas'));
+                const astsCol = headers.find(h => h.toLowerCase().includes('asts') || h.toLowerCase().includes('uts'));
+                const asasCol = headers.find(h => h.toLowerCase().includes('asas') || h.toLowerCase().includes('uas'));
+                const finalCol = headers.find(h => h.toLowerCase().includes('final') || h.toLowerCase().includes('score') || h.toLowerCase().includes('rapor'));
 
+                if (phCol) initMap.penilaian_harian = phCol;
+                if (tugasCol) initMap.tugas = tugasCol;
+                if (astsCol) initMap.uts = astsCol;
+                if (asasCol) initMap.uas = asasCol;
                 if (finalCol) initMap.score = finalCol;
 
                 setColumnMap(initMap);
@@ -286,19 +311,24 @@ export default function GradeEntry() {
             const stdId = nisToId[nis];
             if (!stdId) continue;
 
+            const phScore = columnMap.penilaian_harian ? parseFloat(row[columnMap.penilaian_harian]) : 0;
+            const tugasScore = columnMap.tugas ? parseFloat(row[columnMap.tugas]) : 0;
+            const utsScore = columnMap.uts ? parseFloat(row[columnMap.uts]) : 0;
+            const uasScore = columnMap.uas ? parseFloat(row[columnMap.uas]) : 0;
             const finalScoreRaw = columnMap.score ? parseFloat(row[columnMap.score]) : 0;
-            const finalScore = isNaN(finalScoreRaw) ? 0 : Math.round(finalScoreRaw);
-            const score = finalScore;
 
-            const t = score;
-            const ut = score;
-            const ua = score;
+            const ph = isNaN(phScore) ? 0 : Math.round(phScore);
+            const t = isNaN(tugasScore) ? 0 : Math.round(tugasScore);
+            const ut = isNaN(utsScore) ? 0 : Math.round(utsScore);
+            const ua = isNaN(uasScore) ? 0 : Math.round(uasScore);
+            const score = isNaN(finalScoreRaw) ? 0 : Math.round(finalScoreRaw);
 
             upsertPayloads.push({
                 student_id: stdId,
                 subject_id: selectedSubjectId,
                 semester: selectedSemester,
                 academic_year: selectedAcademicYear,
+                penilaian_harian: ph,
                 tugas: t,
                 uts: ut,
                 uas: ua,
@@ -327,24 +357,49 @@ export default function GradeEntry() {
             return;
         }
 
-        const templateData = students.map((s, idx) => {
-            return {
-                'No': idx + 1,
-                'NIS': s.nis,
-                'Nama Lengkap': s.name,
-                'NILAI FINAL': ''
-            };
+        const subjectName = dbSubjects.find(s => s.id === selectedSubjectId)?.name || 'MATA PELAJARAN';
+        const className = dbClasses.find(c => c.id === selectedClassId)?.name || 'KELAS';
+        const title = `FORMAT IMPORT NILAI RAPOR ${subjectName.toUpperCase()}, KELAS ${className.toUpperCase()} - PILIHAN`;
+
+        const aoaData = [];
+        
+        // Row 1: Title
+        aoaData.push([title, '', '', '', '', '', '', '']);
+        
+        // Row 2: Empty
+        aoaData.push(['', '', '', '', '', '', '', '']);
+        
+        // Row 3: Headers Line 1
+        aoaData.push(['NO', 'NISN', 'NAMA SISWA', 'NILAI RAPOR', 'TINGKAT KETERCAPAIAN TP', '', '', 'VALIDASI']);
+        
+        // Row 4: Headers Line 2
+        aoaData.push(['', '', '', '', 'TP.1224', 'TP.1225', 'TP.1226', 'NILAI']);
+
+        // Data Rows
+        students.forEach((s, idx) => {
+            aoaData.push([idx + 1, s.nis, s.name, s.score || 0, '', '', '', '']);
         });
 
-        const ws = XLSX.utils.json_to_sheet(templateData);
+        const ws = XLSX.utils.aoa_to_sheet(aoaData);
+
+        // Merges
+        ws['!merges'] = [
+            { s: { r: 0, c: 0 }, e: { r: 0, c: 7 } }, // Title
+            { s: { r: 2, c: 0 }, e: { r: 3, c: 0 } }, // NO
+            { s: { r: 2, c: 1 }, e: { r: 3, c: 1 } }, // NISN
+            { s: { r: 2, c: 2 }, e: { r: 3, c: 2 } }, // NAMA SISWA
+            { s: { r: 2, c: 3 }, e: { r: 3, c: 3 } }, // NILAI RAPOR
+            { s: { r: 2, c: 4 }, e: { r: 2, c: 6 } }, // TINGKAT KETERCAPAIAN TP
+        ];
+
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, 'Template Nilai');
 
         // Auto-size columns loosely
-        const colWidths = [{ wch: 5 }, { wch: 15 }, { wch: 40 }, { wch: 15 }];
+        const colWidths = [{ wch: 5 }, { wch: 15 }, { wch: 40 }, { wch: 15 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 15 }];
         ws['!cols'] = colWidths;
 
-        XLSX.writeFile(wb, `Template_Nilai_${new Date().getTime()}.xlsx`);
+        XLSX.writeFile(wb, `Template_Nilai_${subjectName}_${className}.xlsx`);
     };
 
     return (
@@ -473,8 +528,12 @@ export default function GradeEntry() {
                                 <tr className="bg-gray-50 text-gray-500 font-sans text-[10px] uppercase tracking-widest border-b border-gray-100">
                                     <th className="px-6 py-4 w-16 text-center font-bold">No</th>
                                     <th className="px-6 py-4 font-bold">Student Name</th>
-                                    <th className="px-6 py-4 w-48 text-center bg-blue-50/50 text-blue-800 font-black">Nilai Final</th>
-                                    <th className="px-6 py-4 w-40 text-center font-bold">Status</th>
+                                    <th className="px-4 py-4 w-24 text-center text-blue-600 font-black">Penilaian Harian</th>
+                                    <th className="px-4 py-4 w-24 text-center text-blue-600 font-black">Tugas</th>
+                                    <th className="px-4 py-4 w-24 text-center text-blue-600 font-black">ASTS</th>
+                                    <th className="px-4 py-4 w-24 text-center text-blue-600 font-black">ASAS</th>
+                                    <th className="px-6 py-4 w-32 text-center bg-blue-50/50 text-blue-800 font-black">Final</th>
+                                    <th className="px-6 py-4 w-32 text-center font-bold">Status</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-50">
@@ -489,13 +548,49 @@ export default function GradeEntry() {
                                                     <p className="font-sans mt-0.5 text-[10px] font-bold uppercase tracking-widest text-gray-400">ID: {student.nis}</p>
                                                 </div>
                                             </td>
-                                            <td className="px-4 py-3 bg-blue-50/20 group-hover:bg-blue-50/50 transition-colors">
-                                                <div className="relative w-full max-w-[120px] mx-auto">
+                                            <td className="px-2 py-3">
+                                                <input
+                                                    type="number"
+                                                    className="w-full bg-gray-50 border border-transparent focus:bg-white focus:border-blue-200 focus:ring-4 focus:ring-blue-50 rounded-xl outline-none py-2 text-center font-sans font-black text-base text-gray-900 transition-all placeholder:text-gray-300"
+                                                    value={student.penilaian_harian === 0 ? '' : student.penilaian_harian}
+                                                    onChange={(e) => handleScoreChange(student.id, 'penilaian_harian', e.target.value)}
+                                                    placeholder="0"
+                                                />
+                                            </td>
+                                            <td className="px-2 py-3">
+                                                <input
+                                                    type="number"
+                                                    className="w-full bg-gray-50 border border-transparent focus:bg-white focus:border-blue-200 focus:ring-4 focus:ring-blue-50 rounded-xl outline-none py-2 text-center font-sans font-black text-base text-gray-900 transition-all placeholder:text-gray-300"
+                                                    value={student.tugas === 0 ? '' : student.tugas}
+                                                    onChange={(e) => handleScoreChange(student.id, 'tugas', e.target.value)}
+                                                    placeholder="0"
+                                                />
+                                            </td>
+                                            <td className="px-2 py-3">
+                                                <input
+                                                    type="number"
+                                                    className="w-full bg-gray-50 border border-transparent focus:bg-white focus:border-blue-200 focus:ring-4 focus:ring-blue-50 rounded-xl outline-none py-2 text-center font-sans font-black text-base text-gray-900 transition-all placeholder:text-gray-300"
+                                                    value={student.uts === 0 ? '' : student.uts}
+                                                    onChange={(e) => handleScoreChange(student.id, 'uts', e.target.value)}
+                                                    placeholder="0"
+                                                />
+                                            </td>
+                                            <td className="px-2 py-3">
+                                                <input
+                                                    type="number"
+                                                    className="w-full bg-gray-50 border border-transparent focus:bg-white focus:border-blue-200 focus:ring-4 focus:ring-blue-50 rounded-xl outline-none py-2 text-center font-sans font-black text-base text-gray-900 transition-all placeholder:text-gray-300"
+                                                    value={student.uas === 0 ? '' : student.uas}
+                                                    onChange={(e) => handleScoreChange(student.id, 'uas', e.target.value)}
+                                                    placeholder="0"
+                                                />
+                                            </td>
+                                            <td className="px-2 py-3 bg-blue-50/20 group-hover:bg-blue-50/50 transition-colors">
+                                                <div className="relative w-full max-w-[80px] mx-auto">
                                                     <input
                                                         type="number"
-                                                        className={`w-full bg-white border border-transparent focus:border-blue-200 focus:ring-4 focus:ring-blue-50 rounded-xl outline-none py-3 text-center font-sans font-black text-2xl transition-all placeholder:text-gray-300 shadow-sm hover:shadow active:scale-95 ${final < 75 ? 'text-rose-600' : 'text-gray-900'}`}
+                                                        className={`w-full bg-white border border-transparent focus:border-blue-200 focus:ring-4 focus:ring-blue-50 rounded-xl outline-none py-2 text-center font-sans font-black text-xl transition-all placeholder:text-gray-300 shadow-sm hover:shadow active:scale-95 ${final < 75 ? 'text-rose-600' : 'text-gray-900'}`}
                                                         value={student.score === 0 ? '' : student.score}
-                                                        onChange={(e) => handleScoreChange(student.id, e.target.value)}
+                                                        onChange={(e) => handleScoreChange(student.id, 'score', e.target.value)}
                                                         placeholder="0"
                                                     />
                                                 </div>
@@ -549,24 +644,32 @@ export default function GradeEntry() {
                         </div>
 
                         <div className="space-y-4">
-                            <div className="bg-gray-50 border border-gray-100 rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                                <label className="text-sm font-sans font-black uppercase tracking-widest text-gray-900 w-full sm:w-1/3 text-left">
-                                    NILAI <span className="text-blue-600 ml-1">FINAL</span>
-                                </label>
-                                <div className="relative w-full sm:w-2/3">
-                                    <select
-                                        className="w-full bg-white border border-transparent focus:border-blue-200 focus:ring-4 focus:ring-blue-50 rounded-xl px-4 py-3 text-xs font-sans font-bold text-gray-900 uppercase transition-all appearance-none cursor-pointer shadow-sm"
-                                        value={columnMap['score'] || ''}
-                                        onChange={(e) => setColumnMap({ ...columnMap, score: e.target.value })}
-                                    >
-                                        <option value="" className="text-gray-400">--- KOSONGKAN (JADI 0) ---</option>
-                                        {importHeaders.map(h => (
-                                            <option key={h} value={h}>KOLOM: {h}</option>
-                                        ))}
-                                    </select>
-                                    <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" strokeWidth={2.5} />
+                            {[
+                                { key: 'penilaian_harian', label: 'PENILAIAN HARIAN' },
+                                { key: 'tugas', label: 'TUGAS' },
+                                { key: 'uts', label: 'ASTS' },
+                                { key: 'uas', label: 'ASAS' },
+                                { key: 'score', label: 'FINAL' }
+                            ].map((part) => (
+                                <div key={part.key} className="bg-gray-50 border border-gray-100 rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                    <label className="text-sm font-sans font-black uppercase tracking-widest text-gray-900 w-full sm:w-1/3 text-left">
+                                        NILAI <span className="text-blue-600 ml-1">{part.label}</span>
+                                    </label>
+                                    <div className="relative w-full sm:w-2/3">
+                                        <select
+                                            className="w-full bg-white border border-transparent focus:border-blue-200 focus:ring-4 focus:ring-blue-50 rounded-xl px-4 py-3 text-xs font-sans font-bold text-gray-900 uppercase transition-all appearance-none cursor-pointer shadow-sm"
+                                            value={columnMap[part.key] || ''}
+                                            onChange={(e) => setColumnMap({ ...columnMap, [part.key]: e.target.value })}
+                                        >
+                                            <option value="" className="text-gray-400">--- KOSONGKAN (JADI 0) ---</option>
+                                            {importHeaders.map(h => (
+                                                <option key={h} value={h}>KOLOM: {h}</option>
+                                            ))}
+                                        </select>
+                                        <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" strokeWidth={2.5} />
+                                    </div>
                                 </div>
-                            </div>
+                            ))}
                         </div>
 
                         <div className="pt-6 flex flex-col sm:flex-row justify-end gap-3">

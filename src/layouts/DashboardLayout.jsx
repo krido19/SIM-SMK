@@ -24,7 +24,8 @@ import {
     Sun,
     Moon,
     TrendingUp,
-    Printer
+    Printer,
+    FileText
 } from 'lucide-react';
 
 const SidebarLink = ({ to, icon: Icon, children }) => (
@@ -137,6 +138,7 @@ export default function DashboardLayout() {
                     { to: '/teacher/schedule', icon: Calendar, label: 'Jadwal Mengajar' },
                     { to: '/teacher/grades', icon: BookOpen, label: 'Input Nilai' },
                     { to: '/teacher/attendance', icon: Users, label: 'Absensi Siswa' },
+                    { to: '/teacher/journals', icon: FileText, label: 'Jurnal Mengajar' },
                     { to: '/teacher/assignments', icon: ClipboardList, label: 'Tugas & Penilaian' }
                 ]
             },

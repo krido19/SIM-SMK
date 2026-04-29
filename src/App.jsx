@@ -24,6 +24,7 @@ const AnalyticsDashboard = lazy(() => import('./pages/admin/AnalyticsDashboard')
 const DocumentGenerator = lazy(() => import('./pages/admin/DocumentGenerator'))
 const GradeEntry = lazy(() => import('./pages/teacher/GradeEntry'))
 const AttendanceEntry = lazy(() => import('./pages/teacher/AttendanceEntry'))
+const TeachingJournals = lazy(() => import('./pages/teacher/TeachingJournals'))
 const StudentGrades = lazy(() => import('./pages/student/StudentGrades'))
 const StudentAttendance = lazy(() => import('./pages/student/StudentAttendance'))
 const Assignments = lazy(() => import('./pages/teacher/Assignments'))
@@ -80,6 +81,7 @@ function App() {
                   {/* Teacher Routes */}
                   <Route path="/teacher/grades" element={<GradeEntry />} />
                   <Route path="/teacher/attendance" element={<AttendanceEntry />} />
+                  <Route path="/teacher/journals" element={<TeachingJournals />} />
                   <Route path="/teacher/assignments" element={<Assignments />} />
                   <Route path="/teacher/announcements" element={<Announcements />} />
                   <Route path="/teacher/schedule" element={<TeacherSchedule />} />
