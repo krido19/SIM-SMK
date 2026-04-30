@@ -105,6 +105,7 @@ export default function StudentGrades() {
                     id: g.id,
                     name: g.subjects?.name || 'Unknown Subject',
                     kkm: g.subjects?.kkm || 75,
+                    penilaian_harian: g.penilaian_harian,
                     tugas: g.tugas,
                     uts: g.uts,
                     uas: g.uas,
@@ -271,16 +272,17 @@ export default function StudentGrades() {
                             <tr className="bg-gray-50 text-gray-500 font-sans text-[10px] uppercase tracking-widest border-b border-gray-100">
                                 <th className="px-6 py-5 font-bold">Mata Pelajaran</th>
                                 <th className="px-6 py-5 text-center font-bold">KKM</th>
-                                <th className="px-6 py-5 text-center font-bold">Tugas</th>
-                                <th className="px-6 py-5 text-center font-bold">UTS</th>
-                                <th className="px-6 py-5 text-center font-bold">UAS</th>
-                                <th className="px-6 py-5 text-center bg-blue-50/50 text-blue-800 font-black">Nilai Akhir</th>
+                                <th className="px-6 py-5 text-center font-bold">PENILAIAN HARIAN</th>
+                                <th className="px-6 py-5 text-center font-bold">TUGAS</th>
+                                <th className="px-6 py-5 text-center font-bold">ASTS</th>
+                                <th className="px-6 py-5 text-center font-bold">ASAS</th>
+                                <th className="px-6 py-5 text-center bg-blue-50/50 text-blue-800 font-black">NILAI AKHIR</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-50">
                             {grades.length === 0 ? (
                                 <tr>
-                                    <td colSpan="6" className="py-24 text-center bg-gray-50/50">
+                                    <td colSpan="7" className="py-24 text-center bg-gray-50/50">
                                         <div className="flex flex-col items-center justify-center max-w-sm mx-auto">
                                             <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-sm mb-6">
                                                 <Calendar size={32} className="text-gray-300" strokeWidth={2} />
@@ -308,6 +310,7 @@ export default function StudentGrades() {
                                         <td className="px-6 py-5 text-center">
                                             <span className="font-sans text-xs font-bold text-gray-400 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100">{sub.kkm}</span>
                                         </td>
+                                        <td className="px-6 py-5 text-center font-sans font-black text-gray-700">{sub.penilaian_harian ?? '-'}</td>
                                         <td className="px-6 py-5 text-center font-sans font-black text-gray-700">{sub.tugas ?? '-'}</td>
                                         <td className="px-6 py-5 text-center font-sans font-black text-gray-700">{sub.uts ?? '-'}</td>
                                         <td className="px-6 py-5 text-center font-sans font-black text-gray-700">{sub.uas ?? '-'}</td>

@@ -194,7 +194,7 @@ export default function AttendanceEntry() {
 
                     <div className="flex flex-wrap gap-4">
                         <div className="relative min-w-[200px]">
-                            <span className="absolute -top-2.5 left-3 bg-white px-1 text-[10px] font-sans font-black uppercase tracking-widest text-blue-600">Section</span>
+                            <span className="absolute -top-2.5 left-3 bg-white px-1 text-[10px] font-sans font-black uppercase tracking-widest text-blue-600">Kelas</span>
                             <div className="relative">
                                 <select
                                     className="w-full bg-gray-50 border border-transparent px-4 py-3 pr-8 rounded-xl text-sm font-sans font-bold text-gray-900 focus:outline-none focus:bg-white focus:border-blue-200 focus:ring-4 focus:ring-blue-50 transition-all appearance-none cursor-pointer tracking-tight"
@@ -207,7 +207,7 @@ export default function AttendanceEntry() {
                             </div>
                         </div>
                         <div className="relative min-w-[200px]">
-                            <span className="absolute -top-2.5 left-3 bg-white px-1 text-[10px] font-sans font-black uppercase tracking-widest text-blue-600">Date</span>
+                            <span className="absolute -top-2.5 left-3 bg-white px-1 text-[10px] font-sans font-black uppercase tracking-widest text-blue-600">Tanggal</span>
                             <input
                                 type="date"
                                 className="w-full bg-gray-50 border border-transparent px-4 py-3 rounded-xl text-sm font-sans font-bold text-gray-900 focus:outline-none focus:bg-white focus:border-blue-200 focus:ring-4 focus:ring-blue-50 transition-all tracking-tight"

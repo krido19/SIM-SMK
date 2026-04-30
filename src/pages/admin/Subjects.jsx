@@ -69,6 +69,7 @@ export default function Subjects() {
     const [subjects, setSubjects] = useState([]);
     const [dbTeachers, setDbTeachers] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
+    const [teacherSearchTerm, setTeacherSearchTerm] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [currentSubject, setCurrentSubject] = useState(null);
     const [formData, setFormData] = useState({ name: '', kkm: 75, jurusan: 'Umum', color: 'blue', teachers: [] });
@@ -117,6 +118,7 @@ export default function Subjects() {
     const handleOpenAdd = () => {
         setCurrentSubject(null);
         setFormData({ name: '', kkm: 75, jurusan: 'Umum', color: 'blue', teachers: [] });
+        setTeacherSearchTerm('');
         setIsModalOpen(true);
     };
 
@@ -129,6 +131,7 @@ export default function Subjects() {
             color: subject.color,
             teachers: subject.teachers ? subject.teachers.split(', ') : []
         });
+        setTeacherSearchTerm('');
         setIsModalOpen(true);
     };
 
@@ -455,10 +458,20 @@ export default function Subjects() {
                         </div>
                     </div>
 
-                    <div className="space-y-1.5">
+                    <div className="space-y-2">
                         <label className="text-[11px] font-sans font-bold text-gray-400 block uppercase tracking-widest px-1">Pilih Guru Pengampu (Multi)</label>
+                        <div className="relative">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={14} />
+                            <input
+                                type="text"
+                                placeholder="Cari nama guru..."
+                                className="w-full bg-gray-50 border border-transparent rounded-xl pl-9 pr-4 py-2.5 font-sans font-bold text-xs text-gray-900 outline-none focus:bg-white focus:border-blue-200 focus:ring-4 focus:ring-blue-50 transition-all placeholder:text-gray-300"
+                                value={teacherSearchTerm}
+                                onChange={(e) => setTeacherSearchTerm(e.target.value)}
+                            />
+                        </div>
                         <div className="max-h-48 overflow-y-auto bg-gray-50 border border-transparent rounded-2xl p-2 space-y-1 custom-scrollbar">
-                            {dbTeachers.map(teacher => (
+                            {dbTeachers.filter(t => t.name.toLowerCase().includes(teacherSearchTerm.toLowerCase())).map(teacher => (
                                 <button
                                     key={teacher.id}
                                     type="button"
@@ -475,7 +488,11 @@ export default function Subjects() {
                                     {formData.teachers.includes(teacher.name) && <CheckCircle2 size={18} className="text-white" />}
                                 </button>
                             ))}
-                            {dbTeachers.length === 0 && <p className="text-center text-xs font-sans font-medium text-gray-400 py-4">Belum ada data guru</p>}
+                            {dbTeachers.filter(t => t.name.toLowerCase().includes(teacherSearchTerm.toLowerCase())).length === 0 && (
+                                <p className="text-center text-xs font-sans font-medium text-gray-400 py-4">
+                                    {dbTeachers.length === 0 ? "Belum ada data guru" : "Guru tidak ditemukan"}
+                                </p>
+                            )}
                         </div>
                     </div>
 

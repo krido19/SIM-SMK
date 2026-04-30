@@ -306,7 +306,7 @@ export default function GradeEntry() {
 
         for (const row of importData) {
             // Flexible NIS matching
-            const nisRaw = row['NIS'] || row['nis'] || row['Nis'] || row['Nomor Induk'] || '';
+            const nisRaw = row['NIS'] || row['nis'] || row['Nis'] || row['Nomor Induk'] || row['NISN'] || '';
             const nis = String(nisRaw).trim();
             const stdId = nisToId[nis];
             if (!stdId) continue;
@@ -369,15 +369,22 @@ export default function GradeEntry() {
         // Row 2: Empty
         aoaData.push(['', '', '', '', '', '', '', '']);
         
-        // Row 3: Headers Line 1
-        aoaData.push(['NO', 'NISN', 'NAMA SISWA', 'NILAI RAPOR', 'TINGKAT KETERCAPAIAN TP', '', '', 'VALIDASI']);
-        
-        // Row 4: Headers Line 2
-        aoaData.push(['', '', '', '', 'TP.1224', 'TP.1225', 'TP.1226', 'NILAI']);
+        // Row 3: Headers
+        aoaData.push(['NO', 'NISN', 'NAMA SISWA', 'PENILAIAN HARIAN', 'TUGAS', 'ASTS', 'ASAS', 'FINAL']);
 
         // Data Rows
         students.forEach((s, idx) => {
-            aoaData.push([idx + 1, s.nis, s.name, s.score || 0, '', '', '', '']);
+            const r = idx + 4; // Excel rows are 1-indexed, starts at row 4
+            aoaData.push([
+                idx + 1, 
+                s.nis, 
+                s.name, 
+                s.penilaian_harian || 0, 
+                s.tugas || 0, 
+                s.uts || 0, 
+                s.uas || 0, 
+                { t: 'n', f: `ROUND(AVERAGE(D${r}:G${r}), 0)`, v: s.score || 0 }
+            ]);
         });
 
         const ws = XLSX.utils.aoa_to_sheet(aoaData);
@@ -385,18 +392,13 @@ export default function GradeEntry() {
         // Merges
         ws['!merges'] = [
             { s: { r: 0, c: 0 }, e: { r: 0, c: 7 } }, // Title
-            { s: { r: 2, c: 0 }, e: { r: 3, c: 0 } }, // NO
-            { s: { r: 2, c: 1 }, e: { r: 3, c: 1 } }, // NISN
-            { s: { r: 2, c: 2 }, e: { r: 3, c: 2 } }, // NAMA SISWA
-            { s: { r: 2, c: 3 }, e: { r: 3, c: 3 } }, // NILAI RAPOR
-            { s: { r: 2, c: 4 }, e: { r: 2, c: 6 } }, // TINGKAT KETERCAPAIAN TP
         ];
 
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, 'Template Nilai');
 
         // Auto-size columns loosely
-        const colWidths = [{ wch: 5 }, { wch: 15 }, { wch: 40 }, { wch: 15 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 15 }];
+        const colWidths = [{ wch: 5 }, { wch: 15 }, { wch: 40 }, { wch: 20 }, { wch: 15 }, { wch: 15 }, { wch: 15 }, { wch: 15 }];
         ws['!cols'] = colWidths;
 
         XLSX.writeFile(wb, `Template_Nilai_${subjectName}_${className}.xlsx`);
@@ -418,7 +420,7 @@ export default function GradeEntry() {
 
                     <div className="flex flex-wrap gap-4">
                         <div className="relative min-w-[160px]">
-                            <span className="absolute -top-2.5 left-3 bg-white px-1 text-[10px] font-sans font-black uppercase tracking-widest text-blue-600">Section</span>
+                            <span className="absolute -top-2.5 left-3 bg-white px-1 text-[10px] font-sans font-black uppercase tracking-widest text-blue-600">Kelas</span>
                             <div className="relative">
                                 <select
                                     className="w-full bg-gray-50 border border-transparent px-4 py-3 pr-8 rounded-xl text-sm font-sans font-bold text-gray-900 focus:outline-none focus:bg-white focus:border-blue-200 focus:ring-4 focus:ring-blue-50 transition-all appearance-none cursor-pointer tracking-tight"
@@ -431,7 +433,7 @@ export default function GradeEntry() {
                             </div>
                         </div>
                         <div className="relative min-w-[200px]">
-                            <span className="absolute -top-2.5 left-3 bg-white px-1 text-[10px] font-sans font-black uppercase tracking-widest text-blue-600">Subject</span>
+                            <span className="absolute -top-2.5 left-3 bg-white px-1 text-[10px] font-sans font-black uppercase tracking-widest text-blue-600">Mata Pelajaran</span>
                             <div className="relative">
                                 <select
                                     className="w-full bg-gray-50 border border-transparent px-4 py-3 pr-8 rounded-xl text-sm font-sans font-bold text-gray-900 focus:outline-none focus:bg-white focus:border-blue-200 focus:ring-4 focus:ring-blue-50 transition-all appearance-none cursor-pointer tracking-tight"
@@ -444,15 +446,15 @@ export default function GradeEntry() {
                             </div>
                         </div>
                         <div className="relative min-w-[140px]">
-                            <span className="absolute -top-2.5 left-3 bg-white px-1 text-[10px] font-sans font-black uppercase tracking-widest text-blue-600">Term</span>
+                            <span className="absolute -top-2.5 left-3 bg-white px-1 text-[10px] font-sans font-black uppercase tracking-widest text-blue-600">Semester</span>
                             <div className="relative">
                                 <select
                                     className="w-full bg-gray-50 border border-transparent px-4 py-3 pr-8 rounded-xl text-sm font-sans font-bold text-gray-900 focus:outline-none focus:bg-white focus:border-blue-200 focus:ring-4 focus:ring-blue-50 transition-all appearance-none cursor-pointer tracking-tight"
                                     value={selectedSemester}
                                     onChange={(e) => setSelectedSemester(parseInt(e.target.value))}
                                 >
-                                    <option value={1}>Term I</option>
-                                    <option value={2}>Term II</option>
+                                    <option value={1}>Semester I</option>
+                                    <option value={2}>Semester II</option>
                                 </select>
                                 <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" strokeWidth={2.5} />
                             </div>
