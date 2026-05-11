@@ -183,6 +183,7 @@ export default function StudentGrades() {
                         </button>
                     </div>
                 )}
+                </div>{/* end flex flex-wrap gap-3 */}
             </div>
 
             {/* Summary Cards */}
