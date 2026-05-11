@@ -1,147 +1,93 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
-import {
-    Megaphone,
-    Calendar,
-    X,
-    Newspaper
-} from 'lucide-react';
+import { Megaphone, Calendar, X, Newspaper } from 'lucide-react';
 
 export default function StudentAnnouncements() {
     const [announcements, setAnnouncements] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [viewAnnouncement, setViewAnnouncement] = useState(null);
 
-    useEffect(() => {
-        fetchAnnouncements();
-    }, []);
+    useEffect(() => { fetchAnnouncements(); }, []);
 
     const fetchAnnouncements = async () => {
         setIsLoading(true);
-        const { data, error } = await supabase
-            .from('announcements')
-            .select('*')
-            .order('created_at', { ascending: false });
-
-        if (!error) {
-            setAnnouncements(data || []);
-        }
+        const { data, error } = await supabase.from('announcements').select('*').order('created_at', { ascending: false });
+        if (!error) setAnnouncements(data || []);
         setIsLoading(false);
     };
 
-    if (isLoading) {
-        return (
-            <div className="py-24 text-center">
-                 <div className="w-12 h-12 border-4 border-gray-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
-                 <p className="font-sans text-sm font-bold text-gray-500 uppercase tracking-widest">Memuat pengumuman...</p>
-            </div>
-        );
-    }
+    if (isLoading) return (
+        <div className="py-16 flex flex-col items-center gap-3">
+            <div className="w-10 h-10 border-4 border-black border-t-neo-accent animate-spin" />
+            <p className="font-black text-sm text-black/40 uppercase tracking-widest">Memuat Pengumuman...</p>
+        </div>
+    );
 
     return (
-        <div className="space-y-8 animate-in fade-in duration-500 pb-12">
-            <div className="border-b border-gray-100 pb-6 text-center sm:text-left">
-                <div className="inline-flex items-center gap-2 mb-4 bg-indigo-50 px-3 py-1.5 rounded-full">
-                    <span className="bg-indigo-600 text-white text-[10px] font-sans font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
-                        Informasi
-                    </span>
-                 </div>
-                <h1 className="text-4xl font-sans font-black text-gray-900 tracking-tight leading-none mb-2">PENGUMUMAN</h1>
-                <p className="font-sans text-sm font-medium text-gray-500 mt-2">Informasi dan berita terbaru dari sekolah.</p>
+        <div className="space-y-6 pb-12">
+            <div className="pb-4 border-b-4 border-black">
+                <span className="inline-block bg-neo-muted border-4 border-black text-[10px] font-black px-3 py-1 uppercase tracking-widest shadow-[3px_3px_0px_0px_#000] mb-3">Informasi</span>
+                <h1 className="text-4xl font-black text-black uppercase tracking-tight leading-none">PENGUMUMAN</h1>
+                <p className="font-bold text-black/50 text-sm mt-1">Informasi dan berita terbaru dari sekolah.</p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                 {announcements.length > 0 ? announcements.map((ann) => (
-                    <div
-                        key={ann.id}
-                        onClick={() => setViewAnnouncement(ann)}
-                        className="bg-white border flex flex-col border-gray-100 rounded-3xl shadow-sm hover:shadow-md transition-all duration-300 group relative overflow-hidden cursor-pointer"
-                    >
+                    <div key={ann.id} onClick={() => setViewAnnouncement(ann)}
+                        className="bg-white border-4 border-black shadow-[6px_6px_0px_0px_#000] hover:-translate-y-1 hover:shadow-[10px_10px_0px_0px_#000] transition-all duration-200 group cursor-pointer flex flex-col">
                         {ann.image_url && (
-                            <div className="w-full h-48 overflow-hidden relative border-b border-gray-100 bg-gray-50 flex-shrink-0">
-                                <img src={ann.image_url} alt={ann.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                            <div className="h-44 overflow-hidden border-b-4 border-black">
+                                <img src={ann.image_url} alt={ann.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                             </div>
                         )}
-                        <div className="p-6 flex-1 flex flex-col">
-                            <div className="flex items-start justify-between mb-4">
-                                <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center border border-indigo-100 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
-                                    <Megaphone size={18} strokeWidth={2.5} />
+                        <div className="p-5 flex-1 flex flex-col">
+                            <div className="flex items-start justify-between mb-3">
+                                <div className="border-4 border-black p-2 bg-neo-muted shadow-[2px_2px_0px_0px_#000]">
+                                    <Megaphone size={16} strokeWidth={3} />
                                 </div>
+                                {ann.category && (
+                                    <span className="border-2 border-black bg-neo-cream text-[9px] font-black uppercase tracking-widest px-2 py-0.5">{ann.category}</span>
+                                )}
                             </div>
-
-                            <div className="space-y-3 flex-1 flex flex-col">
-                                <div>
-                                    <span className="px-3 py-1 bg-gray-50 text-gray-500 rounded-lg text-[10px] font-sans font-bold uppercase tracking-widest border border-gray-200 shadow-sm w-max">
-                                        {ann.category}
-                                    </span>
-                                    <h3 className="text-xl font-black text-gray-900 mt-4 tracking-tight font-sans leading-tight line-clamp-2 group-hover:text-indigo-600 transition-colors">{ann.title}</h3>
-                                </div>
-                                <p className="text-gray-500 text-sm font-sans flex-1 line-clamp-3 leading-relaxed mt-2">{ann.content}</p>
-                                <div className="pt-4 mt-auto border-t border-gray-100 flex items-center text-[10px] font-sans font-bold text-gray-400 uppercase tracking-widest bg-gray-50 rounded-lg px-3 py-2 w-max">
-                                    <Calendar size={14} className="mr-2 text-gray-500" strokeWidth={2.5} />
-                                    {ann.date}
-                                </div>
+                            <h3 className="text-lg font-black text-black tracking-tight leading-tight line-clamp-2 uppercase mb-2">{ann.title}</h3>
+                            <p className="text-black/50 text-sm font-bold flex-1 line-clamp-3 leading-relaxed">{ann.content}</p>
+                            <div className="mt-4 pt-4 border-t-2 border-black/10 flex items-center gap-2 text-[10px] font-black text-black/40 uppercase tracking-widest">
+                                <Calendar size={12} strokeWidth={3} />{ann.date}
                             </div>
                         </div>
                     </div>
                 )) : (
-                    <div className="col-span-full py-24 flex flex-col items-center justify-center text-center bg-gray-50 rounded-3xl border border-dashed border-gray-200">
-                        <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-sm mb-6">
-                             <Newspaper size={32} className="text-gray-300" strokeWidth={2} />
-                        </div>
-                        <h3 className="text-xl font-sans font-black text-gray-900 tracking-tight">Belum Ada Pengumuman</h3>
-                        <p className="text-sm font-sans font-medium text-gray-500 mt-2 max-w-md">Pengumuman dari sekolah akan ditampilkan di sini saat tersedia.</p>
+                    <div className="col-span-full py-16 text-center border-4 border-dashed border-black/20 bg-white">
+                        <Newspaper size={32} className="mx-auto mb-3 text-black/20" strokeWidth={2} />
+                        <h3 className="font-black text-black uppercase">Belum Ada Pengumuman</h3>
                     </div>
                 )}
             </div>
 
-            {/* View Detail Modal */}
+            {/* Detail Modal */}
             {viewAnnouncement && (
-                <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-md animate-in fade-in duration-300">
-                    <div className="bg-white rounded-3xl shadow-2xl border border-white/20 w-full max-w-2xl overflow-hidden animate-in zoom-in-95 duration-300 max-h-[90vh] flex flex-col">
-                        <div className="relative shrink-0">
-                            {viewAnnouncement.image_url ? (
-                                <img src={viewAnnouncement.image_url} className="w-full h-80 object-cover" />
-                            ) : (
-                                <div className="w-full h-24 bg-gradient-to-r from-indigo-500 to-blue-600" />
-                            )}
-                            <button
-                                onClick={() => setViewAnnouncement(null)}
-                                className="absolute top-4 right-4 p-2 bg-white/20 backdrop-blur-sm border border-white/40 text-white hover:bg-white hover:text-gray-900 rounded-xl transition-all shadow-sm"
-                            >
-                                <X size={20} strokeWidth={2.5} />
+                <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/70">
+                    <div className="bg-neo-cream border-4 border-black shadow-[12px_12px_0px_0px_#000] w-full max-w-2xl overflow-hidden max-h-[90vh] flex flex-col animate-bounce-in">
+                        <div className="bg-neo-secondary border-b-4 border-black px-5 py-3 flex items-center justify-between">
+                            <div>
+                                {viewAnnouncement.category && <span className="bg-black text-neo-secondary text-[9px] font-black uppercase px-2 py-0.5 mr-2">{viewAnnouncement.category}</span>}
+                                <span className="text-[10px] font-black text-black/50 uppercase">{viewAnnouncement.date}</span>
+                            </div>
+                            <button onClick={() => setViewAnnouncement(null)} className="border-4 border-black p-1.5 bg-white hover:bg-neo-accent shadow-[3px_3px_0px_0px_#000] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none transition-all duration-100">
+                                <X size={14} strokeWidth={3} />
                             </button>
-                            <div className="absolute -bottom-4 left-8">
-                                <span className="px-4 py-2 bg-indigo-600 text-white shadow-lg text-[10px] font-sans font-bold uppercase tracking-widest rounded-xl border-4 border-white">
-                                    {viewAnnouncement.category}
-                                </span>
-                            </div>
                         </div>
-
-                        <div className="p-8 pt-10 overflow-y-auto space-y-6 flex-1 custom-scrollbar">
-                            <div className="flex items-center space-x-2 text-[10px] font-sans font-bold text-gray-500 uppercase tracking-widest bg-gray-50 border border-gray-100 px-4 py-2 rounded-xl w-max">
-                                <Calendar size={14} strokeWidth={2.5} className="text-gray-400" />
-                                <span>Dipublikasikan: {viewAnnouncement.date}</span>
+                        {viewAnnouncement.image_url && (
+                            <div className="border-b-4 border-black h-52 overflow-hidden">
+                                <img src={viewAnnouncement.image_url} className="w-full h-full object-cover" alt={viewAnnouncement.title} />
                             </div>
-
-                            <h2 className="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight leading-tight font-sans">
-                                {viewAnnouncement.title}
-                            </h2>
-
-                            <div className="border-t border-gray-100 pt-6">
-                                <p className="text-gray-600 text-base font-sans leading-relaxed whitespace-pre-wrap">
-                                    {viewAnnouncement.content}
-                                </p>
-                            </div>
-
-                            <div className="pt-8 mt-auto">
-                                <button
-                                    onClick={() => setViewAnnouncement(null)}
-                                    className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-sans font-bold py-4 rounded-xl transition-all flex items-center justify-center space-x-2 text-xs uppercase tracking-widest"
-                                >
-                                    Tutup Pengumuman
-                                </button>
-                            </div>
+                        )}
+                        <div className="p-6 overflow-y-auto">
+                            <h2 className="text-2xl font-black text-black uppercase tracking-tight mb-4">{viewAnnouncement.title}</h2>
+                            <div className="border-t-4 border-black pt-4 text-sm font-bold text-black/70 leading-relaxed whitespace-pre-wrap">{viewAnnouncement.content}</div>
+                            <button onClick={() => setViewAnnouncement(null)} className="mt-6 w-full bg-black text-white font-black text-sm uppercase tracking-widest py-4 border-4 border-black shadow-[6px_6px_0px_0px_#FF6B6B] hover:bg-neo-accent hover:text-black active:translate-x-[6px] active:translate-y-[6px] active:shadow-none transition-all duration-100">
+                                Tutup
+                            </button>
                         </div>
                     </div>
                 </div>

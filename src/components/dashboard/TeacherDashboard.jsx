@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
-import { Hash, Users, ClipboardList, TrendingUp, ChevronRight, AlertCircle, X, BookOpen, Clock, CheckCircle2 } from 'lucide-react';
+import { Hash, Users, ClipboardList, TrendingUp, X, BookOpen, Clock, CheckCircle2, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import StatCard from './StatCard';
 
@@ -124,8 +124,8 @@ const TeacherDashboard = ({ userName }) => {
     };
 
     if (isLoading) return (
-        <div className="flex items-center gap-2 font-sans text-xs font-bold text-gray-400 uppercase tracking-widest animate-pulse">
-            <div className="w-4 h-4 rounded-full border-2 border-blue-600 border-t-transparent animate-spin"></div>
+        <div className="flex items-center gap-2 text-xs font-black text-black/40 uppercase tracking-widest">
+            <div className="w-4 h-4 border-2 border-black border-t-neo-accent animate-spin"></div>
             Memuat Dashboard...
         </div>
     );
@@ -139,140 +139,107 @@ const TeacherDashboard = ({ userName }) => {
                 <StatCard title="Kehadiran Hari Ini" value={stats.attendance} icon={TrendingUp} color="amber" />
             </div>
 
-            <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm">
-                <div className="flex items-center justify-between mb-8 pb-4 border-b border-gray-50">
-                    <div className="flex items-center gap-3">
-                        <div className="p-2 bg-blue-50 text-blue-600 rounded-xl">
-                            <AlertCircle size={20} strokeWidth={2.5} />
-                        </div>
-                        <div>
-                            <h3 className="text-xl font-sans font-black text-gray-900 leading-none">Tindakan Diperlukan</h3>
-                            <p className="text-xs font-sans font-medium text-gray-400 mt-1 uppercase tracking-widest">Tugas Utama Pengajar Hari Ini</p>
-                        </div>
+            <div className="bg-white border-4 border-black shadow-[8px_8px_0px_0px_#000] p-6">
+                <div className="flex items-center justify-between mb-6 pb-4 border-b-4 border-black">
+                    <div>
+                        <h3 className="text-lg font-black text-black uppercase tracking-tight">Tindakan Diperlukan</h3>
+                        <p className="text-[10px] font-black text-black/40 mt-0.5 uppercase tracking-widest">Tugas Utama Pengajar Hari Ini</p>
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="bg-gray-50/50 rounded-2xl p-6 border border-gray-100 hover:border-blue-200 hover:bg-white hover:shadow-md transition-all duration-300 group">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="border-4 border-black shadow-[4px_4px_0px_0px_#000] hover:-translate-y-1 hover:shadow-[8px_8px_0px_0px_#000] transition-all duration-200 p-5 bg-neo-cream group">
                         <div className="flex items-start justify-between mb-4">
-                            <div className="w-12 h-12 rounded-xl bg-white border border-gray-100 flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors duration-300 shadow-sm">
-                                <Clock size={24} />
+                            <div className="border-4 border-black p-2.5 bg-neo-muted shadow-[2px_2px_0px_0px_#000]">
+                                <Clock size={20} strokeWidth={3} />
                             </div>
-                            <span className="px-2 py-1 bg-amber-100 text-amber-700 text-[10px] font-bold rounded-full uppercase">Penting</span>
+                            <span className="px-2 py-0.5 bg-neo-secondary border-2 border-black text-[9px] font-black uppercase">Penting</span>
                         </div>
-                        <h4 className="text-lg font-sans font-black text-gray-900 mb-2">Catat Kehadiran Harian</h4>
-                        <p className="text-sm font-sans font-medium text-gray-500 mb-6 leading-relaxed">Pastikan seluruh siswa di kelas Anda hari ini telah tercatat status kehadirannya dalam sistem.</p>
-                        <Link to="/teacher/attendance" className="inline-flex items-center gap-2 text-xs font-bold text-blue-600 hover:underline">
-                            Buka Panel Absensi <ChevronRight size={14} />
+                        <h4 className="text-base font-black text-black uppercase mb-2">Catat Kehadiran Harian</h4>
+                        <p className="text-xs font-bold text-black/50 mb-4 leading-relaxed">Pastikan seluruh siswa tercatat status kehadirannya dalam sistem.</p>
+                        <Link to="/teacher/attendance" className="inline-flex items-center gap-1.5 text-[11px] font-black uppercase tracking-widest text-black border-b-2 border-black hover:border-neo-accent hover:text-neo-accent transition-colors">
+                            Buka Absensi <ArrowRight size={12} strokeWidth={3} />
                         </Link>
                     </div>
 
-                    <div className="bg-gray-50/50 rounded-2xl p-6 border border-gray-100 hover:border-emerald-200 hover:bg-white hover:shadow-md transition-all duration-300 group">
+                    <div className="border-4 border-black shadow-[4px_4px_0px_0px_#000] hover:-translate-y-1 hover:shadow-[8px_8px_0px_0px_#000] transition-all duration-200 p-5 bg-neo-cream group">
                         <div className="flex items-start justify-between mb-4">
-                            <div className="w-12 h-12 rounded-xl bg-white border border-gray-100 flex items-center justify-center text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-colors duration-300 shadow-sm">
-                                <CheckCircle2 size={24} />
+                            <div className="border-4 border-black p-2.5 bg-neo-secondary shadow-[2px_2px_0px_0px_#000]">
+                                <CheckCircle2 size={20} strokeWidth={3} />
                             </div>
-                            <span className="px-2 py-1 bg-blue-100 text-blue-700 text-[10px] font-bold rounded-full uppercase">Update</span>
+                            <span className="px-2 py-0.5 bg-neo-muted border-2 border-black text-[9px] font-black uppercase">Update</span>
                         </div>
-                        <h4 className="text-lg font-sans font-black text-gray-900 mb-2">Nilai Tugas & Ujian</h4>
-                        <p className="text-sm font-sans font-medium text-gray-500 mb-6 leading-relaxed">Tinjau hasil pekerjaan siswa dan berikan penilaian langsung dari dashboard evaluasi akademik.</p>
-                        <Link to="/teacher/assignments" className="inline-flex items-center gap-2 text-xs font-bold text-emerald-600 hover:underline">
-                            Buka Evaluasi Nilai <ChevronRight size={14} />
+                        <h4 className="text-base font-black text-black uppercase mb-2">Nilai Tugas & Ujian</h4>
+                        <p className="text-xs font-bold text-black/50 mb-4 leading-relaxed">Tinjau hasil pekerjaan siswa dan berikan penilaian langsung.</p>
+                        <Link to="/teacher/assignments" className="inline-flex items-center gap-1.5 text-[11px] font-black uppercase tracking-widest text-black border-b-2 border-black hover:border-neo-accent hover:text-neo-accent transition-colors">
+                            Buka Evaluasi <ArrowRight size={12} strokeWidth={3} />
                         </Link>
                     </div>
                 </div>
             </div>
 
-            {/* Detail Modal */}
             {showDetail && (
-                <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-md animate-in fade-in duration-300">
-                    <div className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden animate-in zoom-in-95 duration-300 max-h-[85vh] flex flex-col">
-                        <div className="px-8 py-6 flex justify-between items-center border-b border-gray-50 bg-gray-50/30">
+                <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/70 animate-in fade-in duration-200">
+                    <div className="bg-neo-cream border-4 border-black shadow-[12px_12px_0px_0px_#000] w-full max-w-2xl overflow-hidden max-h-[85vh] flex flex-col animate-bounce-in">
+                        <div className="px-6 py-4 flex justify-between items-center border-b-4 border-black bg-neo-secondary">
                             <div>
-                                <h3 className="text-xl font-sans font-black text-gray-900">
+                                <h3 className="text-lg font-black text-black uppercase tracking-tight">
                                     {showDetail === 'classes' ? 'Daftar Kelas Diampu' : 'Daftar Siswa Aktif'}
                                 </h3>
-                                <p className="text-xs font-sans font-medium text-gray-400 mt-1 uppercase tracking-widest leading-none">
-                                    {showDetail === 'classes' ? `${classDetails.length} Kelas` : `${studentDetails.length} Siswa Terdaftar`}
+                                <p className="text-[10px] font-black text-black/50 mt-0.5 uppercase tracking-widest">
+                                    {showDetail === 'classes' ? `${classDetails.length} Kelas` : `${studentDetails.length} Siswa`}
                                 </p>
                             </div>
-                            <button onClick={() => setShowDetail(null)} className="p-2 bg-gray-100 hover:bg-gray-200 text-gray-500 rounded-xl transition-all">
-                                <X size={20} strokeWidth={2.5} />
+                            <button onClick={() => setShowDetail(null)} className="border-4 border-black p-1.5 bg-white hover:bg-neo-accent shadow-[3px_3px_0px_0px_#000] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none transition-all duration-100">
+                                <X size={16} strokeWidth={3} />
                             </button>
                         </div>
 
-                        <div className="p-6 overflow-y-auto custom-scrollbar">
+                        <div className="p-5 overflow-y-auto">
                             {showDetail === 'classes' ? (
-                                <div className="space-y-4 p-2">
+                                <div className="space-y-3">
                                     {classDetails.length > 0 ? classDetails.map((cls, i) => (
-                                        <div key={cls.id} className="p-6 rounded-2xl border border-gray-100 bg-white hover:border-blue-100 hover:shadow-sm transition-all group">
-                                            <div className="flex items-center justify-between mb-4">
-                                                <h4 className="text-lg font-sans font-black text-gray-900">{cls.name}</h4>
-                                                <span className="bg-blue-50 text-blue-600 px-3 py-1 text-[10px] font-bold rounded-full uppercase">
-                                                    Kelas #{i + 1}
-                                                </span>
+                                        <div key={cls.id} className="border-4 border-black p-4 bg-white shadow-[4px_4px_0px_0px_#000] hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px_#000] transition-all">
+                                            <div className="flex items-center justify-between mb-3">
+                                                <h4 className="text-base font-black text-black uppercase">{cls.name}</h4>
+                                                <span className="bg-neo-secondary border-2 border-black px-2 py-0.5 text-[9px] font-black uppercase">#{i + 1}</span>
                                             </div>
                                             {cls.subjects.length > 0 && (
-                                                <div className="pt-4 border-t border-gray-50">
-                                                    <p className="text-[10px] font-sans font-bold text-gray-400 uppercase tracking-widest mb-3">Mata Pelajaran Diampu:</p>
+                                                <div className="pt-3 border-t-2 border-black/10">
                                                     <div className="flex flex-wrap gap-2">
                                                         {cls.subjects.map(subj => (
-                                                            <span key={subj} className="px-3 py-1.5 bg-gray-50 rounded-lg text-xs font-sans font-bold text-gray-700 flex items-center shadow-sm">
-                                                                <BookOpen size={12} className="mr-2 text-blue-600" />
-                                                                {subj}
-                                                            </span>
+                                                            <span key={subj} className="px-2 py-1 border-2 border-black bg-neo-cream text-[10px] font-black uppercase">{subj}</span>
                                                         ))}
                                                     </div>
                                                 </div>
                                             )}
                                         </div>
-                                    )) : (
-                                        <div className="py-20 text-center border-2 border-dashed border-gray-100 rounded-3xl">
-                                            <p className="text-gray-400 font-medium italic">Belum ada kelas yang diampu.</p>
-                                        </div>
-                                    )}
+                                    )) : <p className="text-center font-black text-black/30 uppercase py-12">Belum ada kelas diampu.</p>}
                                 </div>
                             ) : (
-                                <div className="p-2">
-                                    {studentDetails.length > 0 ? (
-                                        <div className="overflow-hidden rounded-2xl border border-gray-100 shadow-sm">
-                                            <table className="w-full text-left">
-                                                <thead className="bg-gray-50 text-[10px] uppercase font-sans font-bold text-gray-400 tracking-widest border-b border-gray-100">
-                                                    <tr>
-                                                        <th className="p-4 w-12 text-center">#</th>
-                                                        <th className="p-4">NIS</th>
-                                                        <th className="p-4">Nama Siswa</th>
-                                                        <th className="p-4">Kelas</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody className="text-sm">
-                                                    {studentDetails.map((std, i) => (
-                                                        <tr key={std.id} className="border-b border-gray-50 hover:bg-blue-50/20 transition-colors">
-                                                            <td className="p-4 text-center font-bold text-gray-300">{i + 1}</td>
-                                                            <td className="p-4 font-bold text-blue-600">{std.nis}</td>
-                                                            <td className="p-4 font-bold text-gray-800">{std.full_name}</td>
-                                                            <td className="p-4"><span className="px-2 py-1 bg-gray-100 rounded-md text-[10px] font-bold text-gray-500 uppercase">{std.className}</span></td>
-                                                        </tr>
-                                                    ))}
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    ) : (
-                                        <div className="py-20 text-center border-2 border-dashed border-gray-100 rounded-3xl">
-                                            <p className="text-gray-400 font-medium italic">Belum ada siswa di kelas Anda.</p>
-                                        </div>
-                                    )}
-                                </div>
+                                <table className="w-full text-left">
+                                    <thead className="bg-neo-cream text-[9px] uppercase font-black text-black/50 tracking-widest border-b-4 border-black">
+                                        <tr>
+                                            <th className="p-3">#</th><th className="p-3">NIS</th>
+                                            <th className="p-3">Nama</th><th className="p-3">Kelas</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {studentDetails.map((std, i) => (
+                                            <tr key={std.id} className="border-b-2 border-black/10 hover:bg-neo-muted/20">
+                                                <td className="p-3 font-black text-black/30">{i+1}</td>
+                                                <td className="p-3 font-black text-neo-accent">{std.nis}</td>
+                                                <td className="p-3 font-black text-black">{std.full_name}</td>
+                                                <td className="p-3"><span className="border-2 border-black px-2 py-0.5 text-[9px] font-black uppercase bg-neo-cream">{std.className}</span></td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
                             )}
                         </div>
 
-                        <div className="px-8 py-6 bg-gray-50/30 border-t border-gray-100 flex justify-end">
-                            <button
-                                onClick={() => setShowDetail(null)}
-                                className="px-8 py-3 bg-blue-600 text-white font-sans font-bold rounded-2xl shadow-lg shadow-blue-600/20 active:scale-95 transition-all text-xs uppercase tracking-widest"
-                            >
-                                Tutup Panel
-                            </button>
+                        <div className="px-6 py-4 border-t-4 border-black bg-neo-cream flex justify-end">
+                            <button onClick={() => setShowDetail(null)} className="px-6 py-3 bg-black text-white font-black text-xs uppercase tracking-widest border-4 border-black shadow-[4px_4px_0px_0px_#FF6B6B] hover:bg-neo-accent hover:text-black active:translate-x-[4px] active:translate-y-[4px] active:shadow-none transition-all duration-100">Tutup</button>
                         </div>
                     </div>
                 </div>

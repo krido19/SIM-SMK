@@ -1,47 +1,83 @@
-import React from 'react';
-import { AlertCircle, Info, X, CheckCircle } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { AlertCircle, Info, X, CheckCircle, AlertTriangle } from 'lucide-react';
 
-const Toast = ({ show, message, type, onClose }) => {
-    if (!show) return null;
+const TYPES = {
+    success: {
+        bg: 'bg-neo-secondary',
+        border: 'border-black',
+        shadow: 'shadow-[6px_6px_0px_0px_#000]',
+        icon: CheckCircle,
+        label: 'BERHASIL',
+    },
+    error: {
+        bg: 'bg-neo-accent',
+        border: 'border-black',
+        shadow: 'shadow-[6px_6px_0px_0px_#000]',
+        icon: AlertCircle,
+        label: 'ERROR',
+    },
+    warning: {
+        bg: 'bg-[#FFD93D]',
+        border: 'border-black',
+        shadow: 'shadow-[6px_6px_0px_0px_#000]',
+        icon: AlertTriangle,
+        label: 'PERINGATAN',
+    },
+    info: {
+        bg: 'bg-neo-muted',
+        border: 'border-black',
+        shadow: 'shadow-[6px_6px_0px_0px_#000]',
+        icon: Info,
+        label: 'INFO',
+    },
+};
 
-    const typeStyles = {
-        success: 'bg-emerald-500 text-white',
-        error: 'bg-blue-600 text-white',
-        warning: 'bg-amber-500 text-white',
-        info: 'bg-gray-900 text-white'
-    };
+const Toast = ({ show, message, type = 'info', onClose }) => {
+    const [visible, setVisible] = useState(false);
 
-    const icons = {
-        success: CheckCircle,
-        error: AlertCircle,
-        warning: AlertCircle,
-        info: Info
-    };
+    useEffect(() => {
+        if (show) {
+            setVisible(true);
+        } else {
+            const t = setTimeout(() => setVisible(false), 300);
+            return () => clearTimeout(t);
+        }
+    }, [show]);
 
-    const Icon = icons[type] || icons.info;
+    if (!visible) return null;
+
+    const cfg = TYPES[type] || TYPES.info;
+    const Icon = cfg.icon;
 
     return (
-        <div className="fixed bottom-6 right-6 z-[10000] flex justify-end p-4 animate-in slide-in-from-bottom-5 duration-300 pointer-events-none">
-            <div className={`pointer-events-auto flex flex-col rounded-lg shadow-none ${typeStyles[type] || typeStyles.info} max-w-sm w-full transition-all`}>
-                
-                <div className="flex items-center justify-between p-4 pb-2">
-                    <div className="flex items-center space-x-2">
-                        <Icon size={20} strokeWidth={2.5} />
-                        <span className="font-sans font-bold uppercase tracking-wider text-sm">
-                            {type === 'error' ? 'Pemberitahuan' : type === 'success' ? 'Berhasil' : type === 'warning' ? 'Peringatan' : 'Informasi'}
-                        </span>
-                    </div>
-                    <button
-                        onClick={onClose}
-                        className="p-1 hover:bg-white/20 rounded-md transition-colors"
-                    >
-                        <X size={16} strokeWidth={2.5} />
-                    </button>
+        <div className={`fixed bottom-6 right-6 z-[10000] transition-all duration-300 ${show ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}>
+            <div className={`flex items-start gap-3 ${cfg.bg} border-4 ${cfg.border} ${cfg.shadow} p-4 min-w-[280px] max-w-sm`}>
+                {/* Icon block */}
+                <div className="border-4 border-black bg-white p-1.5 shadow-[2px_2px_0px_0px_#000] shrink-0">
+                    <Icon size={16} strokeWidth={3} className="text-black" />
                 </div>
 
-                <div className="px-4 pb-4 pt-1">
-                    <p className="font-sans text-base leading-snug">{message}</p>
+                {/* Content */}
+                <div className="flex-1 min-w-0">
+                    <p className="text-[9px] font-black uppercase tracking-widest text-black/60 mb-0.5">{cfg.label}</p>
+                    <p className="font-black text-sm text-black leading-snug">{message}</p>
                 </div>
+
+                {/* Close */}
+                <button
+                    onClick={onClose}
+                    className="border-4 border-black bg-white p-1 shadow-[2px_2px_0px_0px_#000] hover:bg-neo-accent active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all duration-100 shrink-0"
+                >
+                    <X size={12} strokeWidth={3} />
+                </button>
+            </div>
+
+            {/* Progress bar */}
+            <div className="h-1 bg-black/20 border-x-4 border-b-4 border-black overflow-hidden">
+                <div
+                    className="h-full bg-black"
+                    style={{ animation: 'width-shrink 4s linear forwards', width: '100%' }}
+                />
             </div>
         </div>
     );

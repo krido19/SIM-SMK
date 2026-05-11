@@ -125,76 +125,46 @@ export default function StudentSchedule() {
         return dayMatch && weekMatch;
     });
 
-    if (isLoading) {
-        return (
-            <div className="py-24 text-center">
-                 <div className="w-12 h-12 border-4 border-gray-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
-                 <p className="font-sans text-sm font-bold text-gray-500 uppercase tracking-widest">Menyiapkan Jadwal Akademik...</p>
-            </div>
-        );
-    }
+    if (isLoading) return (
+        <div className="py-16 flex flex-col items-center gap-3">
+            <div className="w-10 h-10 border-4 border-black border-t-neo-accent animate-spin" />
+            <p className="font-black text-sm text-black/40 uppercase tracking-widest">Menyiapkan Jadwal...</p>
+        </div>
+    );
 
-    if (errorMsg && schedules.length === 0) {
-        return (
-            <div className="py-24 text-center max-w-md mx-auto">
-                <div className="bg-yellow-50 border border-yellow-200 rounded-2xl p-8">
-                    <div className="w-14 h-14 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <Info size={28} className="text-yellow-600" strokeWidth={2} />
-                    </div>
-                    <h2 className="font-sans text-lg font-black text-gray-900 mb-2">Jadwal Belum Tersedia</h2>
-                    <p className="font-sans text-sm text-gray-600 leading-relaxed">{errorMsg}</p>
-                </div>
+    if (errorMsg && schedules.length === 0) return (
+        <div className="py-16 flex flex-col items-center">
+            <div className="border-4 border-black shadow-[8px_8px_0px_0px_#FFD93D] bg-neo-secondary p-6 max-w-md text-center">
+                <Info size={32} className="mx-auto mb-3" strokeWidth={3} />
+                <h2 className="font-black text-xl uppercase mb-2">Jadwal Belum Tersedia</h2>
+                <p className="font-bold text-black/60 text-sm">{errorMsg}</p>
             </div>
-        );
-    }
+        </div>
+    );
 
     return (
-        <div className="space-y-8 animate-in fade-in duration-500 max-w-5xl mx-auto pb-12">
+        <div className="space-y-6 pb-12">
             {/* Header */}
-            <div className="border-b border-gray-100 pb-6 text-center">
-                <div className="inline-flex items-center gap-2 mb-4 bg-blue-50 px-3 py-1.5 rounded-full">
-                    <span className="bg-blue-600 text-white text-[10px] font-sans font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
-                        Akademik Siswa
-                    </span>
-                    <span className="text-[10px] font-sans font-bold uppercase tracking-widest text-blue-600 mr-1">
-                        Tahun {new Date().getFullYear()}
-                    </span>
-                </div>
-                <h1 className="text-4xl sm:text-5xl font-sans font-black text-gray-900 tracking-tight leading-none">
-                    Jadwal Pelajaran
-                </h1>
-                <p className="font-sans text-base text-gray-500 mt-4 max-w-2xl mx-auto">
-                    Jadwal harian untuk kelas <span className="text-blue-600 font-black">{studentClass || 'Pribadi'}</span>. Silakan gunakan tab di bawah untuk melihat hari dan minggu yang berbeda.
-                </p>
+            <div className="pb-4 border-b-4 border-black">
+                <span className="inline-block bg-neo-secondary border-4 border-black text-[10px] font-black px-3 py-1 uppercase tracking-widest shadow-[3px_3px_0px_0px_#000] mb-3">Akademik Siswa</span>
+                <h1 className="text-4xl font-black text-black uppercase tracking-tight leading-none">Jadwal Pelajaran</h1>
+                <p className="font-bold text-black/50 text-sm mt-1">Kelas: <span className="font-black text-black">{studentClass || 'Pribadi'}</span></p>
             </div>
 
             {/* Selectors */}
-            <div className="flex flex-col gap-4">
-                <div className="flex flex-wrap items-center justify-center gap-2">
+            <div className="space-y-3">
+                <div className="flex flex-wrap gap-2">
                     {WeekTypes.map((week) => (
-                        <button
-                            key={week}
-                            onClick={() => setSelectedWeek(week)}
-                            className={`px-5 py-2.5 rounded-xl text-xs font-sans font-bold uppercase tracking-widest transition-all ${selectedWeek === week
-                                ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20 scale-105 z-10 relative'
-                                : 'bg-white text-gray-500 hover:bg-gray-50 border border-gray-200'
-                                }`}
-                        >
+                        <button key={week} onClick={() => setSelectedWeek(week)}
+                            className={`px-4 py-2 border-4 border-black font-black text-xs uppercase tracking-widest transition-all duration-100 ${selectedWeek === week ? 'bg-neo-secondary shadow-[3px_3px_0px_0px_#000]' : 'bg-white hover:bg-neo-cream shadow-[2px_2px_0px_0px_#000] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none'}`}>
                             {week}
                         </button>
                     ))}
                 </div>
-
-                <div className="flex items-center justify-center flex-wrap gap-2">
+                <div className="flex flex-wrap gap-2">
                     {Days.map((day) => (
-                        <button
-                            key={day}
-                            onClick={() => setSelectedDay(day)}
-                            className={`px-5 py-2.5 rounded-xl text-xs font-sans font-bold uppercase tracking-widest transition-all ${selectedDay === day
-                                ? 'bg-gray-900 text-white shadow-md scale-105 z-10 relative'
-                                : 'bg-white text-gray-500 hover:bg-gray-50 border border-gray-200'
-                                }`}
-                        >
+                        <button key={day} onClick={() => setSelectedDay(day)}
+                            className={`px-4 py-2 border-4 border-black font-black text-xs uppercase tracking-widest transition-all duration-100 ${selectedDay === day ? 'bg-black text-white shadow-[3px_3px_0px_0px_#FF6B6B]' : 'bg-white hover:bg-neo-cream shadow-[2px_2px_0px_0px_#000] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none'}`}>
                             {day}
                         </button>
                     ))}
@@ -202,59 +172,37 @@ export default function StudentSchedule() {
             </div>
 
             {/* Schedule List */}
-            <div className="grid grid-cols-1 gap-3 relative mt-6">
-                <div className="absolute left-[39px] top-0 bottom-0 w-px bg-gray-200 hidden md:block" />
+            <div className="space-y-3">
                 {timeSlots.map((slot) => {
                     const entry = filteredSchedules.find(s => parseInt(s.jam_ke) === slot.id);
 
-                    if (slot.type === 'break') {
-                        return (
-                            <div key={slot.id} className="relative bg-gray-50/80 backdrop-blur-sm border border-gray-200 rounded-2xl p-4 flex items-center justify-center space-x-4 md:ml-20">
-                                <Clock size={16} className="text-gray-400" strokeWidth={2.5} />
-                                <span className="text-[10px] font-sans font-bold text-gray-500 uppercase tracking-widest">{slot.label}</span>
-                                <span className="h-px w-12 sm:w-20 bg-gray-300" />
-                                <span className="text-[10px] font-sans font-bold text-gray-500">{slot.start} - {slot.end}</span>
-                            </div>
-                        );
-                    }
+                    if (slot.type === 'break') return (
+                        <div key={slot.id} className="border-4 border-dashed border-black/20 p-3 flex items-center justify-center gap-4 bg-neo-cream">
+                            <Clock size={14} className="text-black/30" strokeWidth={3} />
+                            <span className="text-[10px] font-black text-black/40 uppercase tracking-widest">{slot.label}</span>
+                            <span className="text-[10px] font-black text-black/30">{slot.start} - {slot.end}</span>
+                        </div>
+                    );
 
                     return (
-                        <div key={slot.id} className={`group relative bg-white border rounded-2xl p-6 transition-all duration-300 ${entry ? 'border-gray-200 shadow-sm hover:shadow-md hover:border-blue-200 hover:ring-4 hover:ring-blue-50/50' : 'border-gray-100 opacity-60'}`}>
-                            {/* Timeline Dot (Desktop Only) */}
-                            <div className={`absolute -left-[54px] top-1/2 -translate-y-1/2 w-8 h-8 rounded-full border-4 border-white ${entry ? 'bg-blue-600 shadow-md' : 'bg-gray-200'} hidden md:flex items-center justify-center z-10`}></div>
-
-                            <div className="flex flex-col md:flex-row items-center gap-6 md:gap-8">
-                                {/* Jam Ke */}
-                                <div className={`flex flex-col items-center justify-center w-16 h-16 rounded-2xl transition-colors font-sans ${entry ? 'bg-blue-50 text-blue-600' : 'bg-gray-50 text-gray-400'}`}>
-                                    <span className="text-[8px] font-sans font-black uppercase tracking-widest leading-none mb-1 text-center">JAM KE</span>
-                                    <span className="text-2xl font-black leading-none">{slot.id}</span>
-                                </div>
-
-                                {/* Waktu */}
-                                <div className="text-center md:text-left min-w-[100px]">
-                                    <p className="text-[9px] font-sans font-bold text-gray-400 uppercase tracking-widest mb-1.5 flex items-center justify-center md:justify-start gap-1">
-                                        <Clock size={10} strokeWidth={3} />
-                                        <span>Waktu</span>
-                                    </p>
-                                    <p className="text-sm font-sans font-black text-gray-900 tracking-tight leading-none">{slot.start} - {slot.end}</p>
-                                </div>
-
-                                {/* Matakuliah / Pelajaran */}
-                                <div className="flex-1 text-center md:text-left w-full">
-                                    {entry ? (
-                                        <div className="space-y-1.5 bg-gray-50/50 p-4 rounded-xl border border-gray-100/50">
-                                            <h3 className="text-xl font-sans font-black text-gray-900 tracking-tight">{entry.subject_name}</h3>
-                                            <div className="flex items-center justify-center md:justify-start text-[11px] font-sans font-bold text-gray-500 uppercase tracking-widest mt-2">
-                                                <User size={14} className="mr-2 text-blue-500" strokeWidth={2.5} />
-                                                {entry.teacher_name || 'GURU BELUM DIPILIH'}
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        <div className="flex items-center justify-center md:justify-start h-full">
-                                             <span className="text-[10px] font-sans font-bold text-gray-300 uppercase tracking-[0.2em] bg-gray-50 px-4 py-2 rounded-lg">Kosong</span>
-                                        </div>
-                                    )}
-                                </div>
+                        <div key={slot.id} className={`border-4 border-black p-4 flex items-center gap-4 transition-all ${entry ? 'bg-white shadow-[4px_4px_0px_0px_#000] hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px_#000]' : 'bg-neo-cream/50 opacity-60'}`}>
+                            <div className={`border-4 border-black w-14 h-14 flex flex-col items-center justify-center shrink-0 ${entry ? 'bg-neo-secondary' : 'bg-white'}`}>
+                                <span className="text-[7px] font-black uppercase tracking-widest leading-none">JAM</span>
+                                <span className="text-2xl font-black leading-tight">{slot.id}</span>
+                            </div>
+                            <div className="w-24 shrink-0">
+                                <p className="text-[9px] font-black uppercase tracking-widest text-black/40 flex items-center gap-1"><Clock size={9} strokeWidth={3} />Waktu</p>
+                                <p className="text-sm font-black text-black">{slot.start}–{slot.end}</p>
+                            </div>
+                            <div className="flex-1">
+                                {entry ? (
+                                    <div>
+                                        <h3 className="font-black text-black text-base uppercase tracking-tight">{entry.subject_name}</h3>
+                                        <p className="text-[10px] font-black text-black/40 uppercase tracking-widest mt-0.5">{entry.teacher_name || 'Guru Belum Dipilih'}</p>
+                                    </div>
+                                ) : (
+                                    <span className="text-[10px] font-black text-black/20 uppercase tracking-[0.2em]">Kosong</span>
+                                )}
                             </div>
                         </div>
                     );
@@ -262,13 +210,11 @@ export default function StudentSchedule() {
             </div>
 
             {/* Footer Note */}
-            <div className="mt-8 bg-blue-50 border border-blue-100 rounded-2xl p-6 flex flex-col sm:flex-row items-start sm:items-center gap-4 text-blue-800">
-                <div className="bg-white p-2 rounded-xl shrink-0">
-                    <Info size={24} className="text-blue-500" strokeWidth={2.5} />
-                </div>
-                <p className="font-sans text-xs font-medium leading-relaxed max-w-3xl">
-                    Jadwal dapat berubah sewaktu-waktu sesuai kebijakan sekolah. <br className="hidden sm:block" />
-                    Silakan hubungi bagian kurikulum atau wali kelas jika terdapat ketidaksesuaian data.
+            <div className="border-4 border-black shadow-[6px_6px_0px_0px_#FFD93D] bg-neo-secondary p-5 flex gap-4 items-start">
+                <Info size={20} strokeWidth={3} className="shrink-0 mt-0.5" />
+                <p className="text-xs font-bold leading-relaxed">
+                    Jadwal dapat berubah sewaktu-waktu sesuai kebijakan sekolah.<br />
+                    Silakan hubungi bagian kurikulum atau wali kelas jika ada ketidaksesuaian.
                 </p>
             </div>
         </div>

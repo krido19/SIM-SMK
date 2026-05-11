@@ -131,73 +131,48 @@ export default function StudentGrades() {
         }
     };
 
-    if (loading) {
-        return (
-            <div className="py-24 text-center">
-                 <div className="w-12 h-12 border-4 border-gray-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
-                 <p className="font-sans text-sm font-bold text-gray-500 uppercase tracking-widest">Memuat data nilai...</p>
-            </div>
-        );
-    }
+    if (loading) return (
+        <div className="py-16 flex flex-col items-center gap-3">
+            <div className="w-10 h-10 border-4 border-black border-t-neo-accent animate-spin" />
+            <p className="font-black text-sm text-black/40 uppercase tracking-widest">Memuat Nilai...</p>
+        </div>
+    );
 
     return (
-        <div className="space-y-8 animate-in fade-in duration-500 pb-12">
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-gray-100">
-                <div className="space-y-6 flex-1">
-                    <div>
-                         <div className="flex items-center gap-2 mb-2">
-                            <span className="bg-blue-600 text-white text-[10px] font-sans font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
-                                Akademik
-                            </span>
-                        </div>
-                        <h1 className="text-4xl font-sans font-black text-gray-900 tracking-tight leading-none mb-2">Rapor Nilai</h1>
-                        <p className="font-sans text-sm font-medium text-gray-500">Hasil evaluasi pembelajaran siswa</p>
-                    </div>
-
-                    {/* Filter Bar */}
-                    <div className="flex flex-wrap items-center gap-4 mt-6">
-                        {/* Pilih Tahun Ajaran */}
-                        <div className="relative min-w-[160px]">
-                            <span className="absolute -top-2.5 left-3 bg-gray-50 px-1 text-[10px] font-sans font-black uppercase tracking-widest text-blue-600 z-10 w-max">Tahun Ajaran</span>
-                            <div className="relative">
-                                <select
-                                    className="w-full bg-gray-50 border border-transparent px-4 py-3 pr-8 rounded-xl text-sm font-sans font-bold text-gray-900 focus:outline-none focus:bg-white focus:border-blue-200 focus:ring-4 focus:ring-blue-50 transition-all appearance-none cursor-pointer tracking-tight"
-                                    value={selectedYear}
-                                    onChange={(e) => setSelectedYear(e.target.value)}
-                                >
-                                    {availableYears.map(y => (
-                                        <option key={y} value={y}>{y}</option>
-                                    ))}
-                                    {generateAcademicYears()
-                                        .filter(y => !availableYears.includes(y))
-                                        .map(y => (
-                                            <option key={y} value={y}>{y} (kosong)</option>
-                                        ))
-                                    }
-                                </select>
-                                <ChevronRight size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none rotate-90" strokeWidth={2.5} />
-                            </div>
-                        </div>
-
-                        {/* Pilih Semester */}
-                         <div className="relative min-w-[200px]">
-                            <span className="absolute -top-2.5 left-3 bg-gray-50 px-1 text-[10px] font-sans font-black uppercase tracking-widest text-blue-600 z-10">Semester</span>
-                            <div className="relative">
-                                <select
-                                    className="w-full bg-gray-50 border border-transparent px-4 py-3 pr-8 rounded-xl text-sm font-sans font-bold text-gray-900 focus:outline-none focus:bg-white focus:border-blue-200 focus:ring-4 focus:ring-blue-50 transition-all appearance-none cursor-pointer tracking-tight"
-                                    value={selectedSemester}
-                                    onChange={(e) => setSelectedSemester(parseInt(e.target.value))}
-                                >
-                                    <option value={1}>Semester I (Ganjil)</option>
-                                    <option value={2}>Semester II (Genap)</option>
-                                </select>
-                                <ChevronRight size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none rotate-90" strokeWidth={2.5} />
-                            </div>
-                        </div>
-                    </div>
+        <div className="space-y-6 pb-12">
+            <div className="flex flex-col xl:flex-row xl:items-end justify-between gap-4 pb-4 border-b-4 border-black">
+                <div>
+                    <span className="inline-block bg-neo-secondary border-4 border-black text-[10px] font-black px-3 py-1 uppercase tracking-widest shadow-[3px_3px_0px_0px_#000] mb-3">Akademik</span>
+                    <h1 className="text-4xl font-black text-black uppercase tracking-tight leading-none mb-1">Rapor Nilai</h1>
+                    <p className="font-bold text-black/50 text-sm">Hasil evaluasi pembelajaran siswa</p>
                 </div>
-                {canPrint && (
-                    <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+
+                {/* Filters */}
+                <div className="flex flex-wrap gap-3">
+                    <div className="relative">
+                        <label className="block text-[9px] font-black uppercase tracking-widest text-black/40 mb-1">Tahun Ajaran</label>
+                        <select
+                            className="bg-neo-cream border-4 border-black font-bold text-black px-4 py-2.5 focus:bg-neo-secondary focus:shadow-[4px_4px_0px_0px_#000] transition-all duration-100"
+                            value={selectedYear}
+                            onChange={(e) => setSelectedYear(e.target.value)}
+                        >
+                            {availableYears.map(y => <option key={y} value={y}>{y}</option>)}
+                            {generateAcademicYears().filter(y => !availableYears.includes(y)).map(y => <option key={y} value={y}>{y} (kosong)</option>)}
+                        </select>
+                    </div>
+                    <div className="relative">
+                        <label className="block text-[9px] font-black uppercase tracking-widest text-black/40 mb-1">Semester</label>
+                        <select
+                            className="bg-neo-cream border-4 border-black font-bold text-black px-4 py-2.5 focus:bg-neo-secondary focus:shadow-[4px_4px_0px_0px_#000] transition-all duration-100"
+                            value={selectedSemester}
+                            onChange={(e) => setSelectedSemester(parseInt(e.target.value))}
+                        >
+                            <option value={1}>Semester I (Ganjil)</option>
+                            <option value={2}>Semester II (Genap)</option>
+                        </select>
+                    </div>
+                    {canPrint && (
+                        <div className="flex flex-col sm:flex-row gap-2 self-end">
                         <button className="flex items-center justify-center space-x-2 bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-gray-900 px-5 py-3 rounded-xl font-sans text-xs font-bold uppercase tracking-widest transition-all w-full sm:w-auto">
                             <Download size={16} strokeWidth={2.5} />
                             <span>PDF</span>

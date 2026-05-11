@@ -1,18 +1,15 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { useTheme } from '../context/ThemeContext';
-import { Loader2, AlertCircle, Eye, EyeOff, Sun, Moon } from 'lucide-react';
+import { Loader2, AlertCircle, Eye, EyeOff, Zap, Star } from 'lucide-react';
 
 export default function Login() {
-    const [schoolName, setSchoolName] = useState('SIM SMKN 4');
-    const [schoolLogo, setSchoolLogo] = useState('');
+    const [schoolName, setSchoolName] = useState('SIM SMK HAFIDZ');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const { theme, toggleTheme } = useTheme();
     const navigate = useNavigate();
 
     React.useEffect(() => {
@@ -27,9 +24,7 @@ export default function Login() {
 
         if (data) {
             const name = data.find(s => s.key === 'school_name')?.value;
-            const logo = data.find(s => s.key === 'school_logo')?.value;
             if (name) setSchoolName(name);
-            if (logo) setSchoolLogo(logo);
         }
     };
 
@@ -37,8 +32,7 @@ export default function Login() {
         e.preventDefault();
         setLoading(true);
         setError(null);
-        
-        // Membersihkan cache sisa dari sesi sebelumnya sebelum proses login baru.
+
         localStorage.removeItem('userRole');
         localStorage.removeItem('userName');
         localStorage.removeItem('userId');
@@ -107,97 +101,119 @@ export default function Login() {
                 }
             }
 
-            setError('Authentication failed. Invalid ID or Password provided.');
+            setError('ID atau password salah. Periksa kembali kredensial Anda.');
         } catch (err) {
             console.error('Login error:', err);
-            setError('System error. Please contact administration.');
+            setError('Terjadi kesalahan sistem. Hubungi administrator.');
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <div className="min-h-screen grid grid-cols-1 lg:grid-cols-2 bg-gray-50 text-gray-900 transition-colors duration-300">
+        <div className="min-h-screen grid grid-cols-1 lg:grid-cols-2 bg-neo-cream">
 
-            {/* Left Column - Digital Poster */}
-            <div className="hidden lg:flex flex-col justify-between p-12 bg-blue-600 text-white relative overflow-hidden">
-                {/* Large decorative shape */}
-                <div className="absolute top-[-10%] right-[-10%] w-[120%] h-[120%] rounded-full border-[100px] border-white/5 pointer-events-none" />
-                <div className="absolute bottom-[-20%] left-[-20%] w-[80%] h-[80%] rounded-full bg-white/5 pointer-events-none" />
+            {/* ===== LEFT — Neo-Brutal Hero Panel ===== */}
+            <div className="hidden lg:flex flex-col justify-between p-10 bg-black text-white relative overflow-hidden border-r-4 border-black">
+                {/* Halftone pattern overlay */}
+                <div className="absolute inset-0 neo-halftone-white opacity-20 pointer-events-none" />
+                
+                {/* Decorative squares */}
+                <div className="absolute top-20 right-10 w-32 h-32 border-4 border-white/20 rotate-12 pointer-events-none" />
+                <div className="absolute bottom-32 right-20 w-16 h-16 bg-neo-accent border-4 border-neo-accent/80 rotate-6 pointer-events-none" />
+                <div className="absolute top-1/2 left-0 w-8 h-40 bg-neo-secondary pointer-events-none" />
 
-                <div className="relative z-10 flex justify-between items-center pb-4 border-b border-white/20">
-                    <span className="font-sans text-xs uppercase tracking-wider font-semibold opacity-80">Akademik Digital</span>
-                    <span className="font-sans text-xs uppercase tracking-wider font-bold">{new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                {/* Top Bar */}
+                <div className="relative z-10 flex justify-between items-center border-b-2 border-white/20 pb-4">
+                    <span className="text-[10px] font-black uppercase tracking-[0.25em] opacity-60">Akademik Digital</span>
+                    <span className="text-[10px] font-black uppercase tracking-widest bg-neo-secondary text-black px-2 py-1">
+                        {new Date().getFullYear()}
+                    </span>
                 </div>
 
-                <div className="relative z-10 flex flex-col justify-center flex-1 my-16">
-                    <img src="/logo.png" alt="Logo" className="w-40 mb-12 filter brightness-0 invert" />
-                    <h1 className="text-7xl xl:text-8xl font-sans font-bold uppercase tracking-tight leading-[0.9] mb-8 mt-2">
-                        Sistem<br />Informasi<br />Sekolah.
+                {/* Main Content */}
+                <div className="relative z-10 flex flex-col justify-center flex-1 my-12">
+                    {/* Logo box */}
+                    <div className="flex items-center gap-3 mb-8">
+                        <div className="w-14 h-14 border-4 border-neo-accent bg-neo-accent shadow-[4px_4px_0px_0px_#FF6B6B] flex items-center justify-center">
+                            <Zap size={28} strokeWidth={3} className="text-black" />
+                        </div>
+                        <div>
+                            <p className="text-[10px] font-black uppercase tracking-[0.25em] text-white/50">SELAMAT DATANG DI</p>
+                            <p className="text-lg font-black uppercase tracking-tight text-white">{schoolName}</p>
+                        </div>
+                    </div>
+
+                    {/* Big headline */}
+                    <h1 className="text-7xl xl:text-8xl font-black uppercase tracking-tight leading-[0.85] mb-8">
+                        <span className="text-neo-secondary">Sistem</span><br />
+                        <span className="text-white">Informasi</span><br />
+                        <span className="text-neo-accent">Sekolah</span><span className="text-white">.</span>
                     </h1>
-                    <div className="pl-6 py-2 border-l-4 border-white">
-                        <p className="font-sans text-lg leading-relaxed max-w-sm text-white/90 font-medium">
-                            Platform Akademik Terintegrasi {schoolName}. Akses real-time ke data pendidikan.
+
+                    <div className="border-l-4 border-neo-accent pl-5 py-2">
+                        <p className="text-base font-bold text-white/80 max-w-sm leading-relaxed">
+                            Platform Akademik Terintegrasi. Akses <span className="text-neo-secondary font-black">real-time</span> ke seluruh data pendidikan.
                         </p>
                     </div>
                 </div>
 
-                <div className="relative z-10 grid grid-cols-3 gap-8 py-6 border-t border-white/20 font-sans text-xs uppercase tracking-wider text-white/80">
-                    <div>
-                        <p className="font-bold text-white mb-2 text-sm">Siswa</p>
-                        <p className="leading-snug">Data Akademik & Jadwal</p>
-                    </div>
-                    <div>
-                        <p className="font-bold text-white mb-2 text-sm">Guru</p>
-                        <p className="leading-snug">Penilaian & Absensi</p>
-                    </div>
-                    <div>
-                        <p className="font-bold text-white mb-2 text-sm">Admin</p>
-                        <p className="leading-snug">Konfigurasi Sistem</p>
-                    </div>
+                {/* Bottom Stats */}
+                <div className="relative z-10 grid grid-cols-3 gap-0 border-t-2 border-white/20 pt-6">
+                    {[
+                        { label: 'Siswa', desc: 'Data Akademik & Jadwal' },
+                        { label: 'Guru', desc: 'Penilaian & Absensi' },
+                        { label: 'Admin', desc: 'Konfigurasi Sistem' },
+                    ].map((item, i) => (
+                        <div key={i} className={`px-4 ${i < 2 ? 'border-r border-white/20' : ''}`}>
+                            <p className="font-black text-sm text-white uppercase mb-1">{item.label}</p>
+                            <p className="text-[10px] uppercase tracking-wider text-white/50">{item.desc}</p>
+                        </div>
+                    ))}
                 </div>
             </div>
 
-            {/* Right Column - Login Form */}
-            <div className="flex flex-col justify-center items-center p-6 sm:p-12 relative bg-white transition-colors duration-300">
-                <div className="absolute top-6 right-6 z-20">
-                    <button
-                        onClick={toggleTheme}
-                        className="p-2 rounded-md bg-gray-100 hover:bg-gray-200 text-gray-600 transition-colors"
-                    >
-                        {theme === 'dark' ? <Sun size={20} strokeWidth={2} /> : <Moon size={20} strokeWidth={2} />}
-                    </button>
+            {/* ===== RIGHT — Login Form ===== */}
+            <div className="flex flex-col justify-center items-center p-6 sm:p-12 bg-neo-cream neo-grid-bg relative">
+
+                {/* Decorative star */}
+                <div className="absolute top-8 right-8 text-black/10 animate-spin-slow pointer-events-none">
+                    <Star size={48} strokeWidth={1} fill="currentColor" />
                 </div>
 
                 <div className="w-full max-w-md mx-auto relative z-10">
-                    {/* Mobile Header */}
-                    <div className="lg:hidden text-center mb-10 pb-6 border-b border-gray-100">
-                        <h1 className="text-4xl font-sans font-bold tracking-tight mb-2">
-                            SIM SMK
-                        </h1>
-                        <p className="font-sans text-sm font-medium text-gray-500 uppercase tracking-wider">
+                    {/* Mobile title */}
+                    <div className="lg:hidden text-center mb-8 pb-6 border-b-4 border-black">
+                        <h1 className="text-4xl font-black uppercase tracking-tight text-black">SIM SMK</h1>
+                        <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-black/50 mt-2">
                             {schoolName} • Akademik
                         </p>
                     </div>
 
-                    <div className="bg-white relative">
-                        <div className="mb-8">
-                            <h2 className="text-3xl font-sans font-bold text-gray-900 mb-2">Selamat Datang</h2>
-                            <p className="text-gray-500 font-sans">Masuk untuk mengakses layanan akademik</p>
+                    {/* Form Card */}
+                    <div className="bg-white border-4 border-black shadow-[8px_8px_0px_0px_#000]">
+                        {/* Card Header */}
+                        <div className="bg-neo-secondary border-b-4 border-black px-6 py-4">
+                            <h2 className="text-2xl font-black uppercase tracking-tight text-black">MASUK SISTEM</h2>
+                            <p className="text-[11px] font-bold text-black/60 uppercase tracking-widest mt-0.5">
+                                Akses layanan akademik digital
+                            </p>
                         </div>
 
-                        <div className="p-8">
-                            <form className="space-y-6" onSubmit={handleLogin}>
-                                {error && (
-                                    <div className="bg-red-50 text-red-600 p-4 rounded-md flex items-start space-x-3 mb-6">
-                                        <AlertCircle size={20} className="shrink-0 mt-0.5" />
-                                        <span className="font-sans text-sm font-medium">{error}</span>
-                                    </div>
-                                )}
+                        <div className="p-6 space-y-5">
+                            {/* Error */}
+                            {error && (
+                                <div className="bg-neo-accent border-4 border-black shadow-[4px_4px_0px_0px_#000] p-4 flex items-start space-x-3">
+                                    <AlertCircle size={18} strokeWidth={3} className="shrink-0 mt-0.5 text-black" />
+                                    <span className="text-sm font-bold text-black">{error}</span>
+                                </div>
+                            )}
 
-                                <div className="space-y-2 pt-2">
-                                    <label htmlFor="email" className="block text-sm font-sans font-semibold text-gray-700">
-                                        Email / NIP / NIS
+                            <form onSubmit={handleLogin} className="space-y-4">
+                                {/* ID Field */}
+                                <div className="space-y-1.5">
+                                    <label htmlFor="email" className="block text-[11px] font-black uppercase tracking-widest text-black">
+                                        EMAIL / NIP / NIS
                                     </label>
                                     <input
                                         id="email"
@@ -205,14 +221,15 @@ export default function Login() {
                                         required
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
-                                        className="w-full px-4 py-3 bg-gray-100 rounded-md focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 border-2 border-transparent focus:border-blue-500 transition-all font-sans text-gray-900 placeholder:text-gray-400"
+                                        className="w-full px-4 py-3 bg-neo-cream border-4 border-black font-bold text-black placeholder:text-black/30 focus:bg-neo-secondary focus:shadow-[4px_4px_0px_0px_#000] transition-all duration-100"
                                         placeholder="Masukkan ID..."
                                     />
                                 </div>
 
-                                <div className="space-y-2">
-                                    <label htmlFor="password" className="block text-sm font-sans font-semibold text-gray-700">
-                                        Kata Sandi
+                                {/* Password Field */}
+                                <div className="space-y-1.5">
+                                    <label htmlFor="password" className="block text-[11px] font-black uppercase tracking-widest text-black">
+                                        KATA SANDI
                                     </label>
                                     <div className="relative">
                                         <input
@@ -221,56 +238,56 @@ export default function Login() {
                                             required
                                             value={password}
                                             onChange={(e) => setPassword(e.target.value)}
-                                            className="w-full pl-4 pr-12 py-3 bg-gray-100 rounded-md focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 border-2 border-transparent focus:border-blue-500 transition-all font-sans text-gray-900 placeholder:text-gray-400"
+                                            className="w-full pl-4 pr-12 py-3 bg-neo-cream border-4 border-black font-bold text-black placeholder:text-black/30 focus:bg-neo-secondary focus:shadow-[4px_4px_0px_0px_#000] transition-all duration-100"
                                             placeholder="••••••••"
                                         />
                                         <button
                                             type="button"
                                             onClick={() => setShowPassword(!showPassword)}
-                                            className="absolute inset-y-0 right-0 px-4 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
+                                            className="absolute inset-y-0 right-0 px-4 flex items-center text-black/50 hover:text-black transition-colors"
                                         >
-                                            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                            {showPassword ? <EyeOff size={18} strokeWidth={2.5} /> : <Eye size={18} strokeWidth={2.5} />}
                                         </button>
                                     </div>
                                 </div>
 
+                                {/* Submit */}
                                 <button
                                     type="submit"
                                     disabled={loading}
-                                    className="w-full py-4 mt-8 rounded-md bg-blue-600 hover:bg-blue-700 text-white font-sans font-bold text-lg transition-transform duration-200 hover:scale-[1.02] flex items-center justify-center space-x-2 disabled:opacity-70 disabled:hover:scale-100"
+                                    className="w-full py-4 mt-2 bg-black text-white border-4 border-black font-black text-sm uppercase tracking-widest shadow-[6px_6px_0px_0px_#FF6B6B] hover:bg-neo-accent hover:text-black hover:shadow-[6px_6px_0px_0px_#000] active:translate-x-[6px] active:translate-y-[6px] active:shadow-none transition-all duration-100 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
                                 >
                                     {loading ? (
                                         <>
-                                            <Loader2 className="animate-spin" size={20} strokeWidth={3} />
+                                            <Loader2 className="animate-spin" size={18} strokeWidth={3} />
                                             <span>Memproses...</span>
                                         </>
                                     ) : (
-                                        <span>Masuk ke Sistem</span>
+                                        <span>MASUK KE SISTEM →</span>
                                     )}
                                 </button>
                             </form>
                         </div>
                     </div>
 
-                    {/* Guidelines */}
-                    <div className="mt-8 pt-8 border-t border-gray-100">
-                        <div className="flex items-center justify-between mb-4">
-                            <h3 className="font-sans font-semibold text-gray-700">Panduan Akses</h3>
+                    {/* Access Guide */}
+                    <div className="mt-6 border-4 border-black bg-white shadow-[4px_4px_0px_0px_#000]">
+                        <div className="bg-black px-4 py-2 border-b-4 border-black">
+                            <h3 className="text-[11px] font-black uppercase tracking-widest text-neo-secondary">PANDUAN AKSES</h3>
                         </div>
-
-                        <div className="space-y-3 font-sans text-sm text-gray-500">
-                            <div className="flex items-start">
-                                <span className="w-16 font-bold text-gray-900 shrink-0">Guru</span>
-                                <span>Gunakan NIP resmi atau format email valid.</span>
-                            </div>
-                            <div className="flex items-start">
-                                <span className="w-16 font-bold text-gray-900 shrink-0">Siswa</span>
-                                <span>Gunakan NIS (Nomor Induk Siswa) yang ditetapkan.</span>
-                            </div>
-                            <div className="flex items-start">
-                                <span className="w-16 font-bold text-blue-600 shrink-0">Wali</span>
-                                <span>Awali dengan 'OT' + NIS siswa (cth: OT2023001).</span>
-                            </div>
+                        <div className="p-4 space-y-2">
+                            {[
+                                { role: 'Guru', desc: 'Gunakan NIP resmi atau format email valid.' },
+                                { role: 'Siswa', desc: 'Gunakan NIS (Nomor Induk Siswa) yang ditetapkan.' },
+                                { role: 'Wali', desc: "Awali dengan 'OT' + NIS siswa (cth: OT2023001)." },
+                            ].map((item, i) => (
+                                <div key={i} className="flex items-start gap-3">
+                                    <span className="shrink-0 bg-neo-secondary border-2 border-black text-[10px] font-black uppercase px-2 py-0.5 w-14 text-center">
+                                        {item.role}
+                                    </span>
+                                    <span className="text-xs font-bold text-black/70">{item.desc}</span>
+                                </div>
+                            ))}
                         </div>
                     </div>
                 </div>

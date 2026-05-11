@@ -26,27 +26,17 @@ export default function Dashboard() {
     const fetchGlobalData = async () => {
         setIsLoading(true);
         try {
-            // 1. Get Global Settings
             const { data: settingsData } = await supabase.from('settings').select('key, value').in('key', ['current_week_type', 'current_semester', 'current_academic_year']);
-            
             const weekType = settingsData?.find(s => s.key === 'current_week_type')?.value || 'Minggu Ganjil';
             const semester = settingsData?.find(s => s.key === 'current_semester')?.value || 'Semester Ganjil';
             const academicYear = settingsData?.find(s => s.key === 'current_academic_year')?.value || '23/24';
-            
             setCurrentWeekType(weekType);
             setAcademicPeriod(`${semester} ${academicYear}`);
 
-            // 2. Fetch Announcements
-            const { data: ann } = await supabase
-                .from('announcements')
-                .select('id, title, date, content, image_url, category')
-                .order('created_at', { ascending: false })
-                .limit(4);
+            const { data: ann } = await supabase.from('announcements').select('id, title, date, content, image_url, category').order('created_at', { ascending: false }).limit(4);
             setAnnouncements(ann || []);
 
-            // 3. Fetch Next Class
             await fetchNextClass(weekType);
-
         } catch (error) {
             console.error('Error fetching global dashboard data:', error);
         } finally {
@@ -60,14 +50,7 @@ export default function Dashboard() {
             const today = days[new Date().getDay()];
             const currentTime = new Date().toTimeString().substring(0, 5);
 
-            let query = supabase
-                .from('schedules')
-                .select('subject_name, class_name, teacher_name, start_time, end_time, day, week_type')
-                .eq('day', today)
-                .eq('week_type', weekType)
-                .gte('end_time', currentTime)
-                .order('start_time', { ascending: true })
-                .limit(1);
+            let query = supabase.from('schedules').select('subject_name, class_name, teacher_name, start_time, end_time, day, week_type').eq('day', today).eq('week_type', weekType).gte('end_time', currentTime).order('start_time', { ascending: true }).limit(1);
 
             if (role === 'guru') {
                 const userId = localStorage.getItem('userId');
@@ -76,11 +59,7 @@ export default function Dashboard() {
             } else if (role === 'siswa') {
                 const userId = localStorage.getItem('userId');
                 if (userId) {
-                    const { data: s } = await supabase
-                        .from('students')
-                        .select('class_id')
-                        .eq('id', userId)
-                        .maybeSingle();
+                    const { data: s } = await supabase.from('students').select('class_id').eq('id', userId).maybeSingle();
                     if (s?.class_id) query = query.eq('class_id', s.class_id);
                     else return;
                 } else return;
@@ -94,66 +73,58 @@ export default function Dashboard() {
     };
 
     return (
-        <div className="space-y-12 animate-in fade-in duration-500">
-            {/* Modern Header */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="space-y-6">
+            {/* Header */}
+            <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
                 <div>
-                    <div className="flex items-center gap-2 mb-2">
-                        <span className="bg-blue-600 text-white text-[10px] font-sans font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
-                            Pusat Informasi
-                        </span>
-                        <span className="text-[10px] font-sans font-medium text-gray-400 uppercase tracking-widest">
-                            {new Date().getFullYear()} • AKADEMIK
-                        </span>
-                    </div>
-                    <h1 className="text-4xl font-sans font-black text-gray-900 tracking-tight">
+                    <span className="inline-block bg-neo-secondary border-4 border-black text-[10px] font-black px-3 py-1 uppercase tracking-widest shadow-[3px_3px_0px_0px_#000] mb-3">
+                        Pusat Informasi
+                    </span>
+                    <h1 className="text-4xl font-black text-black uppercase tracking-tight leading-none">
                         Dashboard Utama
                     </h1>
-                    <p className="font-sans text-gray-500 mt-2 max-w-2xl">
-                        Selamat datang kembali, <span className="text-blue-600 font-bold">{userName}</span>. Berikut ringkasan aktivitas akademik Anda hari ini.
+                    <p className="font-bold text-black/50 mt-2 max-w-xl text-sm">
+                        Selamat datang, <span className="text-black font-black">{userName}</span>. Ringkasan aktivitas akademik hari ini.
                     </p>
                 </div>
                 <div className="shrink-0">
-                    <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm min-w-[200px]">
-                        <p className="text-[10px] font-sans font-bold uppercase tracking-wider text-gray-400 mb-3 flex items-center gap-2">
-                            <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+                    <div className="border-4 border-black bg-white shadow-[6px_6px_0px_0px_#000] p-4 min-w-[180px]">
+                        <p className="text-[9px] font-black uppercase tracking-widest text-black/40 flex items-center gap-1.5 mb-2">
+                            <span className="w-2 h-2 bg-neo-accent border border-black animate-pulse inline-block" />
                             Sistem Aktif
                         </p>
-                        <p className="text-base font-sans font-bold text-gray-800">{currentWeekType}</p>
-                        <p className="text-xs font-sans text-gray-500 mt-1">{academicPeriod}</p>
+                        <p className="text-sm font-black text-black uppercase">{currentWeekType}</p>
+                        <p className="text-[11px] font-bold text-black/50 mt-0.5">{academicPeriod}</p>
                     </div>
                 </div>
             </div>
 
-            {/* Next Class Notification (Guru & Siswa only) */}
-            <div className="rounded-2xl overflow-hidden shadow-sm border border-blue-100">
-                <ScheduleNotification nextClass={nextClass} role={role} />
-            </div>
+            {/* Schedule Notification */}
+            <ScheduleNotification nextClass={nextClass} role={role} />
 
-            {/* Main Content Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+            {/* Main Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 <div className="lg:col-span-8">
                     {role === 'admin' && <AdminDashboard />}
                     {role === 'guru' && <TeacherDashboard userName={userName} />}
                     {(role === 'siswa' || role === 'parent') && <StudentDashboard userName={userName} />}
                 </div>
 
-                {/* Right Sidebar - Announcements */}
+                {/* Right — Announcements */}
                 <div className="lg:col-span-4">
-                    <div className="sticky top-24 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
-                        <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-50">
-                            <h2 className="text-lg font-sans font-bold text-gray-900 flex items-center gap-2">
-                                <span className="p-1.5 bg-blue-50 text-blue-600 rounded-lg">
-                                    <Bell size={18} />
-                                </span>
+                    <div className="sticky top-20 border-4 border-black shadow-[8px_8px_0px_0px_#000] bg-white">
+                        <div className="bg-neo-secondary border-b-4 border-black px-4 py-3 flex items-center justify-between">
+                            <h2 className="text-sm font-black text-black uppercase tracking-tight flex items-center gap-2">
+                                <Bell size={16} strokeWidth={3} />
                                 Pengumuman
                             </h2>
-                            <button className="text-xs font-bold text-blue-600 hover:underline">Lihat Semua</button>
                         </div>
-                        <Announcements announcements={announcements} />
+                        <div className="p-4">
+                            <Announcements announcements={announcements} />
+                        </div>
                     </div>
                 </div>
             </div>
-        </div >
+        </div>
     );
 }

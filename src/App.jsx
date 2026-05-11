@@ -34,16 +34,16 @@ const StudentSchedule = lazy(() => import('./pages/student/StudentSchedule'))
 const StudentAnnouncements = lazy(() => import('./pages/student/StudentAnnouncements'))
 
 const LoadingFallback = () => (
-  <div className="min-h-screen bg-neutral-100 flex items-center justify-center p-4">
+  <div className="min-h-screen bg-neo-cream neo-grid-bg flex items-center justify-center p-4">
     <div className="flex flex-col items-center space-y-6">
-      <div className="flex space-x-2">
-        <div className="w-8 h-8 rounded-md bg-blue-500 animate-bounce" style={{ animationDelay: '0ms' }}></div>
-        <div className="w-8 h-8 rounded-md bg-emerald-500 animate-bounce" style={{ animationDelay: '150ms' }}></div>
-        <div className="w-8 h-8 rounded-md bg-amber-500 animate-bounce" style={{ animationDelay: '300ms' }}></div>
+      <div className="flex space-x-3">
+        <div className="w-10 h-10 border-4 border-black bg-neo-accent shadow-[4px_4px_0px_0px_#000] animate-bounce" style={{ animationDelay: '0ms' }}></div>
+        <div className="w-10 h-10 border-4 border-black bg-neo-secondary shadow-[4px_4px_0px_0px_#000] animate-bounce" style={{ animationDelay: '150ms' }}></div>
+        <div className="w-10 h-10 border-4 border-black bg-neo-muted shadow-[4px_4px_0px_0px_#000] animate-bounce" style={{ animationDelay: '300ms' }}></div>
       </div>
-      <div className="text-center w-64 pt-4">
-        <p className="text-gray-900 font-sans font-bold uppercase tracking-widest text-xl leading-none">Memuat</p>
-        <p className="text-gray-500 font-sans font-medium text-sm mt-2">Menyiapkan ruang kerja...</p>
+      <div className="border-4 border-black bg-white shadow-[6px_6px_0px_0px_#000] px-8 py-4 text-center">
+        <p className="font-black uppercase tracking-widest text-xl leading-none text-black">MEMUAT</p>
+        <p className="font-bold text-black/50 text-sm mt-2 uppercase tracking-wider">Menyiapkan ruang kerja...</p>
       </div>
     </div>
   </div>

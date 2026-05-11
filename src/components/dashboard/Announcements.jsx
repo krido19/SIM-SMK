@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronRight, Newspaper, Calendar, X, Bell } from 'lucide-react';
+import { Calendar, X, Bell, ArrowRight } from 'lucide-react';
 
 const Announcements = ({ announcements }) => {
     const [viewAnnouncement, setViewAnnouncement] = useState(null);
@@ -14,82 +14,79 @@ const Announcements = ({ announcements }) => {
 
     return (
         <div className="flex flex-col relative h-full">
-            <div className="space-y-4 flex-1">
+            <div className="space-y-3 flex-1">
                 {announcements.length > 0 ? announcements.map((news) => (
                     <div
                         key={news.id}
                         onClick={() => setViewAnnouncement(news)}
-                        className="group cursor-pointer bg-white p-4 rounded-xl border border-gray-100 hover:border-blue-200 hover:shadow-md transition-all duration-300"
+                        className="group cursor-pointer bg-neo-cream border-4 border-black shadow-[4px_4px_0px_0px_#000] hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px_#000] transition-all duration-150 p-4"
                     >
                         {news.image_url && (
-                            <div className="w-full h-32 overflow-hidden rounded-lg mb-4">
-                                <img src={news.image_url} alt={news.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                            <div className="w-full h-28 overflow-hidden border-2 border-black mb-3">
+                                <img src={news.image_url} alt={news.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                             </div>
                         )}
                         <div className="flex items-center gap-2 mb-2">
-                            <p className="text-[10px] font-sans font-bold text-gray-400 uppercase tracking-widest">{news.date}</p>
+                            <p className="text-[9px] font-black text-black/40 uppercase tracking-widest">{news.date}</p>
                             {news.category && (
-                                <span className="px-2 py-0.5 bg-blue-50 text-blue-600 text-[8px] font-sans font-bold uppercase tracking-widest rounded-full">{news.category}</span>
+                                <span className="px-2 py-0.5 bg-neo-secondary border-2 border-black text-[8px] font-black uppercase tracking-widest text-black">{news.category}</span>
                             )}
                         </div>
-                        <h4 className="text-[13px] font-sans font-black text-gray-900 group-hover:text-blue-600 transition-colors leading-tight line-clamp-2">
+                        <h4 className="text-[13px] font-black text-black leading-tight line-clamp-2 uppercase tracking-tight">
                             {news.title}
                         </h4>
-                        <p className="text-[11px] font-sans font-medium text-gray-500 mt-2 line-clamp-2 leading-relaxed">
+                        <p className="text-[11px] font-bold text-black/50 mt-1.5 line-clamp-2 leading-relaxed">
                             {news.content || "Detail tersedia di catatan publikasi lengkap."}
                         </p>
                     </div>
                 )) : (
-                    <div className="py-12 text-center border-2 border-dashed border-gray-100 rounded-2xl bg-gray-50/50">
-                        <p className="text-gray-400 font-sans font-medium text-sm">Belum ada pengumuman terbaru.</p>
+                    <div className="py-12 text-center border-4 border-dashed border-black/20 bg-white">
+                        <Bell size={24} className="mx-auto mb-3 text-black/20" strokeWidth={2} />
+                        <p className="text-black/40 font-black text-sm uppercase tracking-widest">Belum ada pengumuman.</p>
                     </div>
                 )}
             </div>
 
             {/* Detail Modal */}
             {viewAnnouncement && (
-                <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-md animate-in fade-in duration-300">
-                    <div className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden animate-in zoom-in-95 duration-300 max-h-[90vh] flex flex-col">
-                        <div className="relative">
-                            {viewAnnouncement.image_url ? (
-                                <img src={viewAnnouncement.image_url} className="w-full h-72 object-cover" />
-                            ) : (
-                                <div className="w-full h-24 bg-blue-600 flex items-center justify-center">
-                                    <Bell size={40} className="text-white opacity-20" />
-                                </div>
-                            )}
-                            <button
-                                onClick={() => setViewAnnouncement(null)}
-                                className="absolute top-4 right-4 p-2 bg-white/20 hover:bg-white/40 backdrop-blur-md text-white rounded-full transition-all"
-                            >
-                                <X size={20} strokeWidth={2.5} />
-                            </button>
-                            {viewAnnouncement.category && (
-                                <div className="absolute bottom-4 left-6">
-                                    <span className="px-3 py-1 bg-blue-600 text-white text-[10px] font-sans font-bold uppercase tracking-widest rounded-full shadow-lg shadow-blue-600/20">
+                <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/70 animate-in fade-in duration-200">
+                    <div className="bg-neo-cream border-4 border-black shadow-[12px_12px_0px_0px_#000] w-full max-w-2xl overflow-hidden max-h-[90vh] flex flex-col animate-bounce-in">
+                        {/* Modal Header */}
+                        <div className="bg-neo-secondary border-b-4 border-black px-6 py-4 flex items-center justify-between">
+                            <div>
+                                {viewAnnouncement.category && (
+                                    <span className="text-[9px] font-black uppercase tracking-widest bg-black text-neo-secondary px-2 py-0.5 mr-2">
                                         {viewAnnouncement.category}
                                     </span>
-                                </div>
-                            )}
+                                )}
+                                <span className="text-[10px] font-black uppercase tracking-widest text-black/50">{viewAnnouncement.date}</span>
+                            </div>
+                            <button
+                                onClick={() => setViewAnnouncement(null)}
+                                className="border-4 border-black p-1.5 bg-white hover:bg-neo-accent shadow-[3px_3px_0px_0px_#000] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none transition-all duration-100"
+                            >
+                                <X size={16} strokeWidth={3} />
+                            </button>
                         </div>
 
-                        <div className="p-8 overflow-y-auto space-y-4">
-                            <div className="flex items-center space-x-2 text-[10px] font-sans font-bold text-gray-400 uppercase tracking-widest leading-none">
-                                <Calendar size={14} className="text-blue-500" />
-                                <span>Dipublikasikan: {news.date}</span>
+                        {viewAnnouncement.image_url && (
+                            <div className="border-b-4 border-black h-56 overflow-hidden">
+                                <img src={viewAnnouncement.image_url} className="w-full h-full object-cover" alt={viewAnnouncement.title} />
                             </div>
+                        )}
 
-                            <h2 className="text-2xl font-sans font-black text-gray-900 tracking-tight leading-tight">
+                        <div className="p-6 overflow-y-auto space-y-4">
+                            <h2 className="text-2xl font-black text-black tracking-tight leading-tight uppercase">
                                 {viewAnnouncement.title}
                             </h2>
 
-                            <div className="pt-4 border-t border-gray-100 text-[15px] font-sans font-medium text-gray-700 leading-relaxed whitespace-pre-wrap">
+                            <div className="pt-4 border-t-4 border-black text-sm font-bold text-black/70 leading-relaxed whitespace-pre-wrap">
                                 {viewAnnouncement.content}
                             </div>
 
                             <button
                                 onClick={() => setViewAnnouncement(null)}
-                                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-sans font-bold py-4 rounded-2xl transition-all shadow-lg shadow-blue-600/20 active:scale-[0.98] mt-4"
+                                className="w-full bg-black text-white font-black text-sm uppercase tracking-widest py-4 border-4 border-black shadow-[6px_6px_0px_0px_#FF6B6B] hover:bg-neo-accent hover:text-black active:translate-x-[6px] active:translate-y-[6px] active:shadow-none transition-all duration-100 mt-4"
                             >
                                 Tutup Pengumuman
                             </button>

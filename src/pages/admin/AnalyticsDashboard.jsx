@@ -95,43 +95,34 @@ export default function AnalyticsDashboard() {
         }
     };
 
-    if (isLoading) {
-        return (
-            <div className="py-24 flex flex-col items-center justify-center">
-                 <div className="w-12 h-12 border-4 border-gray-200 border-t-indigo-600 rounded-full animate-spin mb-4"></div>
-                 <p className="font-sans text-sm font-bold text-gray-500 uppercase tracking-widest">Menganalisis Data...</p>
-            </div>
-        );
-    }
+    if (isLoading) return (
+        <div className="py-16 flex flex-col items-center gap-3">
+            <div className="w-10 h-10 border-4 border-black border-t-neo-accent animate-spin" />
+            <p className="font-black text-sm text-black/40 uppercase tracking-widest">Menganalisis Data...</p>
+        </div>
+    );
 
     return (
-        <div className="space-y-8 pb-12 animate-in fade-in duration-500 max-w-7xl mx-auto">
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-gray-100">
-                <div>
-                    <div className="inline-flex items-center gap-2 mb-4 bg-indigo-50 px-3 py-1.5 rounded-full">
-                        <TrendingUp size={14} className="text-indigo-600" />
-                        <span className="bg-indigo-600 text-white text-[10px] font-sans font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
-                            Analisis
-                        </span>
-                    </div>
-                    <h1 className="text-4xl font-sans font-black text-gray-900 tracking-tight leading-none mb-2">Executive Dashboard</h1>
-                    <p className="font-sans text-sm text-gray-500 font-medium mt-2">Ringkasan performa akademik dan aktivitas seluruh entitas sekolah.</p>
-                </div>
+        <div className="space-y-6 pb-12 max-w-7xl mx-auto">
+            <div className="pb-4 border-b-4 border-black">
+                <span className="inline-block bg-neo-accent border-4 border-black text-[10px] font-black px-3 py-1 uppercase tracking-widest shadow-[3px_3px_0px_0px_#000] mb-3">Analisis</span>
+                <h1 className="text-4xl font-black text-black uppercase tracking-tight leading-none">Executive Dashboard</h1>
+                <p className="font-bold text-black/50 text-sm mt-1">Ringkasan performa akademik dan aktivitas seluruh entitas sekolah.</p>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Tren Kehadiran Siswa */}
-                <div className="bg-white p-6 md:p-8 rounded-3xl border border-gray-100 shadow-sm flex flex-col">
-                    <div className="flex items-center space-x-3 mb-6">
-                        <div className="p-3 bg-emerald-50 text-emerald-600 rounded-xl">
-                            <Users size={24} strokeWidth={2.5} />
+                <div className="bg-white border-4 border-black shadow-[8px_8px_0px_0px_#000] p-5 flex flex-col">
+                    <div className="flex items-center gap-3 mb-5 pb-4 border-b-4 border-black">
+                        <div className="border-4 border-black p-2 bg-neo-secondary shadow-[2px_2px_0px_0px_#000]">
+                            <Users size={20} strokeWidth={3} />
                         </div>
                         <div>
-                            <h3 className="font-sans font-black text-xl text-gray-900">Tren Kehadiran Sekolah</h3>
-                            <p className="font-sans text-xs text-gray-500 font-medium">Akumulasi per bulan</p>
+                            <h3 className="font-black text-black uppercase tracking-tight">Tren Kehadiran Sekolah</h3>
+                            <p className="text-[10px] font-black text-black/40 uppercase tracking-widest">Akumulasi per bulan</p>
                         </div>
                     </div>
-                    <div className="h-72 w-full mt-4">
+                    <div className="h-72 w-full">
                         <ResponsiveContainer width="100%" height="100%">
                             <AreaChart data={attendanceData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                                 <defs>
@@ -140,64 +131,62 @@ export default function AnalyticsDashboard() {
                                     <stop offset="95%" stopColor="#10B981" stopOpacity={0}/>
                                     </linearGradient>
                                 </defs>
-                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
-                                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, className: 'font-sans text-gray-500' }} />
-                                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, className: 'font-sans text-gray-500' }} />
-                                <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
-                                <Legend wrapperStyle={{ paddingTop: '20px', fontSize: '12px', fontFamily: 'Inter, sans-serif' }} />
-                                <Area type="monotone" dataKey="Hadir" stroke="#10B981" fillOpacity={1} fill="url(#colorHadir)" strokeWidth={3} />
-                                <Line type="monotone" dataKey="Alpa" stroke="#EF4444" strokeWidth={2} dot={{ r: 4 }} />
-                                <Line type="monotone" dataKey="Sakit" stroke="#F59E0B" strokeWidth={2} dot={false} />
+                                <CartesianGrid strokeDasharray="0" vertical={false} stroke="rgba(0,0,0,0.1)" />
+                                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 900, fontFamily: 'Space Grotesk' }} />
+                                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 900, fontFamily: 'Space Grotesk' }} />
+                                <Tooltip contentStyle={{ border: '4px solid #000', borderRadius: 0, boxShadow: '4px 4px 0px #000', fontFamily: 'Space Grotesk', fontWeight: 900 }} />
+                                <Legend wrapperStyle={{ paddingTop: '12px', fontSize: '10px', fontFamily: 'Space Grotesk', fontWeight: 900, textTransform: 'uppercase' }} />
+                                <Area type="monotone" dataKey="Hadir" stroke="#000" fillOpacity={1} fill="url(#colorHadir)" strokeWidth={3} />
+                                <Line type="monotone" dataKey="Alpa" stroke="#FF6B6B" strokeWidth={2} dot={{ r: 4 }} />
+                                <Line type="monotone" dataKey="Sakit" stroke="#FFD93D" strokeWidth={2} dot={false} />
                             </AreaChart>
                         </ResponsiveContainer>
                     </div>
                 </div>
 
                 {/* Performa Mata Pelajaran */}
-                <div className="bg-white p-6 md:p-8 rounded-3xl border border-gray-100 shadow-sm flex flex-col">
-                     <div className="flex items-center space-x-3 mb-6">
-                        <div className="p-3 bg-blue-50 text-blue-600 rounded-xl">
-                            <BookOpen size={24} strokeWidth={2.5} />
+                <div className="bg-white border-4 border-black shadow-[8px_8px_0px_0px_#000] p-5 flex flex-col">
+                    <div className="flex items-center gap-3 mb-5 pb-4 border-b-4 border-black">
+                        <div className="border-4 border-black p-2 bg-neo-muted shadow-[2px_2px_0px_0px_#000]">
+                            <BookOpen size={20} strokeWidth={3} />
                         </div>
                         <div>
-                            <h3 className="font-sans font-black text-xl text-gray-900">Performa Mata Pelajaran</h3>
-                            <p className="font-sans text-xs text-gray-500 font-medium">Rata-rata kumulatif nilai siswa</p>
+                            <h3 className="font-black text-black uppercase tracking-tight">Performa Mata Pelajaran</h3>
+                            <p className="text-[10px] font-black text-black/40 uppercase tracking-widest">Rata-rata kumulatif nilai siswa</p>
                         </div>
                     </div>
-                    <div className="h-72 w-full mt-4">
+                    <div className="h-72 w-full">
                         <ResponsiveContainer width="100%" height="100%">
                             <BarChart data={subjectData} layout="vertical" margin={{ top: 0, right: 30, left: 40, bottom: 0 }}>
-                                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#E5E7EB" />
-                                <XAxis type="number" domain={[0, 100]} axisLine={false} tickLine={false} tick={{ fontSize: 12, className: 'font-sans text-gray-500' }} />
-                                <YAxis type="category" dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, className: 'font-sans font-bold text-gray-700' }} />
-                                <Tooltip cursor={{fill: '#F3F4F6'}} contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
-                                <Bar dataKey="Ratarata" fill="#3B82F6" radius={[0, 4, 4, 0]} barSize={24} />
+                                <CartesianGrid strokeDasharray="0" horizontal={false} stroke="rgba(0,0,0,0.1)" />
+                                <XAxis type="number" domain={[0, 100]} axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 900, fontFamily: 'Space Grotesk' }} />
+                                <YAxis type="category" dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 900, fontFamily: 'Space Grotesk' }} />
+                                <Tooltip cursor={{fill: 'rgba(0,0,0,0.05)'}} contentStyle={{ border: '4px solid #000', borderRadius: 0, boxShadow: '4px 4px 0px #000', fontFamily: 'Space Grotesk', fontWeight: 900 }} />
+                                <Bar dataKey="Ratarata" fill="#000" radius={0} barSize={20} />
                             </BarChart>
                         </ResponsiveContainer>
                     </div>
                 </div>
                 
-                {/* Aktivitas Guru / Produktivitas */}
-                 <div className="bg-white p-6 md:p-8 rounded-3xl border border-gray-100 shadow-sm flex flex-col lg:col-span-2">
-                     <div className="flex items-center justify-between mb-8">
-                        <div className="flex items-center space-x-3">
-                            <div className="p-3 bg-indigo-50 text-indigo-600 rounded-xl">
-                                <Activity size={24} strokeWidth={2.5} />
-                            </div>
-                            <div>
-                                <h3 className="font-sans font-black text-xl text-gray-900">Aktivitas Guru (Top Leaderboard)</h3>
-                                <p className="font-sans text-xs text-gray-500 font-medium">Metrik produktivitas input materi & nilai</p>
-                            </div>
+                {/* Aktivitas Guru */}
+                <div className="bg-white border-4 border-black shadow-[8px_8px_0px_0px_#000] p-5 flex flex-col lg:col-span-2">
+                    <div className="flex items-center gap-3 mb-5 pb-4 border-b-4 border-black">
+                        <div className="border-4 border-black p-2 bg-neo-accent shadow-[2px_2px_0px_0px_#000]">
+                            <Activity size={20} strokeWidth={3} />
+                        </div>
+                        <div>
+                            <h3 className="font-black text-black uppercase tracking-tight">Aktivitas Guru (Top Leaderboard)</h3>
+                            <p className="text-[10px] font-black text-black/40 uppercase tracking-widest">Metrik produktivitas input materi & nilai</p>
                         </div>
                     </div>
-                    <div className="h-80 w-full mt-2">
+                    <div className="h-80 w-full">
                         <ResponsiveContainer width="100%" height="100%">
                             <BarChart data={teacherActivity} margin={{ top: 20, right: 0, left: -20, bottom: 0 }}>
-                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
-                                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, className: 'font-sans font-medium text-gray-500' }} />
-                                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, className: 'font-sans text-gray-500' }} />
-                                <Tooltip cursor={{fill: '#F3F4F6'}} contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
-                                <Bar dataKey="Tugas Dibuat" fill="#6366F1" radius={[4, 4, 0, 0]} barSize={40} />
+                                <CartesianGrid strokeDasharray="0" vertical={false} stroke="rgba(0,0,0,0.1)" />
+                                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 900, fontFamily: 'Space Grotesk' }} />
+                                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 900, fontFamily: 'Space Grotesk' }} />
+                                <Tooltip cursor={{fill: 'rgba(0,0,0,0.05)'}} contentStyle={{ border: '4px solid #000', borderRadius: 0, boxShadow: '4px 4px 0px #000', fontFamily: 'Space Grotesk', fontWeight: 900 }} />
+                                <Bar dataKey="Tugas Dibuat" fill="#FFD93D" radius={0} barSize={36} />
                             </BarChart>
                         </ResponsiveContainer>
                     </div>

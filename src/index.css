@@ -1,49 +1,258 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=block');
 @import "tailwindcss";
 
 @theme {
-  --color-primary-500: #3B82F6;
-  --color-primary-600: #2563EB;
-  --color-secondary-500: #10B981;
-  --color-accent-500: #F59E0B;
-  --color-muted-100: #F3F4F6;
-  --color-ink: #111827;
-  --color-paper: #FFFFFF;
-  --color-divider: #E5E7EB;
-  --color-newsprint-red: #3B82F6;
-  --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
-  --font-serif: "Outfit", ui-sans-serif, system-ui, sans-serif;
-  --font-body: "Outfit", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  /* Neo-Brutalism Palette */
+  --color-neo-cream: #FFFDF5;
+  --color-neo-accent: #FF6B6B;
+  --color-neo-secondary: #FFD93D;
+  --color-neo-muted: #C4B5FD;
+  --color-neo-black: #000000;
+
+  /* Legacy tokens (kept for backward compat) */
+  --color-primary-500: #FF6B6B;
+  --color-primary-600: #e55a5a;
+  --color-secondary-500: #FFD93D;
+  --color-accent-500: #C4B5FD;
+  --color-muted-100: #FFFDF5;
+  --color-ink: #000000;
+  --color-paper: #FFFDF5;
+  --color-divider: #000000;
+  --color-newsprint-red: #FF6B6B;
+
+  /* Typography */
+  --font-sans: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Space Grotesk", ui-monospace, SFMono-Regular, monospace;
 }
 
 :root {
-  --foreground-rgb: 17, 24, 39;
-  --background-start-rgb: 255, 255, 255;
-  --background-end-rgb: 255, 255, 255;
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 255, 253, 245;
+  --background-end-rgb: 255, 253, 245;
+}
+
+/* ============================================
+   GLOBAL BASE
+   ============================================ */
+*, *::before, *::after {
+  box-sizing: border-box;
 }
 
 body {
-  background-color: var(--color-paper);
-  color: var(--color-ink);
-  font-family: var(--font-sans);
+  background-color: #FFFDF5;
+  color: #000000;
+  font-family: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  font-weight: 700;
   position: relative;
   overflow-x: hidden;
 }
 
+/* ============================================
+   GLOBAL COMPONENT OVERRIDES
+   Forces Neo-Brutalism on legacy classnames
+   ============================================ */
+
+/* Force remove rounded corners site-wide */
+.rounded-2xl, .rounded-3xl, .rounded-xl, .rounded-lg, .rounded-md, .rounded-full {
+  border-radius: 0 !important;
+}
+
+/* Soft shadows → hard offset */
+.shadow-sm, .shadow-md, .shadow-lg, .shadow-xl {
+  box-shadow: 4px 4px 0px 0px #000000 !important;
+}
+
+/* blue-600 primary → Neo accent */
+.bg-blue-600  { background-color: #FF6B6B !important; }
+.bg-blue-700  { background-color: #e55a5a !important; }
+.bg-blue-50   { background-color: #FFFDF5 !important; }
+.text-blue-600 { color: #000000 !important; }
+.border-blue-600 { border-color: #000000 !important; }
+
+/* Soft gray backgrounds → cream */
+.bg-gray-50   { background-color: #FFFDF5 !important; }
+.bg-gray-100  { background-color: #f0ede0 !important; }
+
+/* Soft borders → dark */
+.border-gray-100 { border-color: rgba(0,0,0,0.15) !important; }
+.border-gray-200 { border-color: rgba(0,0,0,0.2) !important; }
+
+
+/* ============================================
+   SCROLLBAR — Neo-Brutalist thick sharp style
+   ============================================ */
 ::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--color-muted-100);
+  background: #FFFDF5;
+  border-left: 2px solid #000;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #D1D5DB;
-  border-radius: 5px;
+  background: #000000;
+  border-radius: 0;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #9CA3AF;
+  background: #FF6B6B;
+}
+
+/* ============================================
+   NEO-BRUTALISM UTILITY CLASSES
+   ============================================ */
+
+/* Hard offset shadows */
+.neo-shadow-sm  { box-shadow: 4px 4px 0px 0px #000000; }
+.neo-shadow     { box-shadow: 8px 8px 0px 0px #000000; }
+.neo-shadow-lg  { box-shadow: 12px 12px 0px 0px #000000; }
+.neo-shadow-xl  { box-shadow: 16px 16px 0px 0px #000000; }
+.neo-shadow-white { box-shadow: 8px 8px 0px 0px #FFFFFF; }
+
+/* Push effect for buttons */
+.neo-btn-push {
+  transition: transform 100ms ease-linear, box-shadow 100ms ease-linear;
+}
+.neo-btn-push:active {
+  transform: translate(4px, 4px);
+  box-shadow: none !important;
+}
+
+/* Card lift effect */
+.neo-card-lift {
+  transition: transform 200ms ease-out, box-shadow 200ms ease-out;
+}
+.neo-card-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: 12px 12px 0px 0px #000000;
+}
+
+/* ============================================
+   BACKGROUND PATTERNS
+   ============================================ */
+.neo-halftone {
+  background-image: radial-gradient(#000000 1.5px, transparent 1.5px);
+  background-size: 20px 20px;
+}
+
+.neo-halftone-white {
+  background-image: radial-gradient(rgba(255,255,255,0.3) 1.5px, transparent 1.5px);
+  background-size: 20px 20px;
+}
+
+.neo-grid-bg {
+  background-size: 40px 40px;
+  background-image:
+    linear-gradient(to right, rgba(0, 0, 0, 0.08) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.08) 1px, transparent 1px);
+}
+
+.neo-grid-bg-white {
+  background-size: 40px 40px;
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes bounce-in {
+  0%   { transform: scale(0.9) translateY(8px); opacity: 0; }
+  60%  { transform: scale(1.05) translateY(-2px); opacity: 1; }
+  100% { transform: scale(1) translateY(0); }
+}
+
+@keyframes neo-marquee {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes neo-stamp {
+  0%   { transform: scale(1.5) rotate(-5deg); opacity: 0; }
+  60%  { transform: scale(0.95) rotate(1deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 10s linear infinite;
+}
+
+.animate-bounce-in {
+  animation: bounce-in 0.4s ease-out forwards;
+}
+
+.animate-neo-marquee {
+  animation: neo-marquee 20s linear infinite;
+}
+
+.animate-neo-stamp {
+  animation: neo-stamp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes width-shrink {
+  from { width: 100%; }
+  to   { width: 0%; }
+}
+
+@keyframes slide-up-in {
+  from { transform: translateY(16px); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+
+.animate-slide-up-in {
+  animation: slide-up-in 0.25s ease-out forwards;
+}
+
+/* ============================================
+   HIDE SCROLLBAR UTILITY
+   ============================================ */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* ============================================
+   REDUCED MOTION
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+  .animate-spin-slow,
+  .animate-bounce-in,
+  .animate-neo-marquee,
+  .animate-neo-stamp,
+  .animate-bounce,
+  .animate-pulse {
+    animation: none;
+  }
+  .neo-card-lift:hover {
+    transform: none;
+  }
+  .neo-btn-push:active {
+    transform: none;
+  }
+}
+
+/* ============================================
+   FORM ELEMENTS — Neo-Brutal reset
+   ============================================ */
+select {
+  appearance: none;
+}
+
+input:focus, textarea:focus, select:focus {
+  outline: none;
+}
+
+/* ============================================
+   TABLE — Neo-Brutal base
+   ============================================ */
+table {
+  border-collapse: collapse;
 }

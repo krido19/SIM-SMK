@@ -1,12 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { supabase } from '../../lib/supabase';
-import {
-    Calendar,
-    Clock,
-    BookOpen,
-    Filter,
-    ChevronDown
-} from 'lucide-react';
+import { Calendar, Clock, BookOpen, Filter } from 'lucide-react';
 
 const Days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
 const WeekTypes = ['Minggu Ganjil', 'Minggu Genap'];
@@ -100,155 +94,89 @@ export default function TeacherSchedule() {
     const totalSubjects = new Set(schedules.map(s => s.subject_name).filter(Boolean)).size;
     const todayName = Days[new Date().getDay() - 1] || '';
 
-    if (isLoading) {
-        return (
-            <div className="p-8 text-center font-sans text-xs font-bold uppercase tracking-widest bg-gray-50 rounded-3xl border border-gray-100 shadow-sm animate-pulse text-gray-500">
-                Memuat jadwal mengajar...
-            </div>
-        );
-    }
+    if (isLoading) return (
+        <div className="py-16 flex flex-col items-center gap-3">
+            <div className="w-10 h-10 border-4 border-black border-t-neo-accent animate-spin" />
+            <p className="font-black text-sm text-black/40 uppercase tracking-widest">Memuat Jadwal Mengajar...</p>
+        </div>
+    );
 
     return (
-        <div className="space-y-8 animate-in fade-in duration-500 pb-12">
+        <div className="space-y-6 pb-12">
             {/* Header */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 pb-6 border-b border-gray-100">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 pb-4 border-b-4 border-black">
                 <div>
-                     <div className="flex items-center gap-2 mb-2">
-                        <span className="bg-blue-600 text-white text-[10px] font-sans font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
-                            Akademik
-                        </span>
-                    </div>
-                    <h1 className="text-4xl font-sans font-black text-gray-900 tracking-tight leading-none">Jadwal Mengajar</h1>
-                    <p className="font-sans text-sm font-medium text-gray-500 mt-2">
-                        Jadwal mengajar resmi · Siklus aktif: <span className="font-bold text-gray-700">{currentWeekType}</span>
-                    </p>
+                    <span className="inline-block bg-neo-muted border-4 border-black text-[10px] font-black px-3 py-1 uppercase tracking-widest shadow-[3px_3px_0px_0px_#000] mb-3">Akademik</span>
+                    <h1 className="text-4xl font-black text-black uppercase tracking-tight leading-none">Jadwal Mengajar</h1>
+                    <p className="font-bold text-black/50 text-sm mt-1">Siklus aktif: <span className="font-black text-black">{currentWeekType}</span></p>
                 </div>
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
-                <div className="bg-white rounded-3xl border border-gray-100 p-6 shadow-sm flex flex-col gap-2 hover:shadow-md transition-shadow">
-                    <div className="p-3 bg-blue-50 text-blue-600 rounded-2xl w-max self-start">
-                        <BookOpen size={20} strokeWidth={2.5} />
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                {[
+                    { label: 'Total Kelas', value: totalClasses, icon: BookOpen, bg: 'bg-neo-muted' },
+                    { label: 'Mata Pelajaran', value: totalSubjects, icon: Calendar, bg: 'bg-neo-secondary' },
+                    { label: 'Jadwal Hari Ini', value: schedules.filter(s => s.day === todayName && s.week_type === currentWeekType).length, icon: Clock, bg: 'bg-neo-cream' },
+                    { label: 'Sesi/Minggu', value: schedules.filter(s => s.week_type === currentWeekType).length, icon: Filter, bg: 'bg-white' },
+                ].map(({ label, value, icon: Icon, bg }) => (
+                    <div key={label} className={`${bg} border-4 border-black shadow-[6px_6px_0px_0px_#000] p-5`}>
+                        <div className="border-4 border-black p-2 bg-white shadow-[2px_2px_0px_0px_#000] w-max mb-3">
+                            <Icon size={16} strokeWidth={3} />
+                        </div>
+                        <p className="text-[9px] font-black uppercase tracking-widest text-black/40">{label}</p>
+                        <p className="text-4xl font-black text-black">{value}</p>
                     </div>
-                    <p className="text-[10px] font-sans font-black text-gray-400 uppercase tracking-widest mt-2">Total Kelas</p>
-                    <p className="text-3xl font-sans font-black text-gray-900">{totalClasses}</p>
-                </div>
-                <div className="bg-white rounded-3xl border border-gray-100 p-6 shadow-sm flex flex-col gap-2 hover:shadow-md transition-shadow">
-                    <div className="p-3 bg-indigo-50 text-indigo-600 rounded-2xl w-max self-start">
-                        <Calendar size={20} strokeWidth={2.5} />
-                    </div>
-                    <p className="text-[10px] font-sans font-black text-gray-400 uppercase tracking-widest mt-2">Mata Pelajaran</p>
-                    <p className="text-3xl font-sans font-black text-gray-900">{totalSubjects}</p>
-                </div>
-                <div className="bg-white rounded-3xl border border-gray-100 p-6 shadow-sm flex flex-col gap-2 hover:shadow-md transition-shadow">
-                    <div className="p-3 bg-fuchsia-50 text-fuchsia-600 rounded-2xl w-max self-start">
-                        <Clock size={20} strokeWidth={2.5} />
-                    </div>
-                    <p className="text-[10px] font-sans font-black text-gray-400 uppercase tracking-widest mt-2">Jadwal Hari Ini</p>
-                    <p className="text-3xl font-sans font-black text-gray-900">
-                        {schedules.filter(s => s.day === todayName && s.week_type === currentWeekType).length}
-                    </p>
-                </div>
-                <div className="bg-white rounded-3xl border border-gray-100 p-6 shadow-sm flex flex-col gap-2 hover:shadow-md transition-shadow">
-                    <div className="p-3 bg-emerald-50 text-emerald-600 rounded-2xl w-max self-start">
-                        <Filter size={20} strokeWidth={2.5} />
-                    </div>
-                    <p className="text-[10px] font-sans font-black text-gray-400 uppercase tracking-widest mt-2">Total Sesi/Minggu</p>
-                    <p className="text-3xl font-sans font-black text-gray-900">
-                        {schedules.filter(s => s.week_type === currentWeekType).length}
-                    </p>
-                </div>
+                ))}
             </div>
 
             {/* Filters */}
-            <div className="flex flex-wrap gap-4 items-center bg-white rounded-2xl border border-gray-100 p-4 shadow-sm">
-                <div className="hidden sm:flex p-3 bg-gray-50 rounded-xl">
-                    <Filter size={20} className="text-gray-400" strokeWidth={2.5} />
-                </div>
-                <div className="relative flex-1 min-w-[200px]">
-                    <select
-                        value={selectedWeekType}
-                        onChange={e => setSelectedWeekType(e.target.value)}
-                        className="w-full bg-gray-50 border border-transparent rounded-xl px-5 py-3.5 pr-10 font-sans font-bold text-xs text-gray-700 uppercase tracking-widest outline-none focus:bg-white focus:border-blue-200 focus:ring-4 focus:ring-blue-50 transition-all appearance-none cursor-pointer"
-                    >
-                        {WeekTypes.map(w => (
-                            <option key={w} value={w}>{w.toUpperCase()}</option>
-                        ))}
-                    </select>
-                    <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-                </div>
-                <div className="relative flex-1 min-w-[200px]">
-                    <select
-                        value={selectedDay}
-                        onChange={e => setSelectedDay(e.target.value)}
-                        className="w-full bg-gray-50 border border-transparent rounded-xl px-5 py-3.5 pr-10 font-sans font-bold text-xs text-gray-700 uppercase tracking-widest outline-none focus:bg-white focus:border-blue-200 focus:ring-4 focus:ring-blue-50 transition-all appearance-none cursor-pointer"
-                    >
-                        <option value="">SEMUA HARI</option>
-                        {Days.map(d => (
-                            <option key={d} value={d}>{d.toUpperCase()}</option>
-                        ))}
-                    </select>
-                    <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-                </div>
+            <div className="flex flex-wrap gap-3 items-center border-4 border-black shadow-[4px_4px_0px_0px_#000] bg-white p-4">
+                <Filter size={16} strokeWidth={3} className="text-black/40" />
+                <select value={selectedWeekType} onChange={e => setSelectedWeekType(e.target.value)}
+                    className="flex-1 min-w-[180px] bg-neo-cream border-4 border-black font-black text-xs text-black uppercase tracking-widest px-4 py-2.5 focus:bg-neo-secondary focus:shadow-[4px_4px_0px_0px_#000] transition-all">
+                    {WeekTypes.map(w => <option key={w} value={w}>{w.toUpperCase()}</option>)}
+                </select>
+                <select value={selectedDay} onChange={e => setSelectedDay(e.target.value)}
+                    className="flex-1 min-w-[180px] bg-neo-cream border-4 border-black font-black text-xs text-black uppercase tracking-widest px-4 py-2.5 focus:bg-neo-secondary focus:shadow-[4px_4px_0px_0px_#000] transition-all">
+                    <option value="">SEMUA HARI</option>
+                    {Days.map(d => <option key={d} value={d}>{d.toUpperCase()}</option>)}
+                </select>
             </div>
 
             {/* Schedule Grid */}
             {Object.keys(groupedByDay).length > 0 ? (
-                <div className="space-y-6">
+                <div className="space-y-5">
                     {Days.filter(day => groupedByDay[day]).map(day => (
-                        <div key={day} className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden flex flex-col group hover:shadow-md hover:-translate-y-0.5 transition-all">
+                        <div key={day} className="border-4 border-black shadow-[6px_6px_0px_0px_#000] overflow-hidden">
                             {/* Day Header */}
-                            <div className={`px-6 py-5 border-b border-gray-100 flex items-center justify-between ${day === todayName ? 'bg-blue-600 text-white' : 'bg-gray-50'}`}>
+                            <div className={`px-5 py-3 border-b-4 border-black flex items-center justify-between ${day === todayName ? 'bg-black text-white' : 'bg-neo-secondary text-black'}`}>
                                 <div className="flex items-center gap-3">
-                                    <Calendar size={20} strokeWidth={2.5} className={day === todayName ? 'text-blue-100' : 'text-gray-400'} />
-                                    <h3 className={`text-xl font-sans font-black uppercase tracking-tight ${day === todayName ? 'text-white' : 'text-gray-900'}`}>{day}</h3>
-                                    {day === todayName && (
-                                        <span className="px-2 py-1 bg-white text-blue-600 text-[10px] font-sans font-black uppercase tracking-widest rounded-full shadow-sm ml-2">
-                                            HARI INI
-                                        </span>
-                                    )}
+                                    <Calendar size={16} strokeWidth={3} />
+                                    <h3 className="text-lg font-black uppercase tracking-tight">{day}</h3>
+                                    {day === todayName && <span className="border-2 border-neo-secondary text-neo-secondary text-[9px] font-black uppercase px-2 py-0.5">HARI INI</span>}
                                 </div>
-                                <span className={`text-[10px] font-sans font-black uppercase tracking-widest ${day === todayName ? 'text-blue-100' : 'text-gray-400'}`}>
-                                    {groupedByDay[day].length} Sesi
-                                </span>
+                                <span className="text-[10px] font-black uppercase tracking-widest opacity-60">{groupedByDay[day].length} Sesi</span>
                             </div>
 
                             {/* Sessions */}
-                            <div className="divide-y divide-gray-50 flex-1 flex flex-col">
-                                {groupedByDay[day].map((sched, i) => (
-                                    <div key={sched.id} className="px-6 py-5 flex flex-col md:flex-row md:items-center gap-4 hover:bg-blue-50/30 transition-colors flex-1">
-                                        {/* Time */}
-                                        <div className="flex items-center gap-4 md:w-52 shrink-0">
-                                            <div className="p-3 bg-gray-50 text-gray-400 rounded-xl group-hover:bg-white group-hover:text-blue-600 group-hover:shadow-sm transition-all border border-gray-100">
-                                                <Clock size={16} strokeWidth={2.5} />
+                            <div className="divide-y-2 divide-black/10">
+                                {groupedByDay[day].map((sched) => (
+                                    <div key={sched.id} className="px-5 py-4 flex flex-col md:flex-row md:items-center gap-4 hover:bg-neo-cream/50 transition-colors">
+                                        <div className="flex items-center gap-3 md:w-48 shrink-0">
+                                            <div className="border-4 border-black p-2 bg-neo-cream shadow-[2px_2px_0px_0px_#000]">
+                                                <Clock size={14} strokeWidth={3} />
                                             </div>
                                             <div>
-                                                <p className="font-sans font-black text-gray-900 text-sm tracking-tight">
-                                                    {sched.start_time?.substring(0, 5)} — {sched.end_time?.substring(0, 5)}
-                                                </p>
-                                                {sched.jam_ke && (
-                                                    <p className="text-[10px] font-sans font-bold text-gray-400 uppercase tracking-widest mt-1">
-                                                        Jam ke-{sched.jam_ke}
-                                                    </p>
-                                                )}
+                                                <p className="font-black text-black text-sm">{sched.start_time?.substring(0, 5)} — {sched.end_time?.substring(0, 5)}</p>
+                                                {sched.jam_ke && <p className="text-[9px] font-black uppercase tracking-widest text-black/40 mt-0.5">Jam ke-{sched.jam_ke}</p>}
                                             </div>
                                         </div>
-
-                                        {/* Subject */}
                                         <div className="flex-1">
-                                            <div className="flex items-center gap-2 mb-1">
-                                                <h4 className="font-sans font-black text-gray-900 text-lg uppercase tracking-tight">
-                                                    {sched.subject_name || '-'}
-                                                </h4>
-                                            </div>
+                                            <h4 className="font-black text-black text-base uppercase tracking-tight">{sched.subject_name || '-'}</h4>
                                         </div>
-
-                                        {/* Class */}
-                                        <div className="shrink-0 flex items-center gap-3">
-                                            <span className="px-4 py-2 bg-gray-100 text-gray-600 rounded-xl text-[10px] font-sans font-black uppercase tracking-widest border border-gray-200">
-                                                {sched.class_name || '-'}
-                                            </span>
+                                        <div className="shrink-0">
+                                            <span className="border-4 border-black bg-neo-muted px-3 py-1.5 text-[10px] font-black uppercase tracking-widest shadow-[2px_2px_0px_0px_#000]">{sched.class_name || '-'}</span>
                                         </div>
                                     </div>
                                 ))}
@@ -257,14 +185,10 @@ export default function TeacherSchedule() {
                     ))}
                 </div>
             ) : (
-                <div className="py-24 flex flex-col items-center justify-center text-center bg-gray-50 rounded-3xl border border-dashed border-gray-200">
-                    <div className="h-20 w-20 bg-white rounded-full flex items-center justify-center shadow-sm mb-6">
-                         <Calendar size={32} className="text-gray-300" strokeWidth={2} />
-                    </div>
-                    <h3 className="text-xl font-sans font-black text-gray-900 tracking-tight">Tidak Ada Jadwal</h3>
-                    <p className="text-sm font-sans font-medium text-gray-500 mt-2 max-w-sm">
-                        {selectedDay ? `Tidak ada jadwal mengajar yang dimuat untuk hari ${selectedDay}` : 'Jadwal mengajar Anda belum tersedia untuk siklus ini.'}
-                    </p>
+                <div className="py-16 text-center border-4 border-dashed border-black/20 bg-white flex flex-col items-center">
+                    <Calendar size={32} className="mb-3 text-black/20" strokeWidth={2} />
+                    <h3 className="font-black text-black uppercase">Tidak Ada Jadwal</h3>
+                    <p className="font-bold text-black/40 text-sm mt-1">{selectedDay ? `Tidak ada jadwal untuk ${selectedDay}` : 'Jadwal belum tersedia.'}</p>
                 </div>
             )}
         </div>

@@ -113,8 +113,8 @@ const AdminDashboard = () => {
     };
 
     if (isLoading) return (
-        <div className="flex items-center gap-2 font-sans text-xs font-bold text-gray-400 uppercase tracking-widest animate-pulse">
-            <div className="w-4 h-4 rounded-full border-2 border-blue-600 border-t-transparent animate-spin"></div>
+        <div className="flex items-center gap-2 text-xs font-black text-black/40 uppercase tracking-widest">
+            <div className="w-4 h-4 border-2 border-black border-t-neo-accent animate-spin"></div>
             Memuat Statistik...
         </div>
     );
@@ -143,7 +143,7 @@ const AdminDashboard = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="md:col-span-2 bg-white p-8 rounded-3xl border border-gray-100 shadow-sm">
+                <div className="md:col-span-2 bg-white border-4 border-black shadow-[8px_8px_0px_0px_#000] p-6">
                     <AnalyticsChart
                         title="Kehadiran Seluruh Sistem"
                         subtitle="Persentase kehadiran harian aktif dari semua kelas"
@@ -151,27 +151,27 @@ const AdminDashboard = () => {
                         labels={['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab']}
                     />
                 </div>
-                <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm flex flex-col items-center justify-center text-center">
-                    <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mb-6 relative">
-                        <Activity size={32} />
-                        <span className="absolute top-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-white rounded-full animate-pulse"></span>
+                <div className="bg-white border-4 border-black shadow-[8px_8px_0px_0px_#000] p-6 flex flex-col items-center justify-center text-center">
+                    <div className="w-14 h-14 border-4 border-black bg-neo-muted shadow-[3px_3px_0px_0px_#000] flex items-center justify-center mb-4 relative">
+                        <Activity size={24} strokeWidth={3} />
+                        <span className="absolute -top-1 -right-1 w-3 h-3 bg-neo-secondary border-2 border-black animate-pulse"></span>
                     </div>
-                    <h3 className="text-xl font-sans font-black text-gray-900 mb-2">Supabase Keep Alive</h3>
-                    <p className="text-xs font-sans text-gray-500 font-medium mb-6">Mencegah database masuk ke fase Paused karena inaktif (Free Tier).</p>
+                    <h3 className="text-lg font-black text-black uppercase tracking-tight mb-2">Keep Alive</h3>
+                    <p className="text-xs font-bold text-black/50 mb-4 uppercase tracking-wider">Mencegah database Paused (Free Tier).</p>
 
-                    <div className="bg-gray-50 rounded-xl w-full py-4 mb-6">
-                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Ping Terakhir</p>
-                        <p className="text-sm font-bold text-gray-800">
-                            {keepAliveDate ? new Date(keepAliveDate).toLocaleString('id-ID') : 'Belum Kueri'}
+                    <div className="border-4 border-black bg-neo-cream w-full py-3 px-4 mb-4">
+                        <p className="text-[9px] font-black text-black/40 uppercase tracking-widest mb-1">Ping Terakhir</p>
+                        <p className="text-xs font-black text-black">
+                            {keepAliveDate ? new Date(keepAliveDate).toLocaleString('id-ID') : 'Belum Pernah'}
                         </p>
                     </div>
 
                     <button
                         onClick={triggerManualPing}
                         disabled={isPinging}
-                        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-sans text-xs font-bold uppercase tracking-widest py-4 rounded-xl shadow-lg shadow-blue-600/20 transition-all active:scale-95 disabled:opacity-50 disabled:scale-100 flex items-center justify-center gap-2"
+                        className="w-full bg-black text-white font-black text-xs uppercase tracking-widest py-3 border-4 border-black shadow-[4px_4px_0px_0px_#FF6B6B] hover:bg-neo-accent hover:text-black active:translate-x-[4px] active:translate-y-[4px] active:shadow-none transition-all duration-100 disabled:opacity-50 flex items-center justify-center gap-2"
                     >
-                        {isPinging ? <Loader2 size={16} className="animate-spin" /> : <Activity size={16} />}
+                        {isPinging ? <Loader2 size={16} className="animate-spin" /> : <Activity size={16} strokeWidth={3} />}
                         <span>Ping Sekarang</span>
                     </button>
                 </div>
@@ -179,27 +179,27 @@ const AdminDashboard = () => {
 
             {/* Detail Modal */}
             {showDetail && (
-                <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-md animate-in fade-in duration-300">
-                    <div className="bg-white rounded-3xl shadow-2xl w-full max-w-4xl overflow-hidden animate-in zoom-in-95 duration-300 max-h-[85vh] flex flex-col border border-white/20">
+                <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/70 animate-in fade-in duration-200">
+                    <div className="bg-neo-cream border-4 border-black shadow-[12px_12px_0px_0px_#000] w-full max-w-4xl overflow-hidden max-h-[85vh] flex flex-col animate-bounce-in">
 
                         {/* Header */}
-                        <div className="px-8 py-6 flex justify-between items-center border-b border-gray-50 bg-gray-50/50">
+                        <div className="px-6 py-4 flex justify-between items-center border-b-4 border-black bg-neo-secondary">
                             <div>
-                                <h3 className="text-xl font-sans font-black text-gray-900 flex items-center gap-3">
-                                    {showDetail === 'students' && <><Users className="text-blue-600" /> Daftar Siswa</>}
-                                    {showDetail === 'teachers' && <><UserCircle className="text-emerald-600" /> Daftar Guru</>}
-                                    {showDetail === 'subjects' && <><BookOpen className="text-purple-600" /> Mata Pelajaran</>}
-                                    {showDetail === 'grades' && <><TrendingUp className="text-amber-600" /> Rekap Nilai</>}
+                                <h3 className="text-lg font-black text-black uppercase tracking-tight flex items-center gap-2">
+                                    {showDetail === 'students' && <><Users size={18} strokeWidth={3} /> Daftar Siswa</>}
+                                    {showDetail === 'teachers' && <><UserCircle size={18} strokeWidth={3} /> Daftar Guru</>}
+                                    {showDetail === 'subjects' && <><BookOpen size={18} strokeWidth={3} /> Mata Pelajaran</>}
+                                    {showDetail === 'grades' && <><TrendingUp size={18} strokeWidth={3} /> Rekap Nilai</>}
                                 </h3>
-                                <p className="text-xs font-sans font-medium text-gray-400 mt-1 uppercase tracking-widest">
-                                    Total {showDetail === 'students' ? studentsList.length : showDetail === 'teachers' ? teachersList.length : showDetail === 'subjects' ? subjectsList.length : gradesList.length} Entri Ditemukan
+                                <p className="text-[10px] font-black text-black/50 mt-0.5 uppercase tracking-widest">
+                                    {showDetail === 'students' ? studentsList.length : showDetail === 'teachers' ? teachersList.length : showDetail === 'subjects' ? subjectsList.length : gradesList.length} Entri
                                 </p>
                             </div>
                             <button
                                 onClick={() => setShowDetail(null)}
-                                className="p-2 bg-gray-100 hover:bg-gray-200 text-gray-500 rounded-xl transition-all"
+                                className="border-4 border-black p-1.5 bg-white hover:bg-neo-accent shadow-[3px_3px_0px_0px_#000] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none transition-all duration-100"
                             >
-                                <X size={20} strokeWidth={2.5} />
+                                <X size={16} strokeWidth={3} />
                             </button>
                         </div>
 
@@ -208,29 +208,29 @@ const AdminDashboard = () => {
 
                             {/* STUDENTS TABLE */}
                             {showDetail === 'students' && (
-                                <table className="w-full text-left border-collapse">
-                                    <thead className="bg-gray-50/50 text-[10px] uppercase font-sans font-bold text-gray-400 tracking-widest sticky top-0 z-10 border-b border-gray-100">
+                                <table className="w-full text-left">
+                                    <thead className="bg-neo-cream text-[9px] uppercase font-black text-black/50 tracking-widest sticky top-0 z-10 border-b-4 border-black">
                                         <tr>
-                                            <th className="p-5 w-16">No</th>
-                                            <th className="p-5">ID (NIS)</th>
-                                            <th className="p-5">Nama Siswa</th>
-                                            <th className="p-5">Kelas</th>
-                                            <th className="p-5">Status</th>
+                                            <th className="p-4 w-12">No</th>
+                                            <th className="p-4">NIS</th>
+                                            <th className="p-4">Nama Siswa</th>
+                                            <th className="p-4">Kelas</th>
+                                            <th className="p-4">Status</th>
                                         </tr>
                                     </thead>
-                                    <tbody className="text-sm font-sans">
+                                    <tbody className="text-sm">
                                         {studentsList.length > 0 ? studentsList.map((s, i) => (
-                                            <tr key={s.id} className="border-b border-gray-50 hover:bg-blue-50/30 transition-colors">
-                                                <td className="p-5 font-bold text-gray-300">{i + 1}</td>
-                                                <td className="p-5 font-bold text-blue-600">{s.nis}</td>
-                                                <td className="p-5 font-bold text-gray-800">{s.full_name}</td>
-                                                <td className="p-5 text-gray-500 font-medium">{s.classes?.name || '-'}</td>
-                                                <td className="p-5">
-                                                    <span className="px-3 py-1 bg-emerald-50 text-emerald-600 text-[10px] font-bold uppercase rounded-full">Aktif</span>
+                                            <tr key={s.id} className="border-b-2 border-black/10 hover:bg-neo-muted/20 transition-colors">
+                                                <td className="p-4 font-black text-black/30">{i + 1}</td>
+                                                <td className="p-4 font-black text-neo-accent">{s.nis}</td>
+                                                <td className="p-4 font-black text-black">{s.full_name}</td>
+                                                <td className="p-4 font-bold text-black/60">{s.classes?.name || '-'}</td>
+                                                <td className="p-4">
+                                                    <span className="px-2 py-0.5 bg-neo-secondary border-2 border-black text-[9px] font-black uppercase">Aktif</span>
                                                 </td>
                                             </tr>
                                         )) : (
-                                            <tr><td colSpan="5" className="p-12 text-center text-gray-400 font-medium italic">Belum ada data siswa.</td></tr>
+                                            <tr><td colSpan="5" className="p-12 text-center font-black text-black/30 uppercase tracking-widest">Belum ada data siswa.</td></tr>
                                         )}
                                     </tbody>
                                 </table>
@@ -325,10 +325,10 @@ const AdminDashboard = () => {
                         </div>
 
                         {/* Footer */}
-                        <div className="px-8 py-6 bg-gray-50/50 border-t border-gray-100 flex justify-end">
+                        <div className="px-6 py-4 bg-neo-cream border-t-4 border-black flex justify-end">
                             <button
                                 onClick={() => setShowDetail(null)}
-                                className="px-8 py-3 bg-gray-900 text-white font-sans font-bold rounded-2xl shadow-lg shadow-gray-900/20 active:scale-95 transition-all text-xs uppercase tracking-widest"
+                                className="px-6 py-3 bg-black text-white font-black text-xs uppercase tracking-widest border-4 border-black shadow-[4px_4px_0px_0px_#FF6B6B] hover:bg-neo-accent hover:text-black active:translate-x-[4px] active:translate-y-[4px] active:shadow-none transition-all duration-100"
                             >
                                 Tutup Panel
                             </button>
