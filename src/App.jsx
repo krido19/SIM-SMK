@@ -17,7 +17,7 @@ const Subjects = lazy(() => import('./pages/admin/Subjects'))
 const Classes = lazy(() => import('./pages/admin/Classes'))
 const Schedule = lazy(() => import('./pages/admin/Schedule'))
 const Announcements = lazy(() => import('./pages/admin/Announcements'))
-const FonnteSettings = lazy(() => import('./pages/admin/FonnteSettings'))
+// const FonnteSettings = lazy(() => import('./pages/admin/FonnteSettings'))
 const DatabaseBackup = lazy(() => import('./pages/admin/DatabaseBackup'))
 const GeneralSettings = lazy(() => import('./pages/admin/GeneralSettings'))
 const AnalyticsDashboard = lazy(() => import('./pages/admin/AnalyticsDashboard'))
@@ -72,7 +72,7 @@ function App() {
                   <Route path="/admin/classes" element={<Classes />} />
                   <Route path="/admin/schedule" element={<Schedule />} />
                   <Route path="/admin/announcements" element={<Announcements />} />
-                  <Route path="/admin/fonnte" element={<FonnteSettings />} />
+                  {/* <Route path="/admin/fonnte" element={<FonnteSettings />} /> */}
                   <Route path="/admin/backup" element={<DatabaseBackup />} />
                   <Route path="/admin/settings" element={<GeneralSettings />} />
                   <Route path="/admin/analytics" element={<AnalyticsDashboard />} />

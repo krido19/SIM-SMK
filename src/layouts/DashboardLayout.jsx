@@ -117,7 +117,6 @@ export default function DashboardLayout() {
             {
                 category: "Administrasi", items: [
                     { to: '/admin/announcements', icon: Bell, label: 'Pengumuman' },
-                    { to: '/admin/fonnte', icon: MessageCircle, label: 'Pusat Pesan' },
                     { to: '/admin/backup', icon: Database, label: 'Cadangan Data' },
                     { to: '/admin/settings', icon: Settings, label: 'Pengaturan' }
                 ]
