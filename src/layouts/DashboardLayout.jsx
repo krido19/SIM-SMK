@@ -181,6 +181,19 @@ export default function DashboardLayout() {
                 category: "Informasi", items: [
                     { to: '/teacher/announcements', icon: Bell, label: 'Pengumuman' }
                 ]
+            },
+            {
+                category: "Pengaturan", items: [
+                    { 
+                        isCollapsible: true,
+                        icon: Settings, 
+                        label: 'Pengaturan Akun',
+                        subItems: [
+                            { to: '/profile', icon: User, label: 'Profil & Foto' },
+                            { to: '/change-password', icon: Key, label: 'Ganti Password' }
+                        ]
+                    }
+                ]
             }
         ],
         siswa: [
