@@ -11,6 +11,7 @@ const DashboardLayout = lazy(() => import('./layouts/DashboardLayout'))
 const Dashboard = lazy(() => import('./pages/Dashboard'))
 const Login = lazy(() => import('./pages/Login'))
 const Profile = lazy(() => import('./pages/Profile'))
+const ChangePassword = lazy(() => import('./pages/ChangePassword'))
 const Students = lazy(() => import('./pages/admin/Students'))
 const Teachers = lazy(() => import('./pages/admin/Teachers'))
 const Subjects = lazy(() => import('./pages/admin/Subjects'))
@@ -64,6 +65,7 @@ function App() {
                 <Route element={<DashboardLayout />}>
                   <Route path="/dashboard" element={<Dashboard />} />
                   <Route path="/profile" element={<Profile />} />
+                  <Route path="/change-password" element={<ChangePassword />} />
 
                   {/* Admin Routes */}
                   <Route path="/admin/students" element={<Students />} />

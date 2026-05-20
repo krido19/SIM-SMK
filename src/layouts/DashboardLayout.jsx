@@ -23,7 +23,10 @@ import {
     TrendingUp,
     Printer,
     FileText,
-    Zap
+    Zap,
+    User,
+    Key,
+    Camera
 } from 'lucide-react';
 
 const SidebarLink = ({ to, icon: Icon, children }) => (
@@ -46,11 +49,42 @@ const SidebarLink = ({ to, icon: Icon, children }) => (
     </NavLink>
 );
 
+const SidebarCollapsible = ({ icon: Icon, label, subItems }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    // Auto-open if a child is active (using current path could be tricky inside simple component without useLocation, so we just toggle manually for now)
+
+    return (
+        <div className="flex flex-col">
+            <button
+                onClick={() => setIsOpen(!isOpen)}
+                className="flex items-center justify-between px-3 py-2.5 transition-all duration-100 border-2 border-transparent text-black hover:border-black hover:bg-neo-cream hover:shadow-[2px_2px_0px_0px_#000] font-bold w-full"
+            >
+                <div className="flex items-center space-x-3">
+                    <Icon size={16} strokeWidth={2} />
+                    <span className="text-[12px] uppercase tracking-wide leading-none">{label}</span>
+                </div>
+                <ChevronDown size={14} className={`transform transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+            </button>
+            {isOpen && (
+                <div className="flex flex-col ml-6 mt-1 space-y-0.5 border-l-2 border-black/10 pl-2">
+                    {subItems.map((sub) => (
+                        <SidebarLink key={sub.to + sub.label} to={sub.to} icon={sub.icon}>
+                            {sub.label}
+                        </SidebarLink>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+};
+
 export default function DashboardLayout() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [role, setRole] = useState(localStorage.getItem('userRole') || 'admin');
     const [userName, setUserName] = useState(localStorage.getItem('userName') || '');
     const [userClass, setUserClass] = useState(localStorage.getItem('userClass') || '');
+    const [userId, setUserId] = useState(localStorage.getItem('userId') || '');
+    const [userPhoto, setUserPhoto] = useState(null);
     const [schoolName, setSchoolName] = useState('SIM SMK HAFIDZ');
     const navigate = useNavigate();
 
@@ -58,6 +92,7 @@ export default function DashboardLayout() {
         const storedRole = localStorage.getItem('userRole');
         const storedName = localStorage.getItem('userName');
         const storedClass = localStorage.getItem('userClass');
+        const storedId = localStorage.getItem('userId');
 
         if (!storedRole) {
             navigate('/login');
@@ -67,6 +102,11 @@ export default function DashboardLayout() {
         setRole(storedRole);
         if (storedName) setUserName(storedName);
         if (storedClass) setUserClass(storedClass);
+        if (storedId) {
+            setUserId(storedId);
+            const savedPhoto = localStorage.getItem(`userPhoto_${storedId}`);
+            if (savedPhoto) setUserPhoto(savedPhoto);
+        }
 
         fetchSchoolName();
     }, [navigate]);
@@ -133,8 +173,8 @@ export default function DashboardLayout() {
                     { to: '/teacher/schedule', icon: Calendar, label: 'Jadwal Mengajar' },
                     { to: '/teacher/grades', icon: BookOpen, label: 'Input Nilai' },
                     { to: '/teacher/attendance', icon: Users, label: 'Absensi Siswa' },
-                    { to: '/teacher/journals', icon: FileText, label: 'Jurnal Mengajar' },
-                    { to: '/teacher/assignments', icon: ClipboardList, label: 'Tugas & Penilaian' }
+                    { to: '/teacher/journals', icon: FileText, label: 'Jurnal Mengajar' }
+                    // { to: '/teacher/assignments', icon: ClipboardList, label: 'Tugas & Penilaian' }
                 ]
             },
             {
@@ -153,13 +193,26 @@ export default function DashboardLayout() {
                 category: "Akademik", items: [
                     { to: '/student/schedule', icon: Calendar, label: 'Jadwal Pelajaran' },
                     { to: '/student/grades', icon: Award, label: 'Rapor & Nilai' },
-                    { to: '/student/attendance', icon: Users, label: 'Rekap Kehadiran' },
-                    { to: '/student/assignments', icon: ClipboardList, label: 'Tugas Saya' }
+                    { to: '/student/attendance', icon: Users, label: 'Rekap Kehadiran' }
+                    // { to: '/student/assignments', icon: ClipboardList, label: 'Tugas Saya' }
                 ]
             },
             {
                 category: "Informasi", items: [
                     { to: '/student/announcements', icon: Bell, label: 'Pengumuman' }
+                ]
+            },
+            {
+                category: "Pengaturan", items: [
+                    { 
+                        isCollapsible: true,
+                        icon: Settings, 
+                        label: 'Pengaturan Akun',
+                        subItems: [
+                            { to: '/profile', icon: User, label: 'Profil & Foto' },
+                            { to: '/change-password', icon: Key, label: 'Ganti Password' }
+                        ]
+                    }
                 ]
             }
         ],
@@ -173,8 +226,8 @@ export default function DashboardLayout() {
                 category: "Akademik", items: [
                     { to: '/student/schedule', icon: Calendar, label: 'Jadwal Anak' },
                     { to: '/student/grades', icon: Award, label: 'Rapor & Nilai' },
-                    { to: '/student/attendance', icon: Users, label: 'Rekap Kehadiran' },
-                    { to: '/student/assignments', icon: ClipboardList, label: 'Tugas Anak' }
+                    { to: '/student/attendance', icon: Users, label: 'Rekap Kehadiran' }
+                    // { to: '/student/assignments', icon: ClipboardList, label: 'Tugas Anak' }
                 ]
             }
         ]
@@ -240,9 +293,13 @@ export default function DashboardLayout() {
                             </h3>
                             <div className="space-y-0.5">
                                 {group.items.map((item) => (
-                                    <SidebarLink key={item.to + item.label} to={item.to} icon={item.icon}>
-                                        {item.label}
-                                    </SidebarLink>
+                                    item.isCollapsible ? (
+                                        <SidebarCollapsible key={item.label} icon={item.icon} label={item.label} subItems={item.subItems} />
+                                    ) : (
+                                        <SidebarLink key={item.to + item.label} to={item.to} icon={item.icon}>
+                                            {item.label}
+                                        </SidebarLink>
+                                    )
                                 ))}
                             </div>
                         </div>
@@ -290,8 +347,12 @@ export default function DashboardLayout() {
                                 {role}{(role === 'siswa' && userClass) ? ` • ${userClass}` : ''}
                             </p>
                         </div>
-                        <div className={`w-10 h-10 border-4 border-black ${roleColors[role] || 'bg-neo-muted'} shadow-[3px_3px_0px_0px_#000] flex items-center justify-center font-black text-black text-lg uppercase`}>
-                            {(userName || role)[0].toUpperCase()}
+                        <div className={`w-10 h-10 border-4 border-black ${roleColors[role] || 'bg-neo-muted'} shadow-[3px_3px_0px_0px_#000] flex items-center justify-center font-black text-black text-lg uppercase overflow-hidden`}>
+                            {userPhoto ? (
+                                <img src={userPhoto} alt="User Avatar" className="w-full h-full object-cover" />
+                            ) : (
+                                (userName || role)[0].toUpperCase()
+                            )}
                         </div>
                     </div>
                 </header>

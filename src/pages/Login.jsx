@@ -60,7 +60,13 @@ export default function Login() {
                 .maybeSingle();
 
             if (!guruErr && guru) {
-                if (pass === 'guru123' || pass === id || (guru.email && pass === guru.email.split('@')[0])) {
+                const { data: pwdData } = await supabase.from('settings').select('value').eq('key', `pwd_${guru.id}`).maybeSingle();
+                const customPwd = pwdData?.value;
+                const isValid = customPwd 
+                    ? pass === customPwd 
+                    : (pass === 'guru123' || pass === id || (guru.email && pass === guru.email.split('@')[0]));
+
+                if (isValid) {
                     localStorage.setItem('userRole', 'guru');
                     localStorage.setItem('userName', guru.name);
                     localStorage.setItem('userId', guru.id);
@@ -81,8 +87,12 @@ export default function Login() {
                 .maybeSingle();
 
             if (!stdErr && student) {
+                const { data: pwdData } = await supabase.from('settings').select('value').eq('key', `pwd_${student.id}`).maybeSingle();
+                const customPwd = pwdData?.value;
+
                 if (isParent) {
-                    if (pass === 'parent123' || pass === 'siswa123' || pass === cleanNis) {
+                    const isValid = customPwd ? pass === customPwd : (pass === 'parent123' || pass === 'siswa123' || pass === cleanNis);
+                    if (isValid) {
                         localStorage.setItem('userRole', 'parent');
                         localStorage.setItem('userName', 'Orang Tua ' + student.full_name);
                         localStorage.setItem('userId', student.id);
@@ -90,7 +100,8 @@ export default function Login() {
                         return;
                     }
                 } else {
-                    if (pass === 'siswa123' || pass === id) {
+                    const isValid = customPwd ? pass === customPwd : (pass === 'siswa123' || pass === id);
+                    if (isValid) {
                         localStorage.setItem('userRole', 'siswa');
                         localStorage.setItem('userName', student.full_name);
                         localStorage.setItem('userClass', student.classes?.name || '-');

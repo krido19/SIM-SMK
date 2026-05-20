@@ -25,6 +25,11 @@ export default function AttendanceEntry() {
     const [journalData, setJournalData] = useState({ subject: '', jam_ke: '', materi: '', catatan: '' });
     const [attendanceStats, setAttendanceStats] = useState({ s: 0, i: 0, a: 0 });
     const [isSaving, setIsSaving] = useState(false);
+    
+    // Time Restriction State
+    const [teacherSchedules, setTeacherSchedules] = useState([]);
+    const [isSaveAllowed, setIsSaveAllowed] = useState(false);
+    const [activeScheduleMsg, setActiveScheduleMsg] = useState('');
 
     useEffect(() => {
         const fetchClasses = async () => {
@@ -39,17 +44,19 @@ export default function AttendanceEntry() {
                 if (userId) {
                     const { data: s1 } = await supabase
                         .from('schedules')
-                        .select('class_id, class_name')
+                        .select('*')
                         .eq('teacher_id', userId);
                     if (s1) schedules.push(...s1);
                 }
                 if (userName) {
                     const { data: s2 } = await supabase
                         .from('schedules')
-                        .select('class_id, class_name')
+                        .select('*')
                         .eq('teacher_name', userName);
                     if (s2) schedules.push(...s2);
                 }
+                
+                setTeacherSchedules(schedules);
 
                 // Deduplicate classes
                 const classMap = {};
@@ -110,6 +117,79 @@ export default function AttendanceEntry() {
         }
         setIsLoading(false);
     };
+
+    useEffect(() => {
+        // Evaluate if saving is allowed
+        const role = localStorage.getItem('userRole');
+        if (role !== 'guru') {
+            setIsSaveAllowed(true); // admin can always save
+            return;
+        }
+
+        const todayDate = new Date().toISOString().split('T')[0];
+        if (selectedDate !== todayDate) {
+            setIsSaveAllowed(false);
+            setActiveScheduleMsg('Absensi hanya dapat diisi untuk hari ini.');
+            return;
+        }
+
+        const Days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+        const todayName = Days[new Date().getDay()];
+        const now = new Date();
+        const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:00`;
+
+        const activeClassSchedules = teacherSchedules.filter(s => s.class_id === selectedClassId && s.day === todayName);
+        
+        if (activeClassSchedules.length === 0) {
+            setIsSaveAllowed(false);
+            setActiveScheduleMsg('Tidak ada jadwal mengajar untuk kelas ini hari ini.');
+            return;
+        }
+
+        // Check if current time is within any schedule for this class + 15 mins buffer
+        const isActive = activeClassSchedules.some(s => {
+            const startTime = s.start_time;
+            if (!startTime || !s.end_time) return false;
+            
+            const [endH, endM, endS] = s.end_time.split(':').map(Number);
+            const endObj = new Date();
+            endObj.setHours(endH, endM, endS || 0);
+            endObj.setMinutes(endObj.getMinutes() + 15);
+            
+            const bufferedEndTime = `${endObj.getHours().toString().padStart(2, '0')}:${endObj.getMinutes().toString().padStart(2, '0')}:00`;
+            
+            return currentTime >= startTime && currentTime <= bufferedEndTime;
+        });
+
+        if (isActive) {
+            setIsSaveAllowed(true);
+            setActiveScheduleMsg('');
+            // Pre-fill journal data if active schedule is found
+            const currentActive = activeClassSchedules.find(s => {
+                const startTime = s.start_time;
+                if (!startTime || !s.end_time) return false;
+                const [endH, endM, endS] = s.end_time.split(':').map(Number);
+                const endObj = new Date();
+                endObj.setHours(endH, endM, endS || 0);
+                endObj.setMinutes(endObj.getMinutes() + 15);
+                const bufferedEndTime = `${endObj.getHours().toString().padStart(2, '0')}:${endObj.getMinutes().toString().padStart(2, '0')}:00`;
+                return currentTime >= startTime && currentTime <= bufferedEndTime;
+            });
+            if (currentActive) {
+                setJournalData(prev => ({ ...prev, subject: currentActive.subject_name || prev.subject, jam_ke: currentActive.jam_ke?.toString() || prev.jam_ke }));
+            }
+        } else {
+            setIsSaveAllowed(false);
+            setActiveScheduleMsg('Hanya dapat diisi saat jadwal mengajar aktif (+15 menit).');
+        }
+
+        // Auto-refresh this check every minute if they stay on the page
+        const interval = setInterval(() => {
+            // Force re-trigger of effect if needed, but simplest is relying on manual refresh or component remount
+        }, 60000);
+        return () => clearInterval(interval);
+
+    }, [selectedClassId, selectedDate, teacherSchedules]);
 
     const handleSave = () => {
         if (attendance.length === 0) {
@@ -224,13 +304,25 @@ export default function AttendanceEntry() {
                             {attendance.filter(a => a.status === 'Hadir').length} <span className="text-sm font-bold text-gray-400">/ {attendance.length}</span>
                         </p>
                     </div>
-                    <button
-                        onClick={handleSave}
-                        className="w-full sm:w-auto flex items-center justify-center space-x-3 bg-blue-600 text-white hover:bg-blue-700 px-8 py-3.5 rounded-xl font-sans text-xs font-bold uppercase tracking-widest transition-all shadow-lg shadow-blue-600/20 active:scale-95 disabled:opacity-50 disabled:active:scale-100"
-                    >
-                        <Save size={18} strokeWidth={2.5} />
-                        <span>Simpan Absensi</span>
-                    </button>
+                    <div className="flex flex-col w-full sm:w-auto">
+                        <button
+                            onClick={handleSave}
+                            disabled={!isSaveAllowed || isLoading}
+                            className={`w-full sm:w-auto flex items-center justify-center space-x-3 px-8 py-3.5 rounded-xl font-sans text-xs font-bold uppercase tracking-widest transition-all ${
+                                isSaveAllowed
+                                ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg shadow-blue-600/20 active:scale-95'
+                                : 'bg-gray-200 text-gray-400 cursor-not-allowed opacity-70'
+                            }`}
+                        >
+                            <Save size={18} strokeWidth={2.5} />
+                            <span>Simpan Absensi</span>
+                        </button>
+                        {!isSaveAllowed && activeScheduleMsg && (
+                            <p className="text-[10px] text-rose-500 font-bold uppercase tracking-wider text-center mt-2 w-full max-w-[200px] leading-tight">
+                                {activeScheduleMsg}
+                            </p>
+                        )}
+                    </div>
                 </div>
             </div>
 
