@@ -86,6 +86,7 @@ export default function DashboardLayout() {
     const [userId, setUserId] = useState(localStorage.getItem('userId') || '');
     const [userPhoto, setUserPhoto] = useState(null);
     const [schoolName, setSchoolName] = useState('SIM SMK HAFIDZ');
+    const [schoolLogo, setSchoolLogo] = useState('');
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -119,7 +120,9 @@ export default function DashboardLayout() {
 
         if (data) {
             const name = data.find(s => s.key === 'school_name')?.value;
+            const logo = data.find(s => s.key === 'school_logo')?.value;
             if (name) setSchoolName(name);
+            if (logo) setSchoolLogo(logo);
         }
     };
 
@@ -276,8 +279,12 @@ export default function DashboardLayout() {
                 <div className="p-4 border-b-4 border-black">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                            <div className="w-9 h-9 bg-neo-accent border-2 border-black shadow-[2px_2px_0px_0px_#000] flex items-center justify-center shrink-0">
-                                <Zap size={18} strokeWidth={3} className="text-black" />
+                            <div className="w-9 h-9 flex items-center justify-center shrink-0 overflow-hidden">
+                                {schoolLogo ? (
+                                    <img src={schoolLogo} alt="Logo Sekolah" className="w-full h-full object-contain" />
+                                ) : (
+                                    <Zap size={18} strokeWidth={3} className="text-black" />
+                                )}
                             </div>
                             <div className="min-w-0">
                                 <p className="text-[11px] font-black uppercase tracking-widest leading-none text-black truncate">
