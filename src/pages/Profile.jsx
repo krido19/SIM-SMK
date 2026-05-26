@@ -150,7 +150,7 @@ export default function Profile() {
                             <input 
                                 type="file" 
                                 ref={fileInputRef} 
-                                className="hidden" 
+                                className="sr-only" 
                                 accept="image/*" 
                                 onChange={handlePhotoChange} 
                             />

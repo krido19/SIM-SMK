@@ -289,7 +289,7 @@ export default function Announcements() {
                                     </button>
                                 </div>
                             ) : (
-                                <label className="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-gray-400 bg-gray-50 hover:bg-paper hover:border-ink transition-all cursor-pointer">
+                                <label htmlFor="announcement-image" className="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-gray-400 bg-gray-50 hover:bg-paper hover:border-ink transition-all cursor-pointer">
                                     <div className="flex flex-col items-center justify-center pt-5 pb-6">
                                         <div className="p-3 border-2 border-ink mb-3">
                                             {isUploading ? <Loader2 className="animate-spin text-ink" size={20} /> : <ImageIcon className="text-ink" size={20} />}
@@ -298,7 +298,7 @@ export default function Announcements() {
                                             {isUploading ? 'MENGUNGGAH...' : 'KLIK UNTUK UNGGAH FOTO'}
                                         </p>
                                     </div>
-                                    <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} disabled={isUploading} />
+                                    <input id="announcement-image" type="file" className="sr-only" accept="image/*" onChange={handleImageUpload} disabled={isUploading} />
                                 </label>
                             )}
                         </div>

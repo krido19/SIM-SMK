@@ -151,7 +151,7 @@ export default function GeneralSettings() {
                                         </button>
                                     </div>
                                 ) : (
-                                    <label className="flex flex-col items-center justify-center h-40 w-40 border-2 border-dashed border-ink bg-gray-50 hover:bg-paper hover:shadow-[4px_4px_0px_0px_#111111] transition-all cursor-pointer group mx-auto">
+                                    <label htmlFor="logo-upload" className="flex flex-col items-center justify-center h-40 w-40 border-2 border-dashed border-ink bg-gray-50 hover:bg-paper hover:shadow-[4px_4px_0px_0px_#111111] transition-all cursor-pointer group mx-auto">
                                         <div className="flex flex-col items-center justify-center">
                                             <div className="p-3 bg-paper border-2 border-ink shadow-[2px_2px_0px_0px_#111111] mb-3 group-hover:scale-110 transition-transform">
                                                 {isUploading ? <Loader2 className="animate-spin text-ink" size={20} /> : <Settings className="text-ink" size={20} />}
@@ -160,7 +160,7 @@ export default function GeneralSettings() {
                                                 {isUploading ? 'PROSES...' : 'UNGGAH LOGO'}
                                             </p>
                                         </div>
-                                        <input type="file" className="hidden" accept="image/*" onChange={handleLogoUpload} disabled={isUploading} />
+                                        <input id="logo-upload" type="file" className="sr-only" accept="image/*" onChange={handleLogoUpload} disabled={isUploading} />
                                     </label>
                                 )}
                             </div>
